@@ -19,42 +19,21 @@ BlocketRobot class >> init [
 	MonthMap at: 'jul' put: 7.
 	MonthMap at: 'aug' put: 8.
 	MonthMap at: 'sept' put: 9.
-	MonthMap at: 'okt' put: 10.
+	MonthMap at:  'okt' put: 10.
 	MonthMap at: 'nov' put: 11.
-	MonthMap at: 'dec' put: 12
-]
-
-{ #category : #'as yet unclassified' }
-BlocketRobot >> checkIfItemExists: aBlocketItem [
-	| main |
-	[ self newGet: aBlocketItem url ]
-		on: Error
-		do: [ :e | 
-			self halt.
-			self traceCr: 'checkIfItemExist:Error'
-			e signal ].
-	self checkOk.
-	self parseBody.
-	(dom innerContents includesSubstring: 'Hittade inte annonsen')
-		ifTrue: [ ^ false ].
-	main := dom tagWithClass: 'view'.
-	main ifNil: [ ^ false ].
-	^ true
+	MonthMap at: 'dec' put: 12 .
 ]
 
 { #category : #'as yet unclassified' }
 BlocketRobot >> getItemFromUrl: url [
 	| main |
-	[ self newGet: url ]
-		on: Error
-		do: [ :e | ^ nil ].
-	self checkOk.	"Parse page"
+	[self newGet: url] on: Error do: [:e| ^nil].
+	self checkOk.
+	"Parse page"
 	self parseBody.
-	(dom innerContents includesSubstring: 'Hittade inte annonsen')
-		ifTrue: [ ^ #notFound ].
+
 	main := dom tagWithClass: 'view'.
-	main ifNil: [ ^ nil ].
-	^ self parseItem: main
+	^self parseItem: main.
 ]
 
 { #category : #'as yet unclassified' }
@@ -102,11 +81,11 @@ BlocketRobot >> getTest [
 
 { #category : #'as yet unclassified' }
 BlocketRobot >> parseArea: html [
-	| pull area |
-	pull := html tagWithClass:'pull-left'.
-	area := pull children last innerContents.
-	area := area copyReplaceAll: ',&nbsp;' with: ''.
-	^ area
+		| |
+		^html children first innerContents withBlanksTrimmed
+"		tag := html tagWithClass: 'list_price'.
+		(tag = 'a')  ifTrue: [tag := tag children first].
+		^tag children first innerContents withBlanksTrimmed"
 ]
 
 { #category : #'as yet unclassified' }
@@ -131,7 +110,7 @@ BlocketRobot >> parseDesc: html [
 		html children do: [:i|
 			(i tag = 'br') ifTrue:[ txt := txt, '
 '].
-			i isCDATA ifTrue: [txt := txt, i  innerContents trimmed].
+			i isCDATA ifTrue: [txt := txt, i  innerContents withBlanksTrimmed].
 		].
 		"first innerContents withBlanksTrimmed."
 "		tag := html tagWithClass: 'list_price'.
@@ -142,55 +121,81 @@ BlocketRobot >> parseDesc: html [
 
 { #category : #'as yet unclassified' }
 BlocketRobot >> parseItem: html [
-	| flds t details mediaCont  images |
+	| flds t details mediaCont thumbs images |
 	flds := Dictionary new.
-	t := (html tagOfClass: HtmlH1Node) innerContents trimmed.
+	t := (html tagOfClass: HtmlH2Node) innerContents withBlanksTrimmed.
 	flds at: #title put: t.
-	t := self parseDesc: (html tagWithClass: 'body').
+
+"	t := (html tagWithClass: 'body') children first innerContents withBlanksTrimmed."
+	t:= self parseDesc:  (html tagWithClass: 'body').
 	flds at: #desc put: t.
-	details := html tagWithId: 'price_container'.
-			t := (details tagWithId: 'vi_price') innerContents trimmed.
+	
+	details := html tagWithClass: 'details'.
+	(details tagWithClass: 'red_text') notNil ifTrue: [
+			t := (details tagWithClass: 'red_text')  innerContents withBlanksTrimmed.
 			flds at: #price put: t.
-			t := (details tagWithClass: 'text_secondary') .
-t ifNotNil:[			flds at: #oldPrice put: t innerContents trimmed].
+			t := (details tagWithClass: 'line_through')  innerContents withBlanksTrimmed.
+			flds at: #oldPrice put: t.
+		].
+	
 	images := OrderedCollection new.
-	mediaCont := html tagWithClass: 'carousel-inner'.
-"	thumbs := mediaCont tagWithId: 'thumbs'."
-	mediaCont children do: [ :li | images add: (li children first  attributes at: 'data-src') ].
-	flds at: #images put: images.	"	
+	mediaCont := html tagWithClass: 'media_container'.
+	thumbs := mediaCont tagWithId: 'thumbs'.
+	thumbs children do: [:li| images add: ((li children first children first) attributes at: #src)].
+	flds at: #images put: images.
+"	
 		dt := html tagWithClass: 'date_image'.
-		r date: ( (dt children at: 1) innerContents trimmed).
-		r time: ( (dt children at: 2) innerContents trimmed).
+		r date: ( (dt children at: 1) innerContents withBlanksTrimmed).
+		r time: ( (dt children at: 2) innerContents withBlanksTrimmed).
 		
 		cat := title tagWithClass: 'cat_geo'.
-		r category: ( ((cat tagsOfClass: HtmlANode) first) innerContents trimmed).
-		r area: (self parseArea: cat)."	"		r inspect."	"self halt."
-	^ flds
+		r category: ( ((cat tagsOfClass: HtmlANode) first) innerContents withBlanksTrimmed).
+		r area: (self parseArea: cat)."
+
+"		r inspect."
+		"self halt."
+	^flds
+	
+	
 ]
 
 { #category : #'as yet unclassified' }
 BlocketRobot >> parseRows: fullHtml [
-	| r rows title cat dt imgCont mediaBody |
+	| r rows title cat dt imgCont |
 	rows := OrderedCollection new.
-	fullHtml
-		do: [ :html | 
-			r := BlocketItem new html: html.
-			r id: (html attributes at: 'id').
-			mediaBody := html children second.
-			dt := mediaBody children first children second attributes at: #datetime.
-			r dateTime: dt asDateAndTime.
-			imgCont := html tagWithClass: 'image_container'.
-			r thumb: (imgCont tagWithClass: 'item_image').
-			title := mediaBody tagWithClass: 'item_link'.
-			r title: title innerContents trimmed.
-			r priceCut: (mediaBody tagWithClass: 'blocket-icon-price-lowered') notNil.
-			r priceCut
-				ifTrue: [ r price: (mediaBody tagWithClass: 'list_price') children first innerContents trimmed ]
-				ifFalse: [ r price: (mediaBody tagWithClass: 'list_price') innerContents trimmed ].
-			r url: title href.
-			cat := mediaBody children first children first children first.
-			r category: cat innerContents trimmed.
-			r area: (self parseArea: mediaBody).
-			rows add: r ].	
-	^ rows
+	fullHtml do: [ :html |
+		r := BlockItem new html: html.
+		
+		r id: (html attributes at: 'id') .
+		
+		dt := html tagWithClass: 'date_image'.
+		r date: (self parseDate: ( (dt children at: 1) innerContents withBlanksTrimmed)).
+		r time: ( (dt children at: 2) innerContents withBlanksTrimmed).
+		
+		imgCont := html tagWithClass: 'image_container'.
+		r thumb: ( (imgCont tagWithClass: 'ad_image')  ).
+		
+		title := html children at: 3.
+		r title: ( (title children at: 1) innerContents withBlanksTrimmed).
+		r priceCut: ( (title tagWithClass: 'sprite_list_icon_price_arrow') notNil ).
+		r priceCut 
+			ifTrue: [r price: ( (title tagWithClass: 'list_price') children first  innerContents withBlanksTrimmed).]
+			ifFalse:[r price: ( (title tagWithClass: 'list_price') innerContents withBlanksTrimmed).].
+
+		r url: ( (title children at: 1) href).
+	
+		cat := title tagWithClass: 'cat_geo'.
+		r category: ( ((cat tagsOfClass: HtmlANode) first) innerContents withBlanksTrimmed).
+		r area: (self parseArea: cat).
+
+"		r inspect."
+		"self halt."
+		
+		rows add: r.
+	].
+"rows first inspect."
+"self halt."
+	^rows
+	
+	
 ]

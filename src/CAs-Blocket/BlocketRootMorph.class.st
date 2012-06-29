@@ -4,7 +4,7 @@ Class {
 	#instVars : [
 		'pageHolder'
 	],
-	#category : #'CAs-Blocket-Morph'
+	#category : #'CAs-Blocket'
 }
 
 { #category : #'as yet unclassified' }

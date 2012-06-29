@@ -23,7 +23,7 @@ BlocketManager class >> test [
 
 { #category : #'as yet unclassified' }
 BlocketManager class >> test2 [
-"	^Current := self new test2"
+	^Current := self new test2
 ]
 
 { #category : #'as yet unclassified' }
@@ -34,12 +34,12 @@ BlocketManager >> addProject: aProject [
 
 { #category : #'as yet unclassified' }
 BlocketManager >> initialize [
-	projects := SortedCollection new
+	projects := OrderedCollection new
 ]
 
 { #category : #'as yet unclassified' }
 BlocketManager >> projects [
-	projects ifNil: [projects := SortedCollection new].
+	projects ifNil: [projects := OrderedCollection new].
 	^projects
 ]
 

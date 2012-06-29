@@ -14,7 +14,7 @@ Class {
 		'oldPrice',
 		'imageMorphs'
 	],
-	#category : #'CAs-Blocket-Morph'
+	#category : #'CAs-Blocket'
 }
 
 { #category : #'instance creation' }

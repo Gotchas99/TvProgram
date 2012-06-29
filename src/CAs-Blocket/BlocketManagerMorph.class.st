@@ -6,7 +6,7 @@ Class {
 		'listIndex',
 		'model'
 	],
-	#category : #'CAs-Blocket-Morph'
+	#category : #'CAs-Blocket'
 }
 
 { #category : #'as yet unclassified' }
@@ -29,7 +29,7 @@ menu: #listMenu:. "This is how the morph requests a menu for the list"
 lst doubleClickSelector: #dblClick.
 lst color: Color white.
 	lst extent: 240@330.
-	self addMorphBack: lst.
+	pageHolder addMorphBack: lst.
 	
 "	bb := SimpleButtonMorph new target: self; borderColor: Color black.
 	pageHolder addMorphBack: (self wrapperFor: (bb label: 'refresh' 
