@@ -146,9 +146,9 @@ XMLRPCProxy >> processFault: xmlFault [
 { #category : #private }
 XMLRPCProxy >> processResponse: xmlStream [ 
 	"Process the results."
-	| xmldoc methodResponse fault parameters   |
+	| xmldoc methodResponse fault parameters content  |
 	
-	xmldoc := XMLDOMParser parse: xmlStream.
+	xmldoc := XMLDOMParser parseDocumentFrom: xmlStream.
 	
 	methodResponse := xmldoc elementAt: 'methodResponse'. 
 	
@@ -180,17 +180,9 @@ XMLRPCProxy >> processResponse: xmlStream [
 { #category : #private }
 XMLRPCProxy >> sendXmlRpc: data [ 
 	"Send the XML-RPC data and get the response. Return the raw XML."
-	| res |
+	| s req res xml |
 	
-		res := ZnClient new
-		url: url;
-		entity: (ZnStringEntity xml: data);
-		beOneShot;
-		setAcceptEncodingGzip;
-		post;
-		response.
-		
-"	res := ZnEasy post: url data: (ZnStringEntity xml: data)."
+	res := ZnEasy post: url data: (ZnStringEntity xml: data).
 	
 	"Make sure the result was valid."
 	(res isSuccess and: [ res contentType sub = 'xml' ]) ifFalse: [ self error: ' ', res statusLine asString ].
