@@ -41,10 +41,11 @@ WRHttpRobot >> get: anURL [
 ]
 
 { #category : #'as yet unclassified' }
-WRHttpRobot >> newGet: anURL [
+WRHttpRobot >> newGet: anURL [ 
 	self newRequest.
 	request url: anURL.
-	request get
+	request get.
+"	request waitOnReady"
 ]
 
 { #category : #'as yet unclassified' }
@@ -60,12 +61,16 @@ WRHttpRobot >> newGetWithState: anURL [
 
 { #category : #'as yet unclassified' }
 WRHttpRobot >> newRequest [
+
+"	request := SptHTTPRequest new.
+	state := request state."
 	request := ZnClient new
 		timeout: 10;
 		numberOfRetries: 3;
-		retryDelay: 2.
-	request beOneShot.
-	^ request
+		retryDelay: 2;
+		beOneShot.
+	
+		^request
 ]
 
 { #category : #'as yet unclassified' }
@@ -82,7 +87,5 @@ WRHttpRobot >> newRequestWithState [
 
 { #category : #'as yet unclassified' }
 WRHttpRobot >> parseBody [
-	dom := (HtmlValidator on: request response contents)
-		loader: WRDummyLoader new;
-		dom
+	dom := (HtmlValidator on: request response contents) loader: WRDummyLoader new; dom 
 ]
