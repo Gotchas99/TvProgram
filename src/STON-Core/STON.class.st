@@ -100,11 +100,6 @@ Class {
 	#category : #'STON-Core'
 }
 
-{ #category : #accessing }
-STON class >> classNameKey [
-	^ #className
-]
-
 { #category : #convencience }
 STON class >> fromStream: readStream [
 	^ (self reader on: readStream) next
