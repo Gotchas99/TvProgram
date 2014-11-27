@@ -13,6 +13,7 @@ Class {
 		'unresolvedReferences',
 		'stringStream',
 		'allowComplexMapKeys',
+		'acceptUnknownClasses',
 		'stack'
 	],
 	#category : #'STON-Core'
@@ -23,6 +24,11 @@ STONReader class >> on: readStream [
 	^ self new
 		on: readStream;
 		yourself
+]
+
+{ #category : #'initialize-release' }
+STONReader >> acceptUnknownClasses: boolean [
+	acceptUnknownClasses := boolean
 ]
 
 { #category : #'initialize-release' }
@@ -73,7 +79,7 @@ STONReader >> initialize [
 	super initialize.
 	objects := IdentityDictionary new.
 	classes := IdentityDictionary new.
-	allowComplexMapKeys := false.
+	allowComplexMapKeys := acceptUnknownClasses := false.
 	stack := Stack new.
 	unresolvedReferences := 0
 ]
@@ -93,6 +99,11 @@ STONReader >> isSimpleSymbolChar: char [
 	^ 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_./' includes: char
 ]
 
+{ #category : #testing }
+STONReader >> isValidPropertyNameType: associationKey [
+	^ allowComplexMapKeys or: [associationKey isString or: [ associationKey isNumber ] ]
+]
+
 { #category : #private }
 STONReader >> lookupClass: name [
 	Smalltalk globals 
@@ -102,8 +113,8 @@ STONReader >> lookupClass: name [
 		at: name 
 		ifAbsentPut: [
 			Object allSubclasses 
-				detect: [ :class | class stonName == name ] 
-				ifNone: [ self error: 'Cannot resolve class named ', name printString ] ]
+				detect: [ :class | class isMeta not and: [ class stonName == name ]  ]
+				ifNone: [ NotFound signalFor: name ] ]
 	
 ]
 
@@ -258,13 +269,11 @@ STONReader >> parseList [
 STONReader >> parseListDo: block [
 	| index |
 	self expectChar: $[.
-	(self matchChar: $]) 
-		ifTrue: [ ^ self ].
+	(self matchChar: $]) ifTrue: [ ^ self ]. "short cut for empty lists"
 	index := 1.
 	[ readStream atEnd ] whileFalse: [
 		block cull: self parseValue cull: index.
-		(self matchChar: $]) 
-			ifTrue: [ ^ self ].
+		(self matchChar: $]) ifTrue: [ ^ self ].
 		index := index + 1.
 		self expectChar: $, ].
 	self error: 'end of list expected'
@@ -292,17 +301,15 @@ STONReader >> parseMap [
 { #category : #parsing }
 STONReader >> parseMapDo: block [
 	self expectChar: ${.
-	(self matchChar: $})
-		ifTrue: [ ^ self ].
+	(self matchChar: $}) ifTrue: [ ^ self ]. "short cut for empty maps"
 	[ readStream atEnd ] whileFalse: [ | name value |
-		name := self parseValue.
-		(allowComplexMapKeys or: [ name isString or: [ name isNumber ] ])
+		name := self parseSimpleValue.
+		(self isValidPropertyNameType: name)
 			ifFalse: [ self error: 'unexpected property name type' ].
 		self expectChar: $:.
 		value := self parseValue.
 		block value: name value: value.
-		(self matchChar: $}) 
-			ifTrue: [ ^ self ].
+		(self matchChar: $}) ifTrue: [ ^ self ].
 		self expectChar: $, ].
 	self error: 'end of map expected'
 ]
@@ -358,10 +365,21 @@ STONReader >> parseNumberInteger [
 { #category : #parsing }
 STONReader >> parseObject [
 	| targetClass reference object |
-	targetClass := self parseClass.
-	reference := self newReference.
-	object := targetClass fromSton: self.
-	self setReference: reference to: object.
+	[
+		reference := self newReference.
+		targetClass := self parseClass.
+		object := targetClass fromSton: self .
+		self setReference: reference to: object ]
+		on: NotFound 
+		do: [ :notFound |
+			acceptUnknownClasses 
+				ifTrue: [ 
+					object := STON mapClass new.
+					self storeReference: object.
+					self parseMapDo: [ :key :value |
+						object at: key put: value ].
+					object at: STON classNameKey put: notFound object ]
+				ifFalse: [ self error: 'Cannot resolve class named ', notFound object printString ] ].
 	^ object
 ]
 
@@ -373,6 +391,28 @@ STONReader >> parseReference [
 	self consumeWhitespace.
 	unresolvedReferences := unresolvedReferences + 1.
 	^ STONReference index: index
+]
+
+{ #category : #parsing }
+STONReader >> parseSimpleValue [
+	| char |
+	readStream atEnd ifFalse: [ 
+		(self isClassStartChar: (char := readStream peek)) 
+			ifTrue: [ ^ self parseObject ].
+		char = ${
+			ifTrue: [ ^ self parseMap ].
+		char = $[
+			ifTrue: [ ^ self parseList ].
+		(char = $' or: [ char = $" ])
+			ifTrue: [ ^ self parseString ].
+		char = $#
+			ifTrue: [ ^ self parseSymbol ].
+		char = $@
+			ifTrue: [ ^ self parseReference ].
+		(char = $- or: [ char isDigit ])
+			ifTrue: [ ^ self parseNumber ].
+		self parseConstantDo: [ :value | ^ value ] ].
+	self error: 'invalid input'
 ]
 
 { #category : #'parsing-internal' }
@@ -411,24 +451,14 @@ STONReader >> parseSymbol [
 
 { #category : #parsing }
 STONReader >> parseValue [
-	| char |
-	readStream atEnd ifFalse: [ 
-		(self isClassStartChar: (char := readStream peek)) 
-			ifTrue: [ ^ self parseObject ].
-		char = ${
-			ifTrue: [ ^ self parseMap ].
-		char = $[
-			ifTrue: [ ^ self parseList ].
-		(char = $' or: [ char = $" ])
-			ifTrue: [ ^ self parseString ].
-		char = $#
-			ifTrue: [ ^ self parseSymbol ].
-		char = $@
-			ifTrue: [ ^ self parseReference ].
-		(char = $- or: [ char isDigit ])
-			ifTrue: [ ^ self parseNumber ].
-		self parseConstantDo: [ :value | ^ value ] ].
-	self error: 'invalid input'
+	| value |
+	value := self parseSimpleValue.
+	^ (self matchChar: $:)
+		ifTrue: [ 
+			(self isValidPropertyNameType: value)
+				ifFalse: [ self error: 'unexpected property name type' ].
+			Association key: value value: self parseValue ]
+		ifFalse: [ value ]
 ]
 
 { #category : #private }

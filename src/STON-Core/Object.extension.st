@@ -30,11 +30,25 @@ Object >> isStonReference [
 ]
 
 { #category : #'*ston-core' }
+Object class >> stonAllInstVarNames [
+	"Override to encode my instances using a custom set of instance variables or to define their order."
+	
+	^ self allInstVarNames 
+]
+
+{ #category : #'*ston-core' }
 Object >> stonContainSubObjects [
 	"Return true if I contain subObjects that should be processed, false otherwise.
 	Overwrite when necessary. See also #stonProcessSubObjects:"
 	
 	^ true
+]
+
+{ #category : #'*ston-core' }
+Object class >> stonName [
+	"Override to encode my instances using a different class name."
+	
+	^ self name
 ]
 
 { #category : #'*ston-core' }
