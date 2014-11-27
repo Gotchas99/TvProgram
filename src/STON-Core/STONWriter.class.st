@@ -281,6 +281,13 @@ STONWriter >> with: object do: block [
 ]
 
 { #category : #writing }
+STONWriter >> writeAssociation: association [
+	self 
+		encodeKey: association key
+		value: association value
+]
+
+{ #category : #writing }
 STONWriter >> writeBoolean: boolean [
 	writeStream print: boolean
 ]
@@ -317,7 +324,7 @@ STONWriter >> writeNull [
 { #category : #writing }
 STONWriter >> writeObject: anObject [
 	| instanceVariableNames |
-	(instanceVariableNames := anObject class allInstVarNames) isEmpty
+	(instanceVariableNames := anObject class stonAllInstVarNames) isEmpty
 		ifTrue: [ 
 			self writeObject: anObject do: [ self encodeMap: #() ] ]
 		ifFalse: [ 
