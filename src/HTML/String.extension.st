@@ -25,6 +25,16 @@ String >> splitOn: aString [
 
 ]
 
+{ #category : #'*ston-core' }
+String >> stonContainSubObjects [ 
+	^ false
+]
+
+{ #category : #'*ston-core' }
+String >> stonOn: stonWriter [
+	stonWriter writeString: self
+]
+
 { #category : #'*html' }
 String >> unquoted [
 
