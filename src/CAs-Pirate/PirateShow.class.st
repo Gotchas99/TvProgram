@@ -1,18 +1,14 @@
 Class {
 	#name : #PirateShow,
-	#superclass : #Object,
+	#superclass : #PostgresObject,
 	#instVars : [
 		'name',
 		'seasons',
 		'currentSeason',
 		'archived',
-		'should_download',
-		'in_production',
 		'tags',
 		'eztv',
-		'imdb',
-		'tmdb',
-		'kat'
+		'imdb'
 	],
 	#classVars : [
 		'Shows'
@@ -20,42 +16,19 @@ Class {
 	#category : #'CAs-Pirate'
 }
 
-{ #category : #accessing }
-PirateShow class >> allEpisodes [
-	| ep sh |
-	sh := self shows reject: [ :s | s archived ].
-	ep := sh collect: [ :s | s allEpisodes ].
-	^ ep flattened
-]
-
-{ #category : #accessing }
-PirateShow class >> allViewableEpisodes [
-	| ep |
-	ep := self allEpisodes select: [ :e | e isViewable ].
-	^ ep
-]
-
-{ #category : #accessing }
+{ #category : #'as yet unclassified' }
 PirateShow class >> at: aTitle [
 	^self shows detect: [ :s | s name = aTitle ]
 ]
 
-{ #category : #accessing }
-PirateShow class >> atImdb: anImdbId [
-	^ self shows detect: [ :s | s imdb  = anImdbId ]
-]
-
-{ #category : #'as yet unclassified' }
-PirateShow class >> checkInProduction [
-	| s tmdb delay |
-	delay := Delay forSeconds: 5.
-	self setTmdbId.
-	tmdb := TheMovieDb new.
-	s := PirateShow shows select: [ :sh | sh tmdb isNotNil ].
-	s
-		do: [ :sh | 
-			sh in_production: (tmdb isInProduction: sh tmdb).
-			delay wait ]
+{ #category : #files }
+PirateShow class >> fileName [
+	| folder fileName |
+	"OSPlatform isUnix ifTrue: [ folder := '/media/cm1store/' ].
+	OSPlatform isWin32 ifTrue: [ folder := 'O:\' ]."
+	folder := Config current torrentFolder.
+	fileName := folder, 	'TVshows'.
+	^fileName
 ]
 
 { #category : #'initialize-release' }
@@ -72,11 +45,6 @@ PirateShow class >> initializeStartupShutdown [
 
 ]
 
-{ #category : #actions }
-PirateShow class >> lookForAll [
-	PirateShow shows reject: [ :sh | sh archived or: (sh should_download not)  ] thenDo: [ :sh | sh lookForAll ]
-]
-
 { #category : #'as yet unclassified' }
 PirateShow class >> new [
 	| n |
@@ -88,11 +56,25 @@ PirateShow class >> new [
 { #category : #temporary }
 PirateShow class >> reSort [
 	self shows reSort.
-	self shows
-		do: [ :sh | 
-			sh seasons reSort.
-			sh seasons do: [ :seas | seas episodes reSort ] ].
-	^ self
+	^self
+]
+
+{ #category : #files }
+PirateShow class >> readFromFile [
+	Shows := FLMaterializer materializeFromFileNamed: (self fileName,'.fuel').
+	Transcript show: 'File read'; cr.
+
+]
+
+{ #category : #files }
+PirateShow class >> readFromFileSTON [
+	"	Shows := FLMaterializer materializeFromFileNamed: self fileName."
+
+	(self fileName , '.ston') asFileReference
+		readStreamDo: [ :stream | Shows := STON fromStream: stream ].
+	Transcript
+		show: 'File read from STON';
+		cr
 ]
 
 { #category : #'as yet unclassified' }
@@ -130,122 +112,68 @@ PirateShow class >> resetUplinks [
 ]
 
 { #category : #'as yet unclassified' }
-PirateShow class >> setEpisodesFromTmdb [
-	| s tmdb delay |
-	delay := Delay forSeconds: 5.
-	self setTmdbId.
-	tmdb := TheMovieDb new.
-	s := PirateShow shows select: [ :sh | sh tmdb isNotNil ].
-	s
-		do: [ :sh | 
-			sh setEpisodesFromTmdb.
-			delay wait ]
-]
-
-{ #category : #temporary }
-PirateShow class >> setFullId [
-	PirateShow shows do: [ :show | show seasons do: [ :seas | seas setFullId ] ].
-	PirateShow allEpisodes do: [ :each | each setFullId ]
-]
-
-{ #category : #temporary }
-PirateShow class >> setSortedCollections [
-	PirateShow shows do: [ :show | show setSortedCollection ]
-]
-
-{ #category : #'as yet unclassified' }
-PirateShow class >> setTmdbId [
-	| s tmdb i delay |
-	delay := Delay forSeconds: 5.
-	tmdb := TheMovieDb new.
-	s := PirateShow shows select: [ :sh | sh in_production ].
-	i := s select: [ :sh | sh imdb isNotNil ].
-	i := i select: [ :sh | sh tmdb isNil ].
-	i
-		do: [ :sh | 
-			sh tmdb: (tmdb getTmdbFromImdb: sh imdb).
-			delay wait ]
-]
-
-{ #category : #accessing }
 PirateShow class >> shows [
 	Shows isNil ifTrue: [Shows := SortedCollection new].
 	^Shows
 ]
 
-{ #category : #accessing }
-PirateShow class >> shows: aShowList [
-	Shows := aShowList
-]
-
-{ #category : #temporary }
+{ #category : #'as yet unclassified' }
 PirateShow class >> shutDown: quitting [
 	self deprecated: 'Moved to PirateApp'
 ]
 
-{ #category : #temporary }
-PirateShow class >> sort [
-	self shows sort.
-	self shows
-		do: [ :sh | 
-			sh seasons sort.
-			sh seasons do: [ :seas | seas episodes sort ] ].
-	^ self
+{ #category : #'as yet unclassified' }
+PirateShow class >> startUp: resuming [
+	self deprecated: 'Moved to PirateApp'
 ]
 
-{ #category : #temporary }
-PirateShow class >> startUp: resuming [
-	"This is only here to deal with migration from older versions 
-	that wanted to receive startup notifcations."
-	self environment
-		at: #SessionManager
-		ifPresent: [ :manager | manager default unregisterClassNamed: self name ]
-		ifAbsent: [ Smalltalk removeFromShutDownList: self name ]
+{ #category : #files }
+PirateShow class >> writeToFile [
+	FLSerializer serialize: self shows toFileNamed: self fileName,'.fuel'.
+	Transcript show: 'File written'; cr.
+	GrowlMorph openWithLabel: 'File written' contents: ''.
+]
+
+{ #category : #files }
+PirateShow class >> writeToFileBG [
+	[self writeToFile ] forkAt: Processor userBackgroundPriority .
+
+]
+
+{ #category : #files }
+PirateShow class >> writeToFileSTON [
+	"FLSerializer serialize: self shows toFileNamed: self fileName."
+	(self fileName , '.ston') asFileReference writeStreamDo: 
+		[ :stream | STON put: self shows onStream: stream ].
+	Transcript
+		show: 'File written to STON';
+		cr.
+	GrowlMorph openWithLabel: 'File written' contents: 'to STON'
 ]
 
 { #category : #comparing }
-PirateShow >> <= aPirateShow [
-	self species == aPirateShow species
-		ifTrue: [ ^ self sortName caseInsensitiveLessOrEqual: aPirateShow sortName ]
-		ifFalse: [ ^ false ]
+PirateShow >> <= aPirateShow [ 
+	^(self name) caseInsensitiveLessOrEqual: (aPirateShow name).
 ]
 
 { #category : #'as yet unclassified' }
 PirateShow >> addSeason [
-	| newSeasonId |
-	newSeasonId := self maxSeason + 1.
-	^ self addSeasonNo: newSeasonId
-]
-
-{ #category : #'as yet unclassified' }
-PirateShow >> addSeason: aSeason [
-	aSeason show: self.
-	(seasons isKindOf: SortedCollection)
-		ifFalse: [ seasons := seasons asSortedCollection ].
-	seasons addLast: aSeason.
-	seasons sort
-]
-
-{ #category : #'as yet unclassified' }
-PirateShow >> addSeasonNo: aSeasonNumber [
 	| newSeason |
-	aSeasonNumber isNumber ifTrue:[aSeasonNumber:=aSeasonNumber asTwoCharacterString].
 	newSeason := PirateSeason new.
-	newSeason id: aSeasonNumber.
+	newSeason id: (self maxSeason + 1) asTwoCharacterString.
 	self addSeason: newSeason.
 	^ newSeason
+]
+
+{ #category : #'as yet unclassified' }
+PirateShow >> addSeason: aSeason [ 
+	seasons add: aSeason.
+	aSeason show: self
 ]
 
 { #category : #accessing }
 PirateShow >> addTag: aString [
 	self tags addIfNotPresent: aString 
-]
-
-{ #category : #accessing }
-PirateShow >> allEpisodes [
-	| ep |
-	ep := seasons collect: [ :s | s episodes ].
-	^ ep flattened
 ]
 
 { #category : #accessing }
@@ -258,84 +186,44 @@ PirateShow >> archived: aBool [
 	archived:= aBool .
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 PirateShow >> currentSeason [
-	| next |
-	next := self nextEpisode.
-	next ifNil: [ ^ nil ].
-	^ next season
+	^currentSeason
 ]
 
-{ #category : #'submorphs-add/remove' }
+{ #category : #accessing }
+PirateShow >> currentSeason: aSeason [
+	currentSeason := aSeason
+]
+
+{ #category : #'as yet unclassified' }
 PirateShow >> delete [
-	"seasons do: [ :s | s delete ]"
-
-	[ seasons isEmpty ] whileFalse: [ seasons first delete ]
+	seasons do: [:s| s delete].
 ]
 
 { #category : #accessing }
-PirateShow >> displayName [
-	"Name adapted for displaying in a list"
-
-	^ self sortName
+PirateShow >> eztv [
+	^ eztv
 ]
 
 { #category : #accessing }
-PirateShow >> imdb [
-	^ imdb
-]
-
-{ #category : #accessing }
-PirateShow >> imdb: aString [
-	"can accept a full url, an id like tt2741602, 
-	or just the numeric part like 2741602 in the previous example"
-
-	aString isEmptyOrNil
-		ifTrue: [ ^ imdb := nil ].
-	(aString beginsWith: 'http')
-		ifTrue: [ imdb := aString asUrl segments at: 2 ].
-	(aString beginsWith: 'tt')
-		ifTrue: [ imdb := aString ].
-	aString isAllDigits
-		ifTrue: [ imdb := 'tt' , aString ].
-		[ self setNameFromTmdb .self setEpisodesFromTmdb .self setTagsFromTmdb  ]fork.
-]
-
-{ #category : #accessing }
-PirateShow >> in_production [
-	^ in_production ifNil: [ ^ true ]
-]
-
-{ #category : #accessing }
-PirateShow >> in_production: aBoolean [
-	in_production := aBoolean
+PirateShow >> eztv: anIdString [
+	eztv := anIdString 
 ]
 
 { #category : #'initialize-release' }
 PirateShow >> initialize [
 	super initialize.
-	seasons := SortedCollection new.
-]
-
-{ #category : #'as yet unclassified' }
-PirateShow >> lastSeen [
-	| seen |
-	seen := self allEpisodes select: [ :e | e isViewed ].
-	seen isEmpty
-		ifTrue: [ ^ nil ]
-		ifFalse: [ ^ seen last ]
+	seasons := OrderedCollection new.
 ]
 
 { #category : #'as yet unclassified' }
 PirateShow >> lookForAll [
-	| unseen first episodesToDownload |
-	episodesToDownload := Config current episodesAhead.
-	unseen := self allEpisodes reject: [ :e | e isViewed ]. 
-	first := unseen first: (episodesToDownload min: unseen size).
-	first do: [ :e | e lookForItIfNotFound ]
+	^ seasons
+		do: [:i | i lookForAll]
 ]
 
-{ #category : #accessing }
+{ #category : #'as yet unclassified' }
 PirateShow >> maxSeason [
 	"(Array with: '11' asInteger with: '12' asInteger )max ."
 	| ids |
@@ -348,15 +236,14 @@ PirateShow >> maxSeason [
 
 { #category : #accessing }
 PirateShow >> name [
-	name isNil
-		ifTrue: [ ^ '<undefined>' ].
-	^ name
+	name isNil ifTrue: [^'undefined'].
+	^name
 ]
 
 { #category : #accessing }
 PirateShow >> name: aByteString [ 
 	name := aByteString.
-	self class sort.
+	self class reSort.
 ]
 
 { #category : #'as yet unclassified' }
@@ -402,7 +289,6 @@ PirateShow >> nextEpisode [
 { #category : #'as yet unclassified' }
 PirateShow >> nextNeedsTorrent [
 	| model |
-	self should_download ifFalse: [ ^ nil ].
 	model := OrderedCollection new.
 	seasons do: [ :season | model addAll: (season episodes select: [ :e | e needsTorrent ]) ].
 	model isEmpty
@@ -411,111 +297,29 @@ PirateShow >> nextNeedsTorrent [
 ]
 
 { #category : #'as yet unclassified' }
-PirateShow >> nextToSee [
-	| notSeen |
-	notSeen := self allEpisodes reject: [ :each | each isViewed ].
-	notSeen isEmptyOrNil
-		ifTrue: [ ^ nil ]
-		ifFalse: [ ^notSeen first ]	"last := self lastSeen.
-	last ifNil: [ ^ self allEpisodes first ] ifNotNil: [ ^ self allEpisodes after: last ifAbsent: [ nil ] ]"
-]
-
-{ #category : #'as yet unclassified' }
 PirateShow >> notSeenCount [
 	| sum |
 	sum := 0.
-	seasons do: [ :s | sum := sum + s notSeen size ].
+	seasons
+		do: [:s | sum:=sum+(s notSeen size)
+				].
 	^ sum
 ]
 
-{ #category : #special }
+{ #category : #'as yet unclassified' }
 PirateShow >> printOn: aStream [ 
 	aStream nextPutAll: (self name contractTo: 45)
 ]
 
 { #category : #'as yet unclassified' }
-PirateShow >> removeSeason: aSeason [
-	seasons remove: aSeason.
-]
-
-{ #category : #special }
 PirateShow >> resetUplinks [
 	^ seasons
 		do: [:i | i resetUplinks: self]
 ]
 
-{ #category : #accessing }
+{ #category : #'as yet unclassified' }
 PirateShow >> seasons [
 	^seasons
-]
-
-{ #category : #'as yet unclassified' }
-PirateShow >> setEpisodesFromTmdb [
-	| dict s s_no season |
-	self tmdb
-		ifNil: [ 
-			self imdb ifNil: [ ^ self ].
-			self tmdb: (TheMovieDb new getTmdbFromImdb: self imdb) ].
-	dict := TheMovieDb new getEpisodes: self tmdb.
-	dict keys sorted
-		do: [ :key | 
-			s_no := key asTwoCharacterString.
-			s := seasons select: [ :each | each id = s_no ].
-			season := s at: 1 ifAbsent: [ self addSeasonNo: key ].
-			season addEpisodes: (dict at: key) ]
-]
-
-{ #category : #'as yet unclassified' }
-PirateShow >> setNameFromTmdb [
-	|tmp |
-	self tmdb
-		ifNil: [ self imdb ifNil: [ ^ self ].
-			self tmdb: (TheMovieDb new getTmdbFromImdb: self imdb) ].
-	tmp := TheMovieDb new getName: self tmdb.
-	self name: tmp
-	
-]
-
-{ #category : #special }
-PirateShow >> setSortedCollection [
-	seasons := seasons asSortedCollection.
-	^ seasons do: [ :i | i setSortedCollection ]
-]
-
-{ #category : #'as yet unclassified' }
-PirateShow >> setTagsFromTmdb [
-	| dict s s_no season |
-	self tmdb
-		ifNil: [ self imdb ifNil: [ ^ self ].
-			self tmdb: (TheMovieDb new getTmdbFromImdb: self imdb) ].
-	tags := TheMovieDb new getTags: self tmdb.
-
-]
-
-{ #category : #accessing }
-PirateShow >> should_download [
-	   ^ should_download ifNil: [ should_download := true ].
-]
-
-{ #category : #accessing }
-PirateShow >> should_download: aBool [
-	   should_download := aBool.
-]
-
-{ #category : #comparing }
-PirateShow >> sortName [
-	"Name adapted for sorting"
-
-	| prefix words tmp first |
-	prefix := #('A' 'An' 'The').
-	tmp := self name.
-	words := tmp findBetweenSubstrings: ' '.
-	first := words first.
-	prefix
-		do: [ :p | 
-			(p sameAs: first)
-				ifTrue: [ tmp := (words allButFirst joinUsing: ' ') , ', ' , p ] ].
-	^ tmp
 ]
 
 { #category : #accessing }
@@ -523,12 +327,8 @@ PirateShow >> tags [
 	^ tags ifNil: [ tags := SortedCollection new ]
 ]
 
-{ #category : #accessing }
-PirateShow >> tmdb [
-	^ tmdb
-]
-
-{ #category : #accessing }
-PirateShow >> tmdb: anObject [
-	tmdb := anObject
+{ #category : #'as yet unclassified' }
+PirateShow >> tpbString [
+	"tpb = The Pirate Bay"
+	^self name, '%20', (self nextEpisode)
 ]

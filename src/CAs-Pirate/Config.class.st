@@ -5,8 +5,7 @@ Class {
 		'host',
 		'port',
 		'torrentFolder',
-		'vlcFolder',
-		'episodesAhead'
+		'vlcFolder'
 	],
 	#classVars : [
 		'Current'
@@ -26,65 +25,53 @@ Config class >> new [
 	^super new initialize
 ]
 
-{ #category : #accessing }
-Config >> episodesAhead [
-	^ episodesAhead ifNil: [ episodesAhead := 10 ]
-]
-
-{ #category : #accessing }
+{ #category : #'as yet unclassified' }
 Config >> host [
 	^host
 ]
 
-{ #category : #initialization }
-Config >> initialize [
-	episodesAhead := 5.
+{ #category : #'as yet unclassified' }
+Config >> initialize [ 
 	host := 'localhost'.
 	port := 9091.
 	vlcFolder := 'C:\Program Files (x86)\VideoLAN\VLC\vlc.exe'.
-	torrentFolder := 'F:\Zetum\Downloads\Torrent\tv_program\'
+	torrentFolder := 'F:\Zetum\Downloads\Torrent\tv_program\'.
 ]
 
-{ #category : #initialization }
+{ #category : #'as yet unclassified' }
 Config >> initializeFromFile [
 	| stream if |
 	stream := FileStream readOnlyFileNamed: 'TVconfig.ini'.
 	if := INIFile readFrom: stream.
-	episodesAhead := (if section: #Global at: #EpisodesAhead ifAbsent: [ '10' ])asInteger .
 	host := if section: #Global at: #Host ifAbsent: [ 'localhost' ].
-	port := if section: #Global at: #Port ifAbsent: [ '9091' ].
-	vlcFolder := if
-		section: #Global
-		at: #VlcFolder
-		ifAbsent: [ 'C:\Program Files (x86)\VideoLAN\VLC\vlc.exe' ].
-	torrentFolder := if
-		section: #Global
-		at: #TorrentFolder
-		ifAbsent: [ 'F:\Zetum\Downloads\Torrent\tv_program\' ].
-	Transcript crShow: self asString , ' initializedFromFile'
+	port := if section: #Global at: #Port ifAbsent: [ 'l9091' ].
+	vlcFolder := if section: #Global at: #VlcFolder ifAbsent: [ 'C:\Program Files (x86)\VideoLAN\VLC\vlc.exe' ].
+	torrentFolder := if section: #Global at: #TorrentFolder ifAbsent: [ 'F:\Zetum\Downloads\Torrent\tv_program\' ].
+	Transcript crShow: self name , ' initializedFromFile' .
+
 ]
 
-{ #category : #accessing }
+{ #category : #'as yet unclassified' }
 Config >> port [
 	^port
 ]
 
-{ #category : #printing }
+{ #category : #'as yet unclassified' }
 Config >> printOn: aStream [
 	aStream
 		nextPutAll:
-			'a TV-config (', 'episodesAhead:',episodesAhead printString,  ' host:' , host , ' port:' , port , ' torrentFolder:' , torrentFolder
-				, ' vlcFolder:' , vlcFolder , ') '
+			'a TV-config (' , 'host:' , host , ' port:' , port , ' torrentFolder:' , torrentFolder , ' vlcFolder:' , vlcFolder
+				, ') '
 ]
 
-{ #category : #accessing }
+{ #category : #'as yet unclassified' }
 Config >> torrentFolder [
 	torrentFolder isNil 
 		ifTrue: [self initialize].
 	^ torrentFolder.
 ]
 
-{ #category : #accessing }
+{ #category : #'as yet unclassified' }
 Config >> vlcFolder [
 	^vlcFolder
 ]

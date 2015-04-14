@@ -1,6 +1,6 @@
 Class {
 	#name : #PirateManagerMorph,
-	#superclass : #PirateRootMorph,
+	#superclass : #BlocketRootMorph,
 	#instVars : [
 		'list',
 		'listIndex',
@@ -8,8 +8,7 @@ Class {
 		'listIndex2',
 		'model2',
 		'model3',
-		'listIndex3',
-		'playingEp'
+		'listIndex3'
 	],
 	#category : #'CAs-Pirate-Gui'
 }
@@ -35,18 +34,17 @@ PirateManagerMorph >> addControls [
 	lst extent: listboxWidth @ 230.
 	r1 addMorphBack: lst.
 	r1c2 addMorphBack: (self newButton: 'Add show...' do: #addShow).
-	r1c2 addMorphBack: (self newButton: 'Edit info...' do: #editInfo).
+	r1c2 addMorphBack: (self newButton: 'Add EZTV...' do: #addEztv).
 	r1c2 addMorphBack: (self newButton: 'Look for new' do: #lookForNew).
-"	r1c2 addMorphBack: (self newButton: 'Remove seen' do: #removeSeen)."
+	r1c2 addMorphBack: (self newButton: 'Remove seen' do: #removeSeen).
 	r1c2 addMorphBack: (self newButton: 'Write to file' do: #writeToFile).
 	r1c2 addMorphBack: (self newButton: 'Archive...' do: #archiveShow).
 	r1c2 addMorphBack: (self newButton: 'Delete show...' do: #deleteShow).
 	r1c2 addMorphBack: (self newButton: 'Refresh' do: #refresh).
-	"r1c2 addMorphBack: (self newButton: 'New episodes' do: #newEpisodes)."
+	r1c2 addMorphBack: (self newButton: 'New episodes' do: #newEpisodes).
 	r1c2 addMorphBack: (self newButton: 'Viewables' do: #viewables).
-	"r1c2 addMorphBack: (self newButton: 'Needs torrent' do: #needsTorrent)."
-	r1c2 addMorphBack: (self newButton: 'Set episodes' do: #setMaxEpisodes).
-"	r1c2 addMorphBack: (self newButton: 'Pairing' do: #pairing)."
+	r1c2 addMorphBack: (self newButton: 'Needs torrent' do: #needsTorrent).
+	r1c2 addMorphBack: (self newButton: 'Pairing' do: #pairing).
 	r1 addMorphBack: r1c2.
 	lst2 := PluggableListMorph
 		on: self
@@ -59,8 +57,6 @@ PirateManagerMorph >> addControls [
 	lst2 extent: listboxWidth @ 150.
 	r2 addMorphBack: lst2.
 	r2c2 addMorphBack: (self newButton: 'Add Season...' do: #addSeason).
-	r2c2 addMorphBack: (self newButton: 'Remove Season...' do: #removeSeason).
-	r2c2 addMorphBack: (self newButton: 'Seen Season...' do: #seenSeason).
 	r2 addMorphBack: r2c2.
 	lst3 := PluggableMultiColumnListMorph
 		on: self
@@ -126,15 +122,16 @@ PirateManagerMorph >> addEpisode [
 
 { #category : #'event handling' }
 PirateManagerMorph >> addEpisodes [
-	| maxNo |
+		| maxNo |
 	listIndex2 > 0
-		ifFalse: [ ^ self ].
-	maxNo := UIManager default request: 'Max episode number' initialAnswer: '1'.
-	maxNo isNil
-		ifTrue: [ ^ self ].
-	maxNo := maxNo asInteger.
-	model3 addEpisodes: maxNo.
-	self changed: #list3
+		ifFalse: [^ self].
+		maxNo:= UIManager default request: 'Max episode number' initialAnswer: '1'.
+		maxNo isNil ifTrue:[^self].
+		maxNo := maxNo asInteger.
+		(1+model3 maxEpisode) to: maxNo do: [:i|model3 addEpisodeNo: i] .
+
+	self changed: #list3.
+
 ]
 
 { #category : #'event handling' }
@@ -144,22 +141,9 @@ PirateManagerMorph >> addEztv [
 		ifTrue: [ ^ self ].
 	show := self list at: listIndex.
 	id := UIManager default request: 'Add EZTV id:' initialAnswer: show eztv printString.
-"	id isNil
-		ifTrue: [ ^ self ]."
-	show eztv: id.
-	self changed: #list
-]
-
-{ #category : #'event handling' }
-PirateManagerMorph >> addImdb [
-	| show id |
-	listIndex = 0
+	id isNil
 		ifTrue: [ ^ self ].
-	show := self list at: listIndex.
-	id := UIManager default request: 'Add IMDB id:' initialAnswer: show imdb printString.
-"	id isNil
-		ifTrue: [ ^ self ]."
-	show imdb: id.
+	show eztv: id.
 	self changed: #list
 ]
 
@@ -175,18 +159,16 @@ PirateManagerMorph >> addSeason [
 { #category : #'event handling' }
 PirateManagerMorph >> addShow [
 	| name sh |
-	name := UIManager default request: 'Name or IMDB of new show'.
-	name isEmptyOrNil
-		ifTrue: [ ^ self ].
-	sh := PirateShow new.
-	(self isImdbId: name)
-		ifTrue: [ sh imdb: name ]
-		ifFalse: [ sh name: name ].
-	self changed: #list.
-	self selectShow: sh name
-	"self listIndex2: 0.
-	model3 := nil.
-	self changed: #list3"
+	name := UIManager default request: 'Name of new show'.
+	name isEmpty
+		ifFalse: [ 
+			sh := PirateShow new.
+			sh name: name.
+			self changed: #list.
+			self selectShow: name.
+			self listIndex2: 0.
+			model3 := nil.
+			self changed: #list3 ]
 ]
 
 { #category : #'event handling' }
@@ -195,36 +177,32 @@ PirateManagerMorph >> addTorrent [
 	listIndex3 = 0
 		ifTrue: [ ^ self ].
 	mag := UIManager default request: 'Add torrent (Magnet link):' initialAnswer: '<Magnet link>'.
-	mag ifNil: [ ^ self ].
+	mag isNil
+		ifTrue: [ ^ self ].
 	t := PirateTorrent magnet: mag.
-	t ifNil: [ ^ self ].
+	t isNil
+		ifTrue: [ ^ self ].
 	ep := model3 episodes at: listIndex3.
 	ep
 		torrent: t;
 		download.
 	self changed: #list3.
-	self refresh
+	self refresh.
 ]
 
 { #category : #'event handling' }
 PirateManagerMorph >> addVideofile [
 	| ep file vf |
-	listIndex3 = 0
+	listIndex3 = 0 
 		ifTrue: [ ^ self ].
-	ep := model3 episodes at: listIndex3.
-	file := UITheme current
-		chooseFileIn: self
-		title: 'Select a video file: ' , ep id asString
-		extensions: nil
-		path: PirateTorrent folder
-		preview: nil.
+file:=UITheme current 	chooseFileIn: self title: 'Select a video file' extensions: nil path: PirateTorrent folder preview: nil.
 	file isNil
 		ifTrue: [ ^ self ].
 	vf := PirateVideoFile new.
 	vf videoFilename: file basename.
 	vf folder: file reference parent fullName.
+	ep := model3 episodes at: listIndex3.
 	ep
-		torrent: nil;
 		videoFile: vf.
 	self changed: #list3
 ]
@@ -250,12 +228,13 @@ PirateManagerMorph >> archiveShow [
 { #category : #'event handling' }
 PirateManagerMorph >> dblClick [
 	"self inform: 'dubbelclickade'."
-
 	listIndex > 0
-		ifTrue: [ 
+		ifTrue: [
 			model2 := self list at: listIndex.
 			self changed: #list2.
-			self listIndex2: self list2 size ]
+			self listIndex2: 0.
+			model3 := nil.
+			self changed: #list3 ]
 ]
 
 { #category : #'event handling' }
@@ -264,7 +243,7 @@ PirateManagerMorph >> dblClick2 [
 	listIndex2 > 0
 		ifTrue: [model3 := model2 seasons at: listIndex2.
 			self changed: #list3.		
-			listIndex3 := 1.
+			listIndex3 := 0.
 			self changed: #listIndex3.]
 ]
 
@@ -283,7 +262,7 @@ PirateManagerMorph >> dblClick3 [
 PirateManagerMorph >> deleteShow [
 	listIndex > 0
 		ifTrue: [ 
-			(self confirm: 'Vill du verkligen ta bort programmet?' , String crlfcrlf , (self list at: listIndex) name)
+			(self confirm: 'Villdu verkligen ta bort programmet?' , String crlfcrlf , (self list at: listIndex) name)
 				ifTrue: [ 
 					PirateShow removeShow: (self list at: listIndex).
 					self changed: #list.
@@ -297,38 +276,28 @@ PirateManagerMorph >> deleteShow [
 					self changed: #list3 ] ]
 ]
 
-{ #category : #'event handling' }
-PirateManagerMorph >> editInfo [
-	| show  |
-	listIndex = 0
-		ifTrue: [ ^ self ].
-	show := self list at: listIndex.
-	PirateShowInfo new
-		show: show; 
-		openWithSpec.
-	self changed: #list
-]
-
 { #category : #'model access' }
 PirateManagerMorph >> getEpisodeText: anEpisode [
-	"self halt."
+"self halt."
 
-	^ {(anEpisode id).	"	(anEpisode found
+	^ {(anEpisode id).
+	(anEpisode found
 		ifTrue: [ 'found' ]
-		ifFalse: [ ' - ' ])."	"	(anEpisode newFound
+		ifFalse: [ ' - ' ]).
+	(anEpisode newFound
 		ifTrue: [ 'new' ]
-		ifFalse: [ ' - ' ])."	"(anEpisode isDownloaded)ifTrue:['downloaded']ifFalse:[
+		ifFalse: [ ' - ' ]).	"(anEpisode isDownloaded)ifTrue:['downloaded']ifFalse:[
 		anEpisode torrent isNil ifTrue: [' - '] ifFalse: ['started']]."
 	(anEpisode status).
-	"(anEpisode statusCode printString)."
-	(anEpisode isViewed
-		ifTrue: [ 'seen' ]
-		ifFalse: [ 
-			anEpisode isViewable
-				ifTrue: [ 'viewable' ]
-				ifFalse: [ ' - ' ] ]).
+	(anEpisode statusCode printString).
+	(anEpisode isViewable 
+		ifTrue: [ 'viewable' ]
+		ifFalse: [ ' - ' ]).
 	(anEpisode hasSubtitle
 		ifTrue: [ 'subs' ]
+		ifFalse: [ ' - ' ]).
+	(anEpisode isViewed
+		ifTrue: [ 'seen' ]
 		ifFalse: [ ' - ' ])}
 ]
 
@@ -339,18 +308,12 @@ PirateManagerMorph >> getSeasonText: aSeason [
 
 { #category : #'model access' }
 PirateManagerMorph >> getShowText: aShow [
-	^ {aShow displayName.	"		(aShow newEpisodeCount) > 0 ifTrue:['new'] ifFalse:['-']."
-	(aShow imdb isNil not
-		ifTrue: [ 'imdb' ]
-		ifFalse: [ '-' ]).	"		(aShow tmdb) isNil not ifTrue:['tmdb'] ifFalse:['-'].
-		(aShow kat) isNil not ifTrue:['kat'] ifFalse:['-']."
-	(aShow notSeenCount > 0
-		ifTrue: [ 'viewable' ]
-		ifFalse: [ 
-			aShow nextToSee ifNil: ['seen'] ifNotNil: ['-'] ]).
-	(aShow in_production
-		ifTrue: [ '-' ]
-		ifFalse: [ 'Ended' ])}
+	^{
+		aShow name.
+		(aShow newEpisodeCount) > 0 ifTrue:['new'] ifFalse:['-'].
+		(aShow eztv) isNil not ifTrue:['eztv'] ifFalse:['-'].
+		(aShow notSeenCount) > 0 ifTrue:['viewable'] ifFalse:['-'].
+	}
 ]
 
 { #category : #'initialize-release' }
@@ -367,19 +330,6 @@ PirateManagerMorph >> inspectEpisode [
 		ifTrue: [ ^ self ].
 	ep := model3 episodes at: listIndex3.
 	ep inspect
-]
-
-{ #category : #testing }
-PirateManagerMorph >> isImdbId: aString [
-aString isEmptyOrNil
-		ifTrue: [ ^ false ].
-	(aString beginsWith: 'http')
-		ifTrue: [ ^true].
-	(aString beginsWith: 'tt')
-		ifTrue: [ ^true ].
-	aString isAllDigits
-		ifTrue: [ ^true ].
-	^ false
 ]
 
 { #category : #'model access' }
@@ -413,10 +363,10 @@ PirateManagerMorph >> listIndex2 [
 ]
 
 { #category : #'model access' }
-PirateManagerMorph >> listIndex2: anInteger [
-	listIndex2 := anInteger min: self list2 size.
-	self changed: #listIndex2.
-	self dblClick2
+PirateManagerMorph >> listIndex2: anInteger [ 
+	listIndex2 := anInteger.
+	self changed: #listIndex2.	
+		self dblClick2
 ]
 
 { #category : #'model access' }
@@ -426,8 +376,8 @@ PirateManagerMorph >> listIndex3 [
 ]
 
 { #category : #'model access' }
-PirateManagerMorph >> listIndex3: anInteger [
-	listIndex3 := anInteger min: self list3 size.
+PirateManagerMorph >> listIndex3: anInteger [ 
+	listIndex3 := anInteger.
 	self changed: #listIndex3
 ]
 
@@ -441,8 +391,8 @@ PirateManagerMorph >> listIndex: anInteger [
 { #category : #'event handling' }
 PirateManagerMorph >> lookForNew [
 	[ 
-	PirateShow lookForAll.
-	PirateApp writeToNewFile.
+	PirateShow shows do: [ :sh | sh lookForAll ].
+	PirateShow writeToFile.
 	Transcript
 		show: '-------------';
 		cr.
@@ -465,64 +415,43 @@ PirateManagerMorph >> pairing [
 { #category : #'event handling' }
 PirateManagerMorph >> play [
 	| ep |
-	listIndex3 = 0
-		ifTrue: [ ^ self ].
-	ep := model3 episodes at: listIndex3.
-	ep isDownloaded
-		ifTrue: [ 
-			playingEp := ep.
-			ep when: #stopped send: #playStopped to: self.
-			ep play ]	"(self confirm: 'Subtitles OK?') ifTrue: [ep viewed.]."
-]
-
-{ #category : #'event handling' }
-PirateManagerMorph >> playStopped [
-	(self confirm: 'Did you see the entire show?')
-		ifTrue: [ playingEp viewed.
-			self changed: #list1.
-			self changed: #list3.
-			[ playingEp season show lookForAll.
-			self changed: #list1.
-			self changed: #list3 ] fork ].
-	playingEp removeActionsWithReceiver: self	"(self confirm: 'Subtitles OK?') ifTrue: [ep viewed.]."
+	listIndex3 > 0
+		ifTrue: [
+			ep := model3 episodes at: listIndex3.
+			ep isDownloaded ifTrue: [
+				ep play.
+				(self confirm: 'Did you see the entire show?') ifTrue: [
+					[ep viewed.				
+					self changed: #list1.
+					self changed: #list3 ] forkAt: Processor userBackgroundPriority .		
+				].
+"				(self confirm: 'Subtitles OK?') ifTrue: ["
+"					ep viewed."	"]."
+			].
+		]
 ]
 
 { #category : #'event handling' }
 PirateManagerMorph >> refresh [
-	Cursor wait
-		showWhile: [ 
-			PirateTorrent updateStatuses.
-			PirateEpisode getVideoFiles.	"			
-			PirateApp validateState."
-			self changed: #list.
-			self changed: #list3 ]
+	Cursor wait showWhile: [
+		PirateTorrent updateStatuses .
+		self changed: #list.
+		self changed: #list3 .
+		"PirateTorrent cleanUpSeedingDoneOnce."
+		Transcript show: '-------------'; cr.
+	].
+	
 ]
 
 { #category : #'event handling' }
 PirateManagerMorph >> removeEpisode [
-	| ep |
-	listIndex3 = 0
-		ifTrue: [ ^ self ].
-	ep := model3 episodes at: listIndex3.
-	(self confirm: 'Vill du verkligen ta bort episoden?' , String crlfcrlf , ep printString)
-		ifTrue: [ 
-			ep delete.
-			self changed: #list3.
-			self listIndex3: 0 ]
-]
-
-{ #category : #'event handling' }
-PirateManagerMorph >> removeSeason [
-	| season |
-	listIndex2 = 0
-		ifTrue: [ ^ self ].
-	season := model2 seasons at: listIndex2.
-	(self confirm: 'Vill du verkligen ta bort säsongen', String crlfcrlf, season name, season id)
-		ifTrue: [ 
-			season delete.
-			self changed: #list2.
-			self listIndex2: 0	.
-			self changed: #list3. ]
+	| rc |
+	listIndex > 0 ifTrue: [
+			(self confirm: 'Vill du verkligen ta bort avsnittet?') ifTrue: [
+				self changed: #list3.
+				self changed: #listIndex3.
+				]
+			].
 ]
 
 { #category : #'event handling' }
@@ -550,24 +479,6 @@ PirateManagerMorph >> seenEpisode [
 ]
 
 { #category : #'event handling' }
-PirateManagerMorph >> seenSeason [
-	| s |
-	listIndex2 > 0
-		ifTrue: [ 
-			s := model2 seasons at: listIndex2.
-			s isViewed
-				ifTrue: [ 
-					s unViewed 
-					 ]
-				ifFalse: [ 
-					s viewed
-					 ].
-			self changed: #list1.
-			self changed: #list3	
-			 ]
-]
-
-{ #category : #'event handling' }
 PirateManagerMorph >> selectShow: aName [
 	| sh lst |
 	lst := self list.
@@ -577,33 +488,6 @@ PirateManagerMorph >> selectShow: aName [
 			ifTrue: [ 
 				self listIndex: i.
 				^ self ] ]
-]
-
-{ #category : #'event handling' }
-PirateManagerMorph >> setMaxEpisodes [
-	| show |
-	listIndex = 0
-		ifTrue: [ ^ self ].
-	show := self list at: listIndex.
-	show imdb isNil
-		ifTrue: [ UIManager default alert: 'Must have imdb id to do this' ]
-		ifFalse: [ 
-			show setEpisodesFromTmdb.
-			self changed: #list.
-			self changed: #list2.
-			self changed: #list3 ]
-]
-
-{ #category : #'stepping and presenter' }
-PirateManagerMorph >> step [
-	| |
-"	t := [ self refresh ] timeToRun."
-"	Transcript crShow: 'step... time: ' , t printString"
-]
-
-{ #category : #'stepping and presenter' }
-PirateManagerMorph >> stepTime [
-	^5000
 ]
 
 { #category : #'event handling' }
@@ -633,16 +517,14 @@ PirateManagerMorph >> testDeleteSubtitles [
 
 { #category : #'event handling' }
 PirateManagerMorph >> viewables [
-	| m |
-	(self confirm: 'Use legacy GUI?')
-		ifTrue: [ m := PirateViewableMorph new.
-			m model: model.
-			m openInWorld ]
-		ifFalse: [ PirateViewable new openWithSpec ]
+	| m ep |
+	m := PirateViewableMorph new.
+	m model: model.
+	m openInWorld.
 ]
 
 { #category : #'event handling' }
 PirateManagerMorph >> writeToFile [
-	Cursor wait showWhile: [PirateApp writeToNewFile].
+	Cursor wait showWhile: [PirateShow writeToFile].
 	^self 
 ]

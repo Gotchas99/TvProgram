@@ -1,7 +1,7 @@
 Class {
 	#name : #PirateRobot,
 	#superclass : #WRHttpRobot,
-	#category : #'CAs-Pirate-Services'
+	#category : #'CAs-Pirate'
 }
 
 { #category : #'test code' }
@@ -64,6 +64,52 @@ PirateRobot >> getShowImage: aShowname [
 	^ rows
 ]
 
+{ #category : #addic7ted }
+PirateRobot >> getSubtitle: aString [ 
+	| main rows baseUrl suffix searchRows dud |
+	baseUrl := 'http://http://www.addic7ed.com/serie/'.
+	suffix := '/1'.
+	[self newGet: baseUrl , aString , suffix]
+		on: Exception
+		do: [Transcript show: 'Exception on newGet';
+				 cr.
+			self halt].
+	self checkOk.
+	"Parse page"
+	self parseBody.
+	dud := (dom tagOfClass: HtmlH2Node) children second innerContents.
+	(dud findString: 'No hits')
+			> 0
+		ifTrue: [^ Array new].
+	main := dom tagWithId: 'searchResult'.
+	searchRows := main tagsOfClass: HtmlTRNode.
+	rows := self parseRows: searchRows allButFirst.
+	^ rows
+]
+
+{ #category : #addic7ted }
+PirateRobot >> getSubtitles: aString [ 
+	| rows baseUrl suffix searchRows dud |
+	baseUrl := 'http://www.addic7ed.com/serie/'.
+	suffix := '/1'.
+	[self newGet: baseUrl , aString , suffix]
+		on: Exception
+		do: [Transcript show: 'Exception on newGet';
+				 cr.
+			self halt].
+	self checkOk.
+	"Parse page"
+	self parseBody.
+	dud := (dom tagWithId: 'container95m') innerContents.
+	"children second"
+	(dud findString: 'Filter ignored')
+			> 0
+		ifTrue: [^ Array new].
+	searchRows := dom tagsWithId: 'container95m'.
+	rows := self parseSubs: searchRows.
+	^ rows
+]
+
 { #category : #'test code' }
 PirateRobot >> getTest [
 	| |
@@ -108,15 +154,16 @@ PirateRobot >> getTest: aString [
 
 { #category : #private }
 PirateRobot >> getTorrents: aString category: categoryString [
-	| main rows baseUrl suffix searchRows dud |self halt.
-	baseUrl := 'https://' , self host , '/search/'.
+	| main rows baseUrl suffix searchRows dud |
+	baseUrl := 'http://thepiratebay.org/search/'.	"baseUrl := 'http://pirateproxy.se/search/'."
 	suffix := '/0/7/' , categoryString.
 	[ self newGet: baseUrl , aString , suffix ]
 		on: Exception
-		do: [ :ex | 
-			Transcript crShow: 'Exception on newGet: ', ex printString.	self halt.
+		do: [ :ex| 
+			Transcript crShow: 'Exception on newGet'.
+			"self halt."
 			^ OrderedCollection new ].
-	self checkOk.
+	self checkOk.	
 	self parseBody.
 	dud := (dom tagOfClass: HtmlH2Node) children second innerContents.
 	(dud findString: 'No hits') > 0
@@ -126,11 +173,6 @@ PirateRobot >> getTorrents: aString category: categoryString [
 	searchRows := main children.
 	rows := self parseRows: searchRows allButFirst.
 	^ rows
-]
-
-{ #category : #private }
-PirateRobot >> host [
-	^ 'thepiratebay.mn'
 ]
 
 { #category : #private }
@@ -153,4 +195,38 @@ PirateRobot >> parseRows: fullHtml [
 	"rows first inspect."
 	"self halt."
 	^ rows
+]
+
+{ #category : #addic7ted }
+PirateRobot >> parseSubs: allSubRows [ 
+	| rows title dl hi lang imgs |
+	rows := OrderedCollection new.
+
+	allSubRows
+		do: [:html | (html tagWithClass: 'NewsTitle') isNil
+				ifFalse: [title := (html tagWithClass: 'NewsTitle') children second innerContents.
+					lang := (html tagWithClass: 'language') children first innerContents.
+					imgs := html tagsOfClass: HtmlIMGNode.
+					hi := imgs
+								anySatisfy: [:i | i src = 'http://www.addic7ed.com/images/hi.jpg'].
+					dl := (html tagWithClass: 'buttonDownload') href.
+					rows
+						add: (Array
+								with: title
+								with: lang
+								with: hi 
+								with: dl)]].
+	"rows first inspect."
+	"self halt."
+	^ rows
+]
+
+{ #category : #'test code' }
+PirateRobot >> removeBlanksFrom: aString [ 
+	| s |
+	s := String writeStream.
+	aString
+		do: [:c | c = Character space
+				ifFalse: [s nextPut: c]].
+	^ s contents
 ]

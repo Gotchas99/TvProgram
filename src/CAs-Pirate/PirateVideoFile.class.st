@@ -1,22 +1,20 @@
 Class {
 	#name : #PirateVideoFile,
-	#superclass : #Object,
+	#superclass : #PostgresObject,
 	#instVars : [
+		'torrent',
 		'video',
 		'videoHash',
 		'folder',
 		'videoFilename',
 		'swesub',
-		'viewTime',
-		'subTitles',
-		'hasSubtitle'
+		'viewTime'
 	],
 	#category : #'CAs-Pirate'
 }
 
-{ #category : #accessing }
+{ #category : #'as yet unclassified' }
 PirateVideoFile class >> validateAll [
-Transcript crShow: 'Validating videofiles'.
 	PirateVideoFile allInstances do: [ :vf | vf validate ]
 ]
 
@@ -32,7 +30,7 @@ PirateVideoFile >> computeHashForChunk2: fs start: start size: chunkSize [
 	^hash
 ]
 
-{ #category : #hashing }
+{ #category : #printing }
 PirateVideoFile >> computeHashForChunk: fs start: start size: chunkSize [
 	| hash buff uint |
 	hash := UInt64 fromHex: '00'.
@@ -44,35 +42,11 @@ PirateVideoFile >> computeHashForChunk: fs start: start size: chunkSize [
 	^ hash
 ]
 
-{ #category : #subtitles }
-PirateVideoFile >> deleteSubtitles [
-	self srtFileName
-		ifNotNil: [ :ref | 
-			ref exists
-				ifTrue: [ ref delete ] ].
-	subTitles := nil.
-	hasSubtitle := false
-]
-
-{ #category : #'initialize-release' }
-PirateVideoFile >> disconnect [
-	| tmp |
-	self video ifNotNil: [tmp:= video.self video:nil.tmp videoFile: nil ]
-	"self reset"
-]
-
 { #category : #'as yet unclassified' }
 PirateVideoFile >> doneWithThis [
-	viewTime ifNil: [ viewTime := DateAndTime now ]
-]
-
-{ #category : #testing }
-PirateVideoFile >> exists [
-	| ref |
-	self folder ifNil: [ ^ false ].
-	videoFilename ifNil: [ ^ false ].
-	ref := self fullVideoFilename.
-	^ ref exists
+	viewTime := TimeStamp now.
+	torrent isNil
+		ifFalse: [ torrent doneWithThis ]
 ]
 
 { #category : #accessing }
@@ -87,9 +61,10 @@ PirateVideoFile >> fileSize [
 
 { #category : #accessing }
 PirateVideoFile >> folder [
-	(folder isKindOf: String)
-		ifTrue: [ folder := folder asFileReference ].
 	^ folder
+		ifNil: [ 
+			torrent isNil
+				ifFalse: [ folder := torrent folder ] ]
 ]
 
 { #category : #accessing }
@@ -100,9 +75,9 @@ PirateVideoFile >> folder: aString [
 { #category : #accessing }
 PirateVideoFile >> fullVideoFilename [
 	| fname |
-	self folder ifNil: [ ^ nil ].
-	self videoFilename ifNil: [ ^ nil ].
-	fname := self folder resolveString: videoFilename.
+	fname := self folder , videoFilename.
+	OSPlatform isUnix ifTrue: [ fname := fname copyReplaceAll: '\' with: '/' ].
+	OSPlatform isWin32 ifTrue: [ fname := fname copyReplaceAll: '/' with: '\' ].
 	^ fname
 ]
 
@@ -115,15 +90,6 @@ PirateVideoFile >> getUint64From: aByteArray [
 	aByteArray reverse do: [ :each | 
 		integer :=(integer bitShift: 8) + each ].
 	^ integer
-]
-
-{ #category : #subtitles }
-PirateVideoFile >> hasSubtitle [
-	| ref |
-	^ hasSubtitle
-		ifNil: [ 
-			ref := self srtFileName.
-			ref ifNotNil: [ hasSubtitle := ref exists ] ifNil: [ hasSubtitle := false ] ]
 ]
 
 { #category : #hashing }
@@ -164,61 +130,18 @@ PirateVideoFile >> initialize [
 
 { #category : #testing }
 PirateVideoFile >> isSeen [
-	^ viewTime isNotNil or: [ self isValid not ]
+	viewTime isNil ifFalse:[^true].
+	video ifNil: [ ^false ] ifNotNil: [  ^video isViewed].
 ]
 
 { #category : #testing }
 PirateVideoFile >> isValid [
-	| isFile |
-	self folder ifNil: [ ^ false ].
-	videoFilename ifNil: [ ^ false ].
-	[ isFile := FileSystem disk isFile: self fullVideoFilename ]
-		on: Error
-		do: [ ^ false ].
-	isFile
-		ifFalse: [ ^ false ].
-	^ true
-]
-
-{ #category : #subtitles }
-PirateVideoFile >> needsSubtitle [
-	| ref ex |
-	ref := self srtFileName.
-	ref
-		ifNotNil: [ 
-			ex := ref exists.
-			hasSubtitle := ex.
-			^ ex not ]
-		ifNil: [ ^ false ]
+	^ self folder isNil not and: [ videoFilename isNil not ]
 ]
 
 { #category : #printing }
 PirateVideoFile >> printOn: aStream [ 
 	aStream nextPutAll:  self videoFilename 
-]
-
-{ #category : #'initialize-release' }
-PirateVideoFile >> reset [
-	self deleteSubtitles.
-	self video: nil.
-	self videoFilename: nil
-]
-
-{ #category : #subtitles }
-PirateVideoFile >> setSub: aText [
-	| srtName fs |
-	srtName := self srtFileName.
-	fs := FileSystem disk openFileStream: srtName writable: true.
-	fs nextPutAll: aText.
-	fs close.
-	hasSubtitle := srtName exists
-]
-
-{ #category : #subtitles }
-PirateVideoFile >> srtFileName [
-	^ self fullVideoFilename
-		ifNotNil: [ :fname | fname withExtension: 'srt' ]
-		ifNil: [ ^ nil ]
 ]
 
 { #category : #'not used' }
@@ -231,12 +154,33 @@ PirateVideoFile >> swesub: aBoolean [
 	swesub := aBoolean 
 ]
 
-{ #category : #validation }
+{ #category : #accessing }
+PirateVideoFile >> torrent [
+	^torrent
+]
+
+{ #category : #accessing }
+PirateVideoFile >> torrent: aTorrent [
+	torrent := aTorrent.
+]
+
+{ #category : #accessing }
 PirateVideoFile >> validate [
+	self validateTorrent.
 	self validateVideo
 ]
 
-{ #category : #validation }
+{ #category : #accessing }
+PirateVideoFile >> validateTorrent [
+	torrent isNil
+		ifFalse: [ 
+			torrent isInServer not
+				ifTrue: [ 
+					torrent := nil.
+					Transcript crShow: 'Removing torrent from: ' , self printString ] ]
+]
+
+{ #category : #accessing }
 PirateVideoFile >> validateVideo [
 	video isNil
 		ifTrue: [ ^ self ].
@@ -260,16 +204,13 @@ PirateVideoFile >> video: aVideo [
 { #category : #accessing }
 PirateVideoFile >> videoFile [
 	| fs |
-	[ fs := FileSystem disk readStreamOn: self fullVideoFilename ]
-		on: Error
-		do: [ :ex | 
-			Transcript
-				crShow: 'Error: PirateVideoFile: ' , self videoFilename printString ;
-				crShow: ex printString.
-			^ nil ].
-	fs ifNil: [ ^ nil ].
+"	fd := FileDirectory on: self folder.
+	fs := fd oldFileOrNoneNamed: self videoFilename ."
+	fs := FileSystem disk readStreamOn: self fullVideoFilename .
+	fs ifNil: [^nil].
 	fs binary.
 	^ fs
+
 ]
 
 { #category : #accessing }
@@ -280,8 +221,6 @@ PirateVideoFile >> videoFilename [
 { #category : #accessing }
 PirateVideoFile >> videoFilename: aString [
 	videoFilename := aString.
-	videoHash :=nil.
-	viewTime:=nil.
 ]
 
 { #category : #hashing }
@@ -294,5 +233,7 @@ PirateVideoFile >> viewTime [
 	^ viewTime
 		ifNil: [ 
 			self isSeen
-				ifTrue: [ self doneWithThis ] ]
+				ifTrue: [ 
+					self doneWithThis.
+					viewTime := TimeStamp now ] ]
 ]

@@ -1,62 +1,29 @@
 Class {
 	#name : #PirateVideo,
-	#superclass : #Object,
+	#superclass : #PostgresObject,
 	#instVars : [
 		'id',
 		'torrent',
 		'falseTorrents',
+		'location',
+		'subTitle',
 		'viewed',
 		'torrents',
-		'videoFile',
-		'prevPosition',
-		'title'
+		'videoFile'
 	],
 	#category : #'CAs-Pirate'
 }
 
 { #category : #'as yet unclassified' }
-PirateVideo class >> checkTorrentStatus [
-	| t eps |
-	eps := PirateShow allEpisodes.
-	t := eps select: [ :e | e torrent isNotNil ].
-	t isEmptyOrNil
-		ifTrue: [ ^ nil ].
-	t := t
-		do: [ :e | 
-			WorldState
-				addDeferredUIMessage: [ 
-					Transcript
-						show: 'checkStatus: ' , e fullId;
-						cr ].
-			e torrent checkStatus ]
-]
-
-{ #category : #'as yet unclassified' }
 PirateVideo class >> getAllSubtitles [
 	| needsSubs delay viewables |
-	delay := Delay forSeconds: 5.
-	viewables := PirateShow allViewableEpisodes.
-	needsSubs := viewables reject: [ :ep | ep videoFile isNil ].
-	needsSubs := needsSubs select: [ :ep | ep videoFile isValid ].
-	needsSubs := needsSubs select: [ :ep | ep videoFile needsSubtitle ].
+	delay := Delay forSeconds: 5.	"self halt."
+	viewables := self allSubInstances select: [ :ep | ep isViewable ].
+	needsSubs := viewables select: [ :ep | ep hasSubtitle not ].
 	needsSubs
 		do: [ :ep | 
 			ep topSubtitles.
 			delay wait ]
-]
-
-{ #category : #'as yet unclassified' }
-PirateVideo class >> havingTorrentHash: aHash [
-	| t eps ep |
-	eps := PirateShow allEpisodes.
-	t := eps select: [ :e | e torrent isNotNil ].
-	t isEmptyOrNil
-		ifTrue: [ ^ nil ].
-	t := t select: [ :e | e torrent torrentHash = aHash ].
-	t isEmptyOrNil
-		ifTrue: [ ^ nil ].
-	ep := t first.
-	^ ep
 ]
 
 { #category : #torrents }
@@ -65,40 +32,33 @@ PirateVideo >> addFalseTorrent: aTorrentArray [
 
 ]
 
-{ #category : #torrents }
+{ #category : #obsolete }
 PirateVideo >> convertTorrent [
-	torrent class = PirateTorrent
-		ifTrue: [ ^ self ].
-	torrent = PirateTorrent
-		ifTrue: [ ^ torrent := nil ].
-	torrent isString
-		ifTrue: [ 
-			torrent := {'???'.
-			torrent.
-			0.
-			0} ].
-	^ torrent := PirateTorrent from: torrent
+	torrent class = PirateTorrent ifTrue: [^self ] .
+	torrent = PirateTorrent ifTrue: [^torrent:=nil ] .
+	torrent isString 
+		ifTrue: [torrent:={'???'. torrent. 0. 0}].
+	torrent := PirateTorrent from: torrent.
 ]
 
-{ #category : #'initialize-release' }
+{ #category : #'as yet unclassified' }
 PirateVideo >> delete [
 	self deleteSubtitles.
-	torrent
-		ifNotNil: [ 
-			torrent delete.
-			torrent := nil ].
-	torrents := nil.
-	falseTorrents := nil.
-	videoFile
-		ifNotNil: [ 
-			videoFile disconnect.
-			videoFile := nil ].
-	viewed := false
+	torrent isNil ifFalse: [torrent delete].
 ]
 
 { #category : #subtitles }
 PirateVideo >> deleteSubtitles [
-	self videoFile ifNotNil: [ :vf | vf deleteSubtitles ]
+	| srtName fname fs |
+	self videoFile
+		ifNotNil: [ 
+			fname := self videoFile fullVideoFilename.
+			fname
+				ifNotNil: [ 
+					srtName := OpenSubClient new srtFromVideo: fname.
+					fs := FileDirectory forFileName: srtName.
+					fs deleteFileNamed: srtName ] ].
+	subTitle := nil
 ]
 
 { #category : #torrents }
@@ -117,12 +77,13 @@ PirateVideo >> falseTorrents [
 
 { #category : #torrents }
 PirateVideo >> found [
-	^ self isViewed or: [ self torrents isEmpty not or: [ videoFile isNil not ] ]
+	^(self isViewed) or: [(self torrents isEmpty not) or: [videoFile isNil not]].
+		
 ]
 
 { #category : #torrents }
 PirateVideo >> getTopTorrent [
-	self torrent: self torrents first.
+	torrent := self torrents first.
 	self download
 ]
 
@@ -133,12 +94,10 @@ PirateVideo >> getTorrents [
 
 { #category : #subtitles }
 PirateVideo >> hasSubtitle [
-	^ videoFile 
-			ifNotNil: [ :vf | vf hasSubtitle ] 
-			ifNil: [ ^ false ]
+	^ (subTitle isNil not)
 ]
 
-{ #category : #'initialize-release' }
+{ #category : #'as yet unclassified' }
 PirateVideo >> icon [
 	^ nil
 ]
@@ -161,14 +120,16 @@ PirateVideo >> initialize [
 		
 ]
 
-{ #category : #testing }
+{ #category : #torrents }
 PirateVideo >> isDownloaded [
-	videoFile ifNotNil: [ ^ true ].
-	torrent ifNil: [ ^ false ].
-	^ torrent isDownloadComplete
+	| |
+"	self halt."
+	videoFile ifNotNil: [ ^true ].
+	torrent isNil ifTrue: [^ false].
+	^torrent isDownloadComplete
 ]
 
-{ #category : #testing }
+{ #category : #torrents }
 PirateVideo >> isDownloading [
 	torrent isNil
 		ifTrue: [ ^ false ].
@@ -176,14 +137,9 @@ PirateVideo >> isDownloading [
 ]
 
 { #category : #testing }
-PirateVideo >> isPaused [
-	^ prevPosition isNotNil and: [ prevPosition > 0 ]
-]
-
-{ #category : #testing }
 PirateVideo >> isViewable [
-	self isViewed
-		ifTrue: [ ^ false ].
+	(self isViewed )ifTrue:[^false].
+	
 	^ self isDownloaded
 ]
 
@@ -219,11 +175,12 @@ PirateVideo >> magnet [
 	^self torrent magnet uri
 ]
 
-{ #category : #testing }
+{ #category : #torrents }
 PirateVideo >> needsTorrent [
 	self isViewed
 		ifTrue: [ ^ false ].
-	videoFile ifNotNil: [ ^ false ].
+	videoFile isNil
+		ifFalse: [ ^ false ].
 	^ self torrent isNil
 ]
 
@@ -233,39 +190,48 @@ PirateVideo >> newFound [
 	^ (torrent isNil) and: [ self torrents isEmptyOrNil not ]
 ]
 
-{ #category : #playing }
+{ #category : #'as yet unclassified' }
 PirateVideo >> play [
-	| fname v |
-	self isViewable
-		ifFalse: [ ^ self ].
-	fname := self videoFilename fullName.
-	v := VlcClient new.
-	v when: #stoppedAt: send: #playbackStoppedAt: to: self.
-	v play: fname atPos: (prevPosition ifNil: [ 0 ])
+	| args proc fname player |
+	self isViewable ifFalse: [^self].
+	player := Config current vlcFolder.
+	fname := self videoFilename.
+	args :=  ' --fullscreen --extraintf rc -I qt --rc-host 127.0.0.1:9092 "', fname, '" '.
+	proc := OSProcess command: player , args.
+	proc ifNil: [^self].
+	[proc isComplete] whileFalse:
+		[(Delay forMilliseconds: 200) wait.
+		proc update: #runState  ].
+	^ proc
+
 ]
 
 { #category : #'as yet unclassified' }
-PirateVideo >> playOld [
-	| args proc fname player d |
-	self isViewable
-		ifFalse: [ ^ self ].
-	player := Config current vlcFolder.
-	fname := self videoFilename fullName.
-	args := ' --fullscreen --extraintf rc -I qt --rc-host 127.0.0.1:9092 "' , fname , '" '.
-	proc := OSProcess command: player , args.
-	d := Delay forMilliseconds: 200.
-	proc ifNil: [ ^ self ].
-	[ proc isComplete ]
-		whileFalse: [ 
-			d wait.
-			proc update: #runState ].
+PirateVideo >> play2 [
+	| args proc fname |
+	torrent ifNil:[^self].
+	fname := torrent videoFilename.
+"	out := FileStream forceNewFileNamed: '/tmp/deleteMe.out'.
+	err := FileStream forceNewFileNamed: '/tmp/deleteMe.err'.
+	desc := Array
+				with: nil
+				with: out
+				with: err.
+"	args := Array
+				with: '--fullscreen'
+				with: fname.
+	proc := UnixProcess
+				forkJob: '/usr/bin/vlc'
+				arguments: args
+				environment: nil
+				descriptors: nil.
+	proc ifNil: [UnixProcess noAccessorAvailable].
+	[proc isComplete] whileFalse:
+		[(Delay forMilliseconds: 200) wait.].
+"	out close.
+	err close."
 	^ proc
-]
-
-{ #category : #playing }
-PirateVideo >> playbackStoppedAt: aPosition [
-	prevPosition := aPosition.
-	self triggerEvent: #stopped
+"	^ self"
 ]
 
 { #category : #printing }
@@ -287,13 +253,12 @@ PirateVideo >> removeFalsesFrom: ts [
 { #category : #torrents }
 PirateVideo >> removeTorrentAndData [
 	torrent isNil ifTrue: [^ nil].
-	self torrent removeTorrentAndData.
-	self torrent: nil.
+	self torrent removeTorrentAndData
 ]
 
 { #category : #subtitles }
 PirateVideo >> setSub: aSubtitleDict [
-	"Dummy .should remove"
+	subTitle := aSubtitleDict .
 ]
 
 { #category : #torrents }
@@ -301,12 +266,10 @@ PirateVideo >> status [
 	| s |
 	s := self statusCode .
 	s= -1 ifTrue: [^ '-'].
-	s=0 ifTrue: [^'Paused/Done'].
+	s=0 ifTrue: [^'Seed done'].
 	s=3 ifTrue: [^'Queued'].
 	s=4 ifTrue: [^'Downloading'].
-	s=5 ifTrue: [^'QueuedSeed'].
 	s=6 ifTrue: [^'Seeding'].
-	s=7 ifTrue: [^'Paused'].
 	^'x'
 ]
 
@@ -327,11 +290,11 @@ PirateVideo >> subtitles: lang [
 	listTitle := self subtitlesByTitle: lang ]
 		on: Error
 		do: [ :ex | 
+			ex inspect.
+			self halt.
 			(retryCount := retryCount - 1) > 0
 				ifTrue: [ 
 					Transcript crShow: 'retrying subtitles, count left:' , retryCount printString.
-					Transcript crShow: self fullPrintString .
-					Transcript crShow: ex printString.
 					(Delay forMilliseconds: 500) wait.
 					ex retry ]
 				ifFalse: [ ^ #() ] ].
@@ -341,130 +304,82 @@ PirateVideo >> subtitles: lang [
 
 { #category : #subtitles }
 PirateVideo >> topSubtitles [
-	| os subs topSub text |
+	| os subs topSub |
 	self isDownloaded
 		ifFalse: [ ^ self ].
 	subs := self subtitles: 'eng'.
-	subs ifEmpty: [ ^ self ].
-	topSub := subs first.
-	os := OpenSubClient current.
-	text := os downloadSubtitle: topSub.
-	text ifNil: [ ^ self ].
-	self videoFile setSub: text.
-	Transcript crShow: 'setting subtitles for ' , self fullId
+	subs size > 0
+		ifTrue: [ 
+			topSub := subs first.
+			os := OpenSubClient current.
+			os login.
+			os downloadSubtitle: topSub fileName: self videoFilename.
+			[ os logout ] fork.
+			Transcript crShow: 'setting subtitles for ', self fullId.
+	
+			self setSub: topSub ]
 ]
 
 { #category : #torrents }
 PirateVideo >> torrent [
-	torrent ifNil: [^ nil].
+	torrent isNil ifTrue: [^ nil].
 	torrent class = PirateTorrent ifFalse: [self convertTorrent] .
 	^ torrent
 ]
 
 { #category : #torrents }
-PirateVideo >> torrent: aTorrent [
-	torrent = aTorrent
-		ifTrue: [ ^ self ].
+PirateVideo >> torrent: aTorrent [ 
 	torrent ifNotNil: [ torrent delete ].
-	torrent := PirateTorrent asTorrent: aTorrent.
-	videoFile ifNotNil: [ self videoFile: nil ].
+	torrent := aTorrent.
 	self changed
 ]
 
 { #category : #torrents }
 PirateVideo >> torrents [
-	torrents ifNil: [ torrents := OrderedCollection new ].
-	^ torrents 
+	^ torrents ifNil: [torrents := OrderedCollection new]
 ]
 
 { #category : #torrents }
 PirateVideo >> tpbString [
 	"tpb = The Pirate Bay "
-
-	^ self fullId urlEncoded
+	^ self fullId encodeForHTTP
 ]
 
 { #category : #'as yet unclassified' }
 PirateVideo >> unViewed [
-	viewed := false.
+	viewed:=false.
 	self changed.
-	self torrent ifNotNil: [ :t | t download ].
-	^ self
-]
-
-{ #category : #validation }
-PirateVideo >> validateTorrent [
-	| t |
-	torrent ifNil: [ ^ self ].
-	self isViewed
-		ifTrue: [ 
-			videoFile ifNotNil: [ videoFile doneWithThis ].
-			torrent doneWithThis ]
-		ifFalse: [ 
-			torrent isInServer
-				ifFalse: [ 
-					self download.
-					Transcript crShow: 'Adding torrent to Transmission: ' , self printString ]
-				ifTrue: [ 
-					t := PirateTorrent at: torrent torrentHash.
-					t
-						ifNil: [ 
-							PirateTorrent allTorrents add: torrent.
-							Transcript crShow: 'Adding torrent from: ' , self printString ]
-						ifNotNil: [ 
-							t = torrent
-								ifFalse: [ 
-									self torrent: t.
-									Transcript crShow: 'Replacing torrent from: ' , self printString ] ] ] ]
-]
-
-{ #category : #validation }
-PirateVideo >> validateVideofile [
-	videoFile ifNil: [ ^ self ].
-	self isViewed
-		ifTrue: [ videoFile doneWithThis .^ self ].
-	(videoFile isKindOf: PirateVideoFile)
-		ifFalse: [ self videoFile: nil.
-			Transcript crShow: 'Removing videoFile (wrong class) from: ' , self printString.
-			^ self ].
-	videoFile isValid
-		ifFalse: [ self videoFile: nil.
-			Transcript crShow: 'Removing videoFile (invalid state) from: ' , self printString ]
+	self torrent isNil 
+		ifFalse: [torrent download].
+	^self
 ]
 
 { #category : #accessing }
 PirateVideo >> videoFile [
-	videoFile ifNotNil: [ ^ videoFile ].
-	torrent ifNil: [ ^ nil ].
-	torrent isDownloadComplete
-		ifFalse: [ ^ nil ].
-	torrent isSingleVideoFile
-		ifFalse: [ ^ nil ].
-	self videoFile: torrent videoFile.
-	videoFile video: self.
+	((videoFile isNil and: [ torrent notNil ]) and: [ torrent isDownloadComplete ])
+		ifTrue: [ 
+			self videoFile: torrent createVideoFile.
+			videoFile video: self ].
 	^ videoFile
 ]
 
 { #category : #accessing }
 PirateVideo >> videoFile: aVideoFile [
-	videoFile
-		ifNotNil: [ 
-			videoFile class = PirateVideoFile
-				ifTrue: [ videoFile disconnect ] ].
-	videoFile := aVideoFile
+	videoFile := aVideoFile .
 ]
 
 { #category : #accessing }
 PirateVideo >> videoFilename [
-	self videoFile ifNil: [ ^ nil ] ifNotNil: [ :vf | ^ vf fullVideoFilename ]
+	^self videoFile fullVideoFilename
 ]
 
 { #category : #'as yet unclassified' }
 PirateVideo >> viewed [
-	viewed := true.
+	viewed:=true.
 	self changed.
 	self deleteSubtitles.
-	self videoFile ifNotNil: [ self videoFile doneWithThis ].
 	torrent ifNotNil: [ torrent doneWithThis ].
-	^ self
+	self videoFile ifNotNil: [ self videoFile doneWithThis ].
+"	[self videoFile doneWithThis. ] forkAt: Processor userBackgroundPriority."
+	^self
 ]

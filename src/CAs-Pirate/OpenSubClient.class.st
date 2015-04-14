@@ -8,7 +8,7 @@ Class {
 	#classVars : [
 		'Current'
 	],
-	#category : #'CAs-Pirate-Services'
+	#category : #'CAs-Pirate'
 }
 
 { #category : #'as yet unclassified' }
@@ -33,16 +33,13 @@ OpenSubClient >> compare: a and: b [
 ]
 
 { #category : #'as yet unclassified' }
-OpenSubClient >> downloadSubtitle: subDict [
+OpenSubClient >> downloadSubtitle: subDict fileName: aVideoFileName [
 	"struct LogIn(string $username, string $password, string $language, string $useragent)"
 
-	| r a data base64 zip text zipStream |
-	a := {(self token).
+	| r a data base64 zip text zipStream fs srtName |
+	a := {token.
 	{(subDict at: #IDSubtitleFile)}}.
-	[ r := self proxy invokeMethod: 'DownloadSubtitles' withArgs: a ]
-		on: Error
-		do: [ :ex | Transcript crShow: 'Error in downloadSubtitle:' , ex printString ].
-	r ifNil: [ ^ nil ].
+	r := self proxy invokeMethod: 'DownloadSubtitles' withArgs: a.
 	(r at: 'status') = '200 OK'
 		ifFalse: [ ^ nil ].
 	(data := r at: #data) isEmpty
@@ -51,7 +48,11 @@ OpenSubClient >> downloadSubtitle: subDict [
 	zip := Base64MimeConverter mimeDecodeToBytes: base64 readStream.
 	zipStream := GZipReadStream on: zip.
 	text := zipStream contents.
-	^ text
+	srtName := self srtFromVideo: aVideoFileName.	"	fs:=FileDirectory default forceNewFileNamed: srtName."
+	fs := FileSystem disk openFileStream: srtName writable: true.
+	fs nextPutAll: text.
+	fs close.
+	^ self
 ]
 
 { #category : #'as yet unclassified' }
@@ -84,7 +85,7 @@ OpenSubClient >> logout [
 OpenSubClient >> proxy [
 	| url |
 	proxy isNil ifTrue: [
-		url := ZnUrl fromString: 'http://api.opensubtitles.org/xml-rpc'.
+		url := Url absoluteFromText: 'http://api.opensubtitles.org/xml-rpc'.
 		proxy := XMLRPCProxy new url: url. 
 	].
 	^ proxy
@@ -93,34 +94,31 @@ OpenSubClient >> proxy [
 { #category : #'as yet unclassified' }
 OpenSubClient >> searchSubtitles: aDictionary [
 "struct SearchSubtitles(string $token, array(struct('sublanguageid' => string $sublanguageid, 'moviehash' => string $moviehash, 'moviebytesize' => int $moviesize, 'imdbid' => string $imdbid ), struct(...)))"
-
-	^self searchSubtitles: aDictionary retries: 5.
+	| r a data |
+	
+	a := { token.  {aDictionary} }.
+ 
+	r := self proxy invokeMethod: 'SearchSubtitles' withArgs: a.
+	data := r at: 'data'.
+	^ data
 ]
 
 { #category : #'as yet unclassified' }
-OpenSubClient >> searchSubtitles: aDictionary retries: retries [
-	"struct SearchSubtitles(string $token, array(struct('sublanguageid' => string $sublanguageid, 'moviehash' => string $moviehash, 'moviebytesize' => int $moviesize, 'imdbid' => string $imdbid ), struct(...)))"
-
-	| r a data |
-	a := {(self token).
-	{aDictionary}}.
-	[ r := self proxy invokeMethod: 'SearchSubtitles' withArgs: a ]
-		on: Error
-		do: [ :ex | 
-			Transcript
-				crShow: 'OpenSubTitles: Retries left: ' , (retries - 1) printString;
-				crShow: ex printString;
-				crShow: aDictionary.
-			retries > 0
-				ifTrue: [ self searchSubtitles: aDictionary retries: retries - 1 ]
-				ifFalse: [ ^ nil ] ].
-	r ifNil: [ ^ nil ].
-	(r at: 'status') = '401 Unauthorized'
-		ifTrue: [ 
-			self login.
-			^ self searchSubtitles: aDictionary ].
-	data := r at: 'data'.
-	^ data
+OpenSubClient >> searchSubtitlesByname: array lang: lang [
+"struct SearchSubtitles(string $token, array(struct('sublanguageid' => string $sublanguageid, 'moviehash' => string $moviehash, 'moviebytesize' => int $moviesize, 'imdbid' => string $imdbid ), struct(...)))"
+	| d data |
+	self obsolete .
+	self halt.
+	d := Dictionary new.
+	d at: 'query' put: (array at: 1).
+	d at: 'season' put: (array at: 2).
+	d at: 'episode' put: (array at: 3).
+	d at: 'sublanguageid' put: lang.
+	
+	data := self searchSubtitles: d.
+	(data isKindOf: Boolean) ifTrue: [^#()].
+	data := self sortSubtitles: data.
+	^ self
 ]
 
 { #category : #'as yet unclassified' }
@@ -133,7 +131,6 @@ OpenSubClient >> searchSubtitlesByname: name season: aSeason episode: anEpisode 
 	d at: 'sublanguageid' put: lang.
 
 	data := self searchSubtitles: d.
-	data ifNil: [^#()].
 	(data isKindOf: Boolean) ifTrue: [^#()].
 	data := self sortSubtitles: data.
 	^ data
@@ -171,18 +168,14 @@ OpenSubClient >> searchSubtitlesForHash: aHash size: fileSize season: aSeason ep
 OpenSubClient >> sortSubtitles: aSubDict [
 	| tmp |
 	tmp := aSubDict sort: [ :a :b | self compare: a and: b ].
-	^ tmp
+	^ tmp .
+	
 ]
 
 { #category : #'as yet unclassified' }
 OpenSubClient >> srtFromVideo: aVideoFileName [
-	"	lastDot := aVideoFileName findLastOccurrenceOfString: '.' startingAt: 1. 
+	| lastDot base |
+	lastDot := aVideoFileName findLastOccurrenceOfString: '.' startingAt: 1. 
 	base := aVideoFileName copyFrom: 1 to: lastDot-1. 
-	^base , '.srt'"
-	^ (aVideoFileName fullPath withExtension: 'srt') asFileReference
-]
-
-{ #category : #'as yet unclassified' }
-OpenSubClient >> token [
-	^ token ifNil: [ token := 'non-sense' ]
+	^base , '.srt'
 ]

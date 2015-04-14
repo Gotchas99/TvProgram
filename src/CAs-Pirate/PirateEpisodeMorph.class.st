@@ -1,6 +1,6 @@
 Class {
 	#name : #PirateEpisodeMorph,
-	#superclass : #PirateRootMorph,
+	#superclass : #BlocketRootMorph,
 	#instVars : [
 		'model',
 		'allTorrents',
@@ -55,7 +55,7 @@ PirateEpisodeMorph >> addControls [
 		extent: 5 @ 5.
 	self addMorphBack: btnPanel.
 	btnPanel addMorphBack: (self newButton: 'Refresh.' do: #refreshTorrents).
-"	btnPanel addMorphBack: (self newButton: 'Eztv' do: #eztvTorrents)."
+	btnPanel addMorphBack: (self newButton: 'Eztv' do: #eztvTorrents).
 	btnPanel addMorphBack: (self newButton: 'Download' do: #download).
 	btnPanel addMorphBack: (self newButton: 'Remove files' do: #removeFiles).
 	btnPanel addMorphBack: (self newButton: 'Set Torrent' do: #setTorrent).
@@ -117,9 +117,8 @@ PirateEpisodeMorph >> dropFiles: anEvent [
 	^self.
 ]
 
-{ #category : #deprecated }
+{ #category : #events }
 PirateEpisodeMorph >> eztvTorrents [
-	self deprecated: 'ezTv is dead. Don''t use this'
 ]
 
 { #category : #events }
@@ -127,15 +126,22 @@ PirateEpisodeMorph >> findCurrentTorrent [
 	| torrent m |
 	torrent := model magnet.
 	torrent isEmptyOrNil
-		ifTrue: [ ^ self ].
-	1 to: torrents size do: [ :i | 
-		m := torrents at: i.
-		torrent = (m at: 2)
-			ifTrue: [ self listIndex: i ] ].
-	1 to: torrentsSwe size do: [ :i | 
-		m := torrentsSwe at: i.
-		torrent = (m at: 2)
-			ifTrue: [ self listIndexSwe: i ] ]
+		ifTrue: [^ self].
+	1
+		to: torrents size
+		do: [:i | 
+			m := torrents at: i.
+			torrent
+					= (m at: 2)
+				ifTrue: [self listIndex: i]].
+1
+		to: torrentsSwe size
+		do: [:i | 
+			m := torrentsSwe at: i.
+			torrent
+					= (m at: 2)
+				ifTrue: [self listIndexSwe:i]].
+
 ]
 
 { #category : #'model access' }
@@ -146,12 +152,26 @@ PirateEpisodeMorph >> getTorrentText: aTorrent [
 
 { #category : #events }
 PirateEpisodeMorph >> getTorrents [
-	model ifNil: [ ^ self ].
-	[ 
-	allTorrents := model torrents.
-	self list: (allTorrents reject: [ :i | (i at: 1) includesSubstring: 'swesub' caseSensitive: false ]).
-	self listSwe: (allTorrents select: [ :i | (i at: 1) includesSubstring: 'swesub' caseSensitive: false ]).
-	WorldState addDeferredUIMessage: [ self findCurrentTorrent ] ] fork
+	| |
+	model
+		ifNil: [^ self].
+	[allTorrents := model torrents.
+	torrents :=allTorrents
+				reject: [:i | (i at: 1)
+						includesSubstring: 'swesub'
+						caseSensitive: false].
+	self changed: #list.
+	listIndex := 0.
+	torrentsSwe := allTorrents
+				select: [:i | (i at: 1)
+						includesSubstring: 'swesub'
+						caseSensitive: false].
+	self changed: #listSwe.
+	listIndexSwe := 0.
+	self changed: #listInvalids.
+	listIndexInvalids := 0.
+	WorldState
+		addDeferredUIMessage: [self findCurrentTorrent]] fork
 ]
 
 { #category : #initialization }
@@ -176,29 +196,29 @@ PirateEpisodeMorph >> invalidTorrent [
 
 { #category : #'model access' }
 PirateEpisodeMorph >> list [
-	torrents isEmptyOrNil
-		ifTrue: [ ^ nil ].
-	^ torrents
+	| |
+	torrents
+		ifNil: [^ nil].
+	torrents isEmpty
+		ifTrue: [^ nil].
+	
+	"^ #(1 3 4 )
+		collect: [:f | torrents
+				collect: [:i | i at: f]]"
+			^torrents
 ]
 
 { #category : #'model access' }
-PirateEpisodeMorph >> list: aListOfTorrents [
-	torrents :=aListOfTorrents .
-	self changed: #list.
-	self listIndex: 0.
-]
-
-{ #category : #deprecated }
 PirateEpisodeMorph >> listEztv [
 	^listEztv
 ]
 
-{ #category : #deprecated }
+{ #category : #'model access' }
 PirateEpisodeMorph >> listEztvIndex [
 	^listEztvIndex ifNil: [listEztvIndex := 0]
 ]
 
-{ #category : #deprecated }
+{ #category : #'model access' }
 PirateEpisodeMorph >> listEztvIndex: aSmallInteger [
 	listEztvIndex := aSmallInteger.
 	self changed: #listEztvIndex.
@@ -257,23 +277,21 @@ PirateEpisodeMorph >> listInvalids [
 
 { #category : #'model access' }
 PirateEpisodeMorph >> listSwe [
-	torrentsSwe isEmptyOrNil
-		ifTrue: [ ^ nil ].
-	^ torrentsSwe
+	| |
+	torrentsSwe
+		ifNil: [^ nil].
+	torrentsSwe isEmpty
+		ifTrue: [^ nil].
+
+"	^ #(1 3 4 )
+		collect: [:f | torrentsSwe
+				collect: [:i | i at: f]]."
+			^torrentsSwe
 ]
 
 { #category : #'model access' }
-PirateEpisodeMorph >> listSwe: aListOfTorrents [
-	torrentsSwe :=aListOfTorrents .
-	self changed: #listSwe.
-	self listIndexSwe: 0.
-]
-
-{ #category : #'model access' }
-PirateEpisodeMorph >> model: anEpisode [
+PirateEpisodeMorph >> model: anEpisode [ 
 	model := anEpisode.
-	self changed: #listInvalids.
-	self listIndexInvalids: 0.
 	self getTorrents
 ]
 
@@ -285,11 +303,10 @@ PirateEpisodeMorph >> refreshTorrents [
 
 { #category : #events }
 PirateEpisodeMorph >> removeFiles [
-	"	model isDownloaded
-		ifTrue: ["
 
-	model removeTorrentAndData	"]
-		ifFalse: [^ self]"
+	model isDownloaded
+		ifTrue: [model removeTorrentAndData]
+		ifFalse: [^ self]
 ]
 
 { #category : #events }

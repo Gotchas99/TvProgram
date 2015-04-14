@@ -1,61 +1,63 @@
 Class {
 	#name : #PirateViewableMorph,
-	#superclass : #PirateRootMorph,
+	#superclass : #BlocketRootMorph,
 	#instVars : [
 		'shows',
 		'listIndex',
 		'model',
-		'showsStarted',
-		'playingEp'
+		'showsStarted'
 	],
 	#category : #'CAs-Pirate-Gui'
 }
 
 { #category : #'as yet unclassified' }
 PirateViewableMorph >> addControls [
-	| r lst btnPanel started |
+	| r lst btnPanel morph started |
 	started := CheckboxMorph on: self selected: #showsStarted changeSelected: #showStarted.
 	started label: 'Show only started'.
 	started height: 20.
 	self addMorphBack: started.
 	lst := PluggableMultiColumnListMorph
-		on: self
-		list: #list
-		selected: #listIndex
-		changeSelected: #listIndex:
-		menu: nil
-		keystroke: nil.
+				on: self
+				list: #list
+				selected: #listIndex
+				changeSelected: #listIndex:.
+		"		menu: #listMenu:."
 	lst doubleClickSelector: #dblClick.
-	lst wrapSelector: #getEpisodeText:.
+	lst wrapSelector: #getEpisodeText:  .
 	lst color: Color white.
 	lst extent: 400 @ 400.
 	self addMorphBack: lst.
+	
 	btnPanel := self newRow.
-	btnPanel
-		color: Color transparent;
-		borderWidth: 0;
-		layoutInset: 2;
-		wrapCentering: #center;
-		cellPositioning: #topCenter;
-		hResizing: #shrinkWrap;
-		vResizing: #shrinkWrap;
-		extent: 5 @ 5.
+	btnPanel color: Color transparent;
+		 borderWidth: 0;
+		 layoutInset: 2;
+		 wrapCentering: #center;
+		 cellPositioning: #topCenter;
+		 hResizing: #shrinkWrap;
+		 vResizing: #shrinkWrap;
+		 extent: 5 @ 5.
 	self addMorphBack: btnPanel.
-	btnPanel addMorphBack: (self newButton: 'Refresh' do: #refresh).
-	btnPanel addMorphBack: (self newButton: 'Play' do: #play).
-	btnPanel addMorphBack: (self newButton: 'Subtitles...' do: #subtitles).
-	btnPanel addMorphBack: (self newButton: 'Top Sub' do: #topSubtitles).	"------------------------------------"
-	r := AlignmentMorph newRow
-		color: Color transparent;
-		borderWidth: 0;
-		layoutInset: 0.
+	btnPanel
+		addMorphBack: (self newButton: 'Refresh' do: #refresh).
+	btnPanel
+		addMorphBack: (self newButton: 'Play' do: #play).
+	btnPanel
+		addMorphBack: (self newButton: 'Subtitles...' do: #subtitles).
+	btnPanel
+		addMorphBack: (self newButton: 'Top Sub' do: #topSubtitles).
+	"------------------------------------"
+	r := AlignmentMorph newRow color: Color transparent;
+				 borderWidth: 0;
+				 layoutInset: 0.
+	r wrapCentering: #center;
+		 cellPositioning: #topCenter;
+		 hResizing: #shrinkWrap;
+		 vResizing: #shrinkWrap;
+		 extent: 5 @ 5.
 	r
-		wrapCentering: #center;
-		cellPositioning: #topCenter;
-		hResizing: #shrinkWrap;
-		vResizing: #shrinkWrap;
-		extent: 5 @ 5.
-	r addMorphBack: (self newButton: 'Close' do: #delete).
+		addMorphBack: (self newButton: 'Close' do: #delete).
 	r addTransparentSpacerOfSize: 8 @ 0.
 	self addMorphFront: r
 ]
@@ -69,18 +71,12 @@ PirateViewableMorph >> dblClick [
 
 { #category : #'as yet unclassified' }
 PirateViewableMorph >> getEpisodeText: anEpisode [
-	^ {(anEpisode isPaused
-		ifTrue: [ '*' ]
-		ifFalse: [ '' ]).
-	anEpisode season show displayName.
+
+ ^{anEpisode season show name.
 	anEpisode season id.
-	anEpisode id.
-	(anEpisode hasSubtitle
-		ifTrue: [ 'subs' ]
-		ifFalse: [ ' - ' ]).
-	(anEpisode season downloaded
-		ifTrue: [ 'Season' ]
-		ifFalse: [ ' - ' ])}
+	anEpisode id. 
+	(anEpisode hasSubtitle)ifTrue:['subs']ifFalse:[' - '].
+	}.
 ]
 
 { #category : #'as yet unclassified' }
@@ -88,13 +84,9 @@ PirateViewableMorph >> icon [
 	^ nil
 ]
 
-{ #category : #accessing }
+{ #category : #'as yet unclassified' }
 PirateViewableMorph >> initialize [
-	self 
-		deprecated: 'Use PirateViewable instead'
-		on: 	'3 October 2017' 
-		in: 'Pharo-6.0-60510-'.
-	^ super initialize.
+	super initialize.
 ]
 
 { #category : #'as yet unclassified' }
@@ -127,38 +119,36 @@ PirateViewableMorph >> model:  allShows [
 { #category : #'as yet unclassified' }
 PirateViewableMorph >> play [
 	| ep |
-	self listIndex = 0
-		ifTrue: [ ^ self ].
+	(self listIndex = 0) ifTrue: [^self].
 	ep := model at: listIndex.
 	ep isDownloaded
 		ifTrue: [ 
-			playingEp := ep.
-			ep when: #stopped send: #playStopped to: self.
-			ep play ]
-]
-
-{ #category : #'as yet unclassified' }
-PirateViewableMorph >> playStopped [
-	(self confirm: 'Did you see the entire show?')
-		ifTrue: [ playingEp viewed .
-			[playingEp season show lookForAll ]fork].
-	playingEp removeActionsWithReceiver: self.
-	self refresh.
-	self changed: #list	"(self confirm: 'Subtitles OK?') ifTrue: [  ]."
+			ep play.
+			(self confirm: 'Did you see the entire show?')
+				ifTrue: [ 
+					[ 
+"					(self confirm: 'Subtitles OK?')
+				ifTrue: [  ].
+"					ep viewed.
+					self refresh.
+					self changed: #list ] forkAt: Processor userBackgroundPriority ].
+			 ]
 ]
 
 { #category : #'as yet unclassified' }
 PirateViewableMorph >> refresh [
 	| tmp |
 	model := OrderedCollection new.
-	tmp := shows collect: [ :s | s nextToSee ].
-	tmp := tmp reject: [ :i | i isNil ].
-	tmp := tmp select: [ :e | e isViewable ].
-	self showsStarted
-		ifTrue: [ tmp := tmp reject: [ :i | i id = '01' and: [ i season id = '01' ] ] ]
-		ifFalse: [ tmp := tmp select: [ :i | i id = '01' and: [ i season id = '01' ] ] ].
-	model := tmp.
-	self changed: #list
+	tmp := shows collect: [:s|s nextEpisode].
+	tmp := tmp reject: [:i| i isNil].
+	self showsStarted ifTrue: [
+		tmp := tmp reject: [:i|
+			(i id = '01') and: [i season id = '01']
+			]
+		].
+	model:= tmp.
+	self changed: #list.
+ 
 ]
 
 { #category : #'as yet unclassified' }
@@ -172,18 +162,6 @@ PirateViewableMorph >> showsStarted [
 	showsStarted
 		ifNil: [showsStarted := true].
 	^ showsStarted
-]
-
-{ #category : #'as yet unclassified' }
-PirateViewableMorph >> step [
-	| t |
-	t := [ self refresh ] timeToRun.
-"	Transcript crShow: 'step... time: ' , t printString"
-]
-
-{ #category : #'as yet unclassified' }
-PirateViewableMorph >> stepTime [
-	^2100
 ]
 
 { #category : #'as yet unclassified' }
