@@ -303,11 +303,10 @@ PirateEpisodeMorph >> refreshTorrents [
 
 { #category : #events }
 PirateEpisodeMorph >> removeFiles [
-	"	model isDownloaded
-		ifTrue: ["
 
-	model removeTorrentAndData	"]
-		ifFalse: [^ self]"
+	model isDownloaded
+		ifTrue: [model removeTorrentAndData]
+		ifFalse: [^ self]
 ]
 
 { #category : #events }
