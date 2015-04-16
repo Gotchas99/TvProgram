@@ -165,6 +165,18 @@ PirateViewableMorph >> showsStarted [
 ]
 
 { #category : #'as yet unclassified' }
+PirateViewableMorph >> step [
+	| t |
+	t := [ self refresh ] timeToRun.
+"	Transcript crShow: 'step... time: ' , t printString"
+]
+
+{ #category : #'as yet unclassified' }
+PirateViewableMorph >> stepTime [
+	^2100
+]
+
+{ #category : #'as yet unclassified' }
 PirateViewableMorph >> subtitles [
 	| ep m |
 		(self listIndex = 0) ifTrue: [^self].
