@@ -30,6 +30,7 @@ TransmissionClient >> addTorrent: aTorrentString [
 	args := Dictionary new.
 	args at: 'filename' put: aTorrentString.
 	args at: 'download-dir' put: self folder.
+	args at: 'priority-low' put: #().
 	req := Dictionary new.
 	req at: 'method' put: 'torrent-add'.
 	req at: 'arguments' put: args.

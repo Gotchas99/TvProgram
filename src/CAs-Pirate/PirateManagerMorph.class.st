@@ -193,17 +193,21 @@ PirateManagerMorph >> addTorrent [
 { #category : #'event handling' }
 PirateManagerMorph >> addVideofile [
 	| ep file vf |
-	listIndex3 = 0 
+	listIndex3 = 0
 		ifTrue: [ ^ self ].
-file:=UITheme current 	chooseFileIn: self title: 'Select a video file' extensions: nil path: PirateTorrent folder preview: nil.
+	file := UITheme current
+		chooseFileIn: self
+		title: 'Select a video file'
+		extensions: nil
+		path: PirateTorrent folder
+		preview: nil.
 	file isNil
 		ifTrue: [ ^ self ].
 	vf := PirateVideoFile new.
 	vf videoFilename: file basename.
 	vf folder: file reference parent fullName.
 	ep := model3 episodes at: listIndex3.
-	ep
-		videoFile: vf.
+	ep videoFile: vf.
 	self changed: #list3
 ]
 
@@ -438,7 +442,7 @@ PirateManagerMorph >> refresh [
 		self changed: #list.
 		self changed: #list3 .
 		"PirateTorrent cleanUpSeedingDoneOnce."
-		Transcript show: '-------------'; cr.
+"		Transcript show: '-------------'; cr."
 	].
 	
 ]
@@ -488,6 +492,18 @@ PirateManagerMorph >> selectShow: aName [
 			ifTrue: [ 
 				self listIndex: i.
 				^ self ] ]
+]
+
+{ #category : #'stepping and presenter' }
+PirateManagerMorph >> step [
+	| |
+"	t := [ self refresh ] timeToRun."
+"	Transcript crShow: 'step... time: ' , t printString"
+]
+
+{ #category : #'stepping and presenter' }
+PirateManagerMorph >> stepTime [
+	^5000
 ]
 
 { #category : #'event handling' }
