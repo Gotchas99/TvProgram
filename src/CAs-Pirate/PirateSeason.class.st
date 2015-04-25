@@ -39,6 +39,11 @@ PirateSeason >> addEpisodeNo: anInteger [
 ]
 
 { #category : #'as yet unclassified' }
+PirateSeason >> addEpisodes: newMax [
+	1 + self maxEpisode to: newMax do: [ :i | self addEpisodeNo: i ]
+]
+
+{ #category : #'as yet unclassified' }
 PirateSeason >> delete [
 	episodes do: [:e| e delete].
 ]

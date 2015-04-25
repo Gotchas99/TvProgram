@@ -44,7 +44,8 @@ PirateManagerMorph >> addControls [
 	r1c2 addMorphBack: (self newButton: 'New episodes' do: #newEpisodes).
 	r1c2 addMorphBack: (self newButton: 'Viewables' do: #viewables).
 	r1c2 addMorphBack: (self newButton: 'Needs torrent' do: #needsTorrent).
-	r1c2 addMorphBack: (self newButton: 'Pairing' do: #pairing).
+	r1c2 addMorphBack: (self newButton: 'Set episodes' do: #setMaxEpisodes).
+"	r1c2 addMorphBack: (self newButton: 'Pairing' do: #pairing)."
 	r1 addMorphBack: r1c2.
 	lst2 := PluggableListMorph
 		on: self
@@ -122,16 +123,15 @@ PirateManagerMorph >> addEpisode [
 
 { #category : #'event handling' }
 PirateManagerMorph >> addEpisodes [
-		| maxNo |
+	| maxNo |
 	listIndex2 > 0
-		ifFalse: [^ self].
-		maxNo:= UIManager default request: 'Max episode number' initialAnswer: '1'.
-		maxNo isNil ifTrue:[^self].
-		maxNo := maxNo asInteger.
-		(1+model3 maxEpisode) to: maxNo do: [:i|model3 addEpisodeNo: i] .
-
-	self changed: #list3.
-
+		ifFalse: [ ^ self ].
+	maxNo := UIManager default request: 'Max episode number' initialAnswer: '1'.
+	maxNo isNil
+		ifTrue: [ ^ self ].
+	maxNo := maxNo asInteger.
+	model3 addEpisodes: maxNo.
+	self changed: #list3
 ]
 
 { #category : #'event handling' }
@@ -266,7 +266,7 @@ PirateManagerMorph >> dblClick3 [
 PirateManagerMorph >> deleteShow [
 	listIndex > 0
 		ifTrue: [ 
-			(self confirm: 'Villdu verkligen ta bort programmet?' , String crlfcrlf , (self list at: listIndex) name)
+			(self confirm: 'Vill du verkligen ta bort programmet?' , String crlfcrlf , (self list at: listIndex) name)
 				ifTrue: [ 
 					PirateShow removeShow: (self list at: listIndex).
 					self changed: #list.
@@ -492,6 +492,16 @@ PirateManagerMorph >> selectShow: aName [
 			ifTrue: [ 
 				self listIndex: i.
 				^ self ] ]
+]
+
+{ #category : #'event handling' }
+PirateManagerMorph >> setMaxEpisodes [
+	listIndex > 0
+		ifTrue: [ 
+			(self list at: listIndex) setEpisodesFromEztv.
+			self changed: #list.
+			self changed: #list2.
+			self changed: #list3 ]
 ]
 
 { #category : #'stepping and presenter' }

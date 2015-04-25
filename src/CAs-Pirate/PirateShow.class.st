@@ -322,6 +322,20 @@ PirateShow >> seasons [
 	^seasons
 ]
 
+{ #category : #'as yet unclassified' }
+PirateShow >> setEpisodesFromEztv [
+	| dict s s_no season |
+	self eztv ifNil: [ ^ self ].
+	dict := Eztv new getEpisodes: self eztv.
+	dict keys sorted
+		do: [ :key | 
+			s_no := key asTwoCharacterString.
+			s := seasons select: [ :each | each id = s_no ].
+			season:=s at:1 ifAbsent:[  self addSeason ].
+				
+			season addEpisodes: (dict at: key) ]
+]
+
 { #category : #accessing }
 PirateShow >> tags [
 	^ tags ifNil: [ tags := SortedCollection new ]
