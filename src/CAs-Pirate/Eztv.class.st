@@ -5,21 +5,23 @@ Class {
 }
 
 { #category : #api }
-Eztv >> getEpisodes: anEztvString [ 
+Eztv >> getEpisodes: anEztvString [
 	| rows rows2 regexp rows3 dict seas ep maxEp rows4 |
-	dict:= Dictionary new.
+	dict := Dictionary new.
 	rows := self getShow: anEztvString.
-	rows2 := rows collect: [ :each| each first ].
-regexp:= 'S\d\dE\d\d' asRegexIgnoringCase .
-rows3 := rows2 collect: [ :each| regexp search: each. regexp subexpression: 1 ] .
-rows4 := rows3 reject: [ :each|each isNil ].
-rows4 asSet do: [ :each| 
-	seas:= (each copyFrom:2to:3)asInteger .
-	ep:= (each copyFrom:5to:6)asInteger . 
-	maxEp := dict at: seas ifAbsent: [0].
-dict at: seas put: (ep max: maxEp).
-]
-.
+	rows2 := rows collect: [ :each | each first ].
+	regexp := 'S\d\dE\d\d' asRegexIgnoringCase.
+	rows3 := rows2
+		collect: [ :each | 
+			regexp search: each.
+			regexp subexpression: 1 ].
+	rows4 := rows3 reject: [ :each | each isNil ].
+	rows4 asSet
+		do: [ :each | 
+			seas := (each copyFrom: 2 to: 3) asInteger.
+			ep := (each copyFrom: 5 to: 6) asInteger.
+			maxEp := dict at: seas ifAbsent: [ 0 ].
+			dict at: seas put: (ep max: maxEp) ].
 	^ dict
 ]
 
@@ -48,7 +50,6 @@ Eztv >> getShow: anEztvString [
 	searchRows := table tagsNamed: 'hover'.
 	rows := searchRows collect: [ :ea | self parseRow: ea ].
 	rows := rows reject: [ :each | each isNil ].
-	rows := rows reject: [ :each | each includesSubstring: '1080p' caseSensitive: false ].
 	^ rows
 ]
 

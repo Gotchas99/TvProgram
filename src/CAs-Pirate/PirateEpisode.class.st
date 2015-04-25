@@ -51,6 +51,8 @@ PirateEpisode >> getTorrents [
 		ifFalse: [ t addAll: eztv ].
 	tpb isNil
 		ifFalse: [ t addAll: tpb ].
+		t := t reject: [ :each | each first includesSubstring: '1080p' caseSensitive: false ].
+
 	^ t
 ]
 
