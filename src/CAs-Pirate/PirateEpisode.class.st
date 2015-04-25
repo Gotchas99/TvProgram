@@ -8,6 +8,11 @@ Class {
 }
 
 { #category : #'as yet unclassified' }
+PirateEpisode >> <= aPirateEpisode [
+	^(self fullId) caseInsensitiveLessOrEqual: (aPirateEpisode fullId).
+]
+
+{ #category : #'as yet unclassified' }
 PirateEpisode >> episodeId [
 	^ season seasonId , 'E',self id
 ]
@@ -47,6 +52,13 @@ PirateEpisode >> getTorrents [
 	tpb isNil
 		ifFalse: [ t addAll: tpb ].
 	^ t
+]
+
+{ #category : #'as yet unclassified' }
+PirateEpisode >> needsTorrent [
+	self season show archived
+		ifTrue: [ ^ false ].
+	^ super needsTorrent
 ]
 
 { #category : #'as yet unclassified' }

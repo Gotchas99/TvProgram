@@ -10,6 +10,11 @@ Class {
 }
 
 { #category : #'as yet unclassified' }
+PirateSeason >> <= aPirateSeason [
+	^(self fullId) caseInsensitiveLessOrEqual: (aPirateSeason fullId).
+]
+
+{ #category : #'as yet unclassified' }
 PirateSeason >> addEpisode [
 	| newEpisode |
 	newEpisode := PirateEpisode new.

@@ -214,7 +214,7 @@ PirateShow >> eztv: anIdString [
 { #category : #'initialize-release' }
 PirateShow >> initialize [
 	super initialize.
-	seasons := OrderedCollection new.
+	seasons := SortedCollection new.
 ]
 
 { #category : #'as yet unclassified' }

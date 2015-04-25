@@ -38,8 +38,8 @@ PirateApp class >> startUp: resuming [
 	resuming
 		ifTrue: [ 
 			Config current initializeFromFile.
-			Workspace
+			"Workspace
 				openContents:
 					'PirateVideoFile validateAll.
-PirateTorrent setUpAllTorrents.' ]
+PirateTorrent setUpAllTorrents.'" ]
 ]
