@@ -26,6 +26,14 @@ PirateVideo class >> getAllSubtitles [
 			delay wait ]
 ]
 
+{ #category : #'as yet unclassified' }
+PirateVideo class >> validateAllTorents [
+	PirateShow shows do: [ :s | 
+		s seasons do: [ :sea | 
+			sea episodes do: [ :e | 
+				e validateTorrent ] ] ]
+]
+
 { #category : #torrents }
 PirateVideo >> addFalseTorrent: aTorrentArray [
 	self falseTorrents add: aTorrentArray.
@@ -352,6 +360,27 @@ PirateVideo >> unViewed [
 	self torrent isNil 
 		ifFalse: [torrent download].
 	^self
+]
+
+{ #category : #'as yet unclassified' }
+PirateVideo >> validateTorrent [
+	| t |
+	torrent ifNil: [ ^ self ].
+	self isViewed 
+		ifTrue: [ ^ self ].
+	torrent isInServer
+		ifFalse: [ 
+			torrent := nil.
+			Transcript crShow: 'Removing torrent from: ' , self printString ]
+		ifTrue: [ 
+			t := PirateTorrent at: torrent torrentHash.
+			t isNil
+				ifTrue: [ 
+					PirateTorrent allTorrents add: torrent.
+					Transcript crShow: 'Adding torrent from: ' , self printString ]
+				ifFalse: [ 
+					torrent := t.
+					Transcript crShow: 'Replacing torrent from: ' , self printString ] ]
 ]
 
 { #category : #accessing }
