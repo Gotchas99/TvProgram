@@ -42,7 +42,7 @@ PirateVideoFile >> computeHashForChunk: fs start: start size: chunkSize [
 	^ hash
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'initialize-release' }
 PirateVideoFile >> doneWithThis [
 	viewTime := TimeStamp now.
 	torrent isNil
