@@ -180,8 +180,16 @@ XMLRPCProxy >> processResponse: xmlStream [
 { #category : #private }
 XMLRPCProxy >> sendXmlRpc: data [ 
 	"Send the XML-RPC data and get the response. Return the raw XML."
-	| s req res xml |
+	| res |
 	
+	"	res := self client
+		url: url;
+		entity: (ZnStringEntity xml: data);
+		beOneShot;
+		setAcceptEncodingGzip;
+		post;
+		response"
+		
 	res := ZnEasy post: url data: (ZnStringEntity xml: data).
 	
 	"Make sure the result was valid."
