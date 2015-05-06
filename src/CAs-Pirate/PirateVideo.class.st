@@ -336,8 +336,12 @@ PirateVideo >> torrent [
 ]
 
 { #category : #torrents }
-PirateVideo >> torrent: aTorrent [ 
+PirateVideo >> torrent: aTorrent [
 	torrent ifNotNil: [ torrent delete ].
+	videoFile
+		ifNotNil: [ 
+			videoFile reset.
+			videoFile := nil ].
 	torrent := aTorrent.
 	self changed
 ]

@@ -144,6 +144,12 @@ PirateVideoFile >> printOn: aStream [
 	aStream nextPutAll:  self videoFilename 
 ]
 
+{ #category : #accessing }
+PirateVideoFile >> reset [
+	video := nil.
+	torrent := nil
+]
+
 { #category : #'not used' }
 PirateVideoFile >> swesub [
 	^ swesub ifNil: [ swesub := false ]
