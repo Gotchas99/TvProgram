@@ -34,15 +34,18 @@ PirateEpisode >> getPirateTorrents [
 
 { #category : #'as yet unclassified' }
 PirateEpisode >> getTorrents [
-	| t eztv tpb sem |
+	| t eztv tpb sem kickass |
 	t := OrderedCollection new.
 	sem := Semaphore new.
 	[ 
 	self season show eztv isNil
 		ifFalse: [ eztv := self getEztvTorrents ].
 	sem signal ] fork.
-	[ 
+"	[ 
 	tpb := PirateRobot new getShow: self tpbString.
+	sem signal ] fork.
+"	[ 
+	kickass := KickassRobot new getShow: self tpbString.
 	sem signal ] fork.
 	sem
 		wait;
@@ -51,8 +54,9 @@ PirateEpisode >> getTorrents [
 		ifFalse: [ t addAll: eztv ].
 	tpb isNil
 		ifFalse: [ t addAll: tpb ].
-		t := t reject: [ :each | each first includesSubstring: '1080p' caseSensitive: false ].
-
+	kickass isNil
+		ifFalse: [ t addAll: kickass ].
+	t := t reject: [ :each | each first includesSubstring: '1080p' caseSensitive: false ].
 	^ t
 ]
 

@@ -155,13 +155,13 @@ PirateRobot >> getTest: aString [
 { #category : #private }
 PirateRobot >> getTorrents: aString category: categoryString [
 	| main rows baseUrl suffix searchRows dud |
-	baseUrl := 'http://thepiratebay.org/search/'.	"baseUrl := 'http://pirateproxy.se/search/'."
+	baseUrl := 'https://thepiratebay.se/search/'.	"baseUrl := 'http://pirateproxy.se/search/'."
 	suffix := '/0/7/' , categoryString.
 	[ self newGet: baseUrl , aString , suffix ]
 		on: Exception
 		do: [ :ex| 
 			Transcript crShow: 'Exception on newGet'.
-			"self halt."
+"			self halt."
 			^ OrderedCollection new ].
 	self checkOk.	
 	self parseBody.
