@@ -12,13 +12,15 @@ KickassRobot >> getShow: aString [
 { #category : #'as yet unclassified' }
 KickassRobot >> getTorrents: aString category: categoryString [
 	| main rows baseUrl suffix searchRows |
+	"sample search string
+	https://kickass.to/usearch/Arrow%20category:tv%20verified:1%20season:13%20episode:20/"
 	baseUrl := 'https://kickass.to/usearch/'.
-	suffix := '%20category:' , categoryString.
+	suffix := '%20category:' , categoryString , '%20verified:1/'.
 	[ self newGet: baseUrl , aString , suffix ]
 		on: Exception
 		do: [ :ex| 
-			Transcript crShow: 'Exception on newGet'.
-			self halt.
+			Transcript crShow: 'Exception on Kickass:newGet:', ex printString.
+"			self halt."
 			^ OrderedCollection new ].
 	self checkOk.	
 	self parseBody.
