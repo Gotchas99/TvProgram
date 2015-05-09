@@ -35,10 +35,9 @@ Eztv >> getShow: anEztvString [
 	url := url asZnUrl closePath.
 	[ self newGet: url ]
 		on: Exception
-		do: [ 
+		do: [ :ex |
 			Transcript
-				show: 'Exception on Eztv/newGet';
-				cr.
+				crShow: 'Exception on Eztv/newGet:', ex printString.
 			^ OrderedCollection new ].
 	self checkOk.
 	self parseBody.
