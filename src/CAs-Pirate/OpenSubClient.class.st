@@ -35,7 +35,6 @@ OpenSubClient >> compare: a and: b [
 { #category : #'as yet unclassified' }
 OpenSubClient >> downloadSubtitle: subDict fileName: aVideoFileName [
 	"struct LogIn(string $username, string $password, string $language, string $useragent)"
-
 	| r a data base64 zip text zipStream fs srtName |
 	a := {token.
 	{(subDict at: #IDSubtitleFile)}}.
@@ -102,13 +101,11 @@ OpenSubClient >> searchSubtitles: aDictionary [
 OpenSubClient >> searchSubtitles: aDictionary retries: retries [
 "struct SearchSubtitles(string $token, array(struct('sublanguageid' => string $sublanguageid, 'moviehash' => string $moviehash, 'moviebytesize' => int $moviesize, 'imdbid' => string $imdbid ), struct(...)))"
 	| r a data |
-	
 	a := { token.  {aDictionary} }.
- 
 	[r := self proxy invokeMethod: 'SearchSubtitles' withArgs: a ]
 		on: Error 
 		do:  [ :ex | 
-			Transcript crShow: 'OpenSubTitles: Reties left: ',(retries-1) printString, ', ',ex printString.
+			Transcript crShow: 'OpenSubTitles: Retries left: ',(retries-1) printString, ', ',ex printString.
 			(retries>0) 
 				ifTrue: [ self searchSubtitles: aDictionary retries: retries-1 ] 
 				ifFalse:[^nil ] ].
@@ -116,7 +113,7 @@ OpenSubClient >> searchSubtitles: aDictionary retries: retries [
 	r ifNil: [ ^nil ].
 	((r at: 'status') =  '401 Unauthorized') ifTrue: [ 
 		self login.  
-		self searchSubtitles: aDictionary  ].
+		^self searchSubtitles: aDictionary  ].
 	data := r at: 'data'.
 	^ data
 ]

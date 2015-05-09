@@ -113,7 +113,7 @@ PirateEpisode >> subtitlesByHash: lang [
 	aSeason := self season id asInteger  .
 	anEpisode := self id asInteger  .
 	os:= OpenSubClient current.
-	os login.
+"	os login."
 	subs := os searchSubtitlesForHash: hash size: fileSize season: aSeason episode: anEpisode lang: lang.
 "	os logout."
 	^ subs
