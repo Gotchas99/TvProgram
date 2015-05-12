@@ -261,7 +261,8 @@ PirateVideo >> removeFalsesFrom: ts [
 { #category : #torrents }
 PirateVideo >> removeTorrentAndData [
 	torrent isNil ifTrue: [^ nil].
-	self torrent removeTorrentAndData
+	self torrent removeTorrentAndData.
+	self torrent: nil.
 ]
 
 { #category : #subtitles }
@@ -299,7 +300,7 @@ PirateVideo >> subtitles: lang [
 		on: Error
 		do: [ :ex | 
 			ex inspect.
-			self halt.
+		"	self halt."
 			(retryCount := retryCount - 1) > 0
 				ifTrue: [ 
 					Transcript crShow: 'retrying subtitles, count left:' , retryCount printString.
