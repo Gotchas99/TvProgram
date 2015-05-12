@@ -141,8 +141,8 @@ PirateManagerMorph >> addEztv [
 		ifTrue: [ ^ self ].
 	show := self list at: listIndex.
 	id := UIManager default request: 'Add EZTV id:' initialAnswer: show eztv printString.
-	id isNil
-		ifTrue: [ ^ self ].
+"	id isNil
+		ifTrue: [ ^ self ]."
 	show eztv: id.
 	self changed: #list
 ]
