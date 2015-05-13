@@ -236,9 +236,9 @@ PirateManagerMorph >> dblClick [
 		ifTrue: [
 			model2 := self list at: listIndex.
 			self changed: #list2.
-			self listIndex2: 0.
-			model3 := nil.
-			self changed: #list3 ]
+			self listIndex2: 1.
+"			model3 := nil.
+			self changed: #list3 "]
 ]
 
 { #category : #'event handling' }
@@ -247,7 +247,7 @@ PirateManagerMorph >> dblClick2 [
 	listIndex2 > 0
 		ifTrue: [model3 := model2 seasons at: listIndex2.
 			self changed: #list3.		
-			listIndex3 := 0.
+			listIndex3 := 1.
 			self changed: #listIndex3.]
 ]
 

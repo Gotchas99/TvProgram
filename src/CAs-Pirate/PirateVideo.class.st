@@ -321,9 +321,9 @@ PirateVideo >> topSubtitles [
 		ifTrue: [ 
 			topSub := subs first.
 			os := OpenSubClient current.
-			os login.
+"			os login."
 			os downloadSubtitle: topSub fileName: self videoFilename.
-			[ os logout ] fork.
+"			[ os logout ] fork."
 			Transcript crShow: 'setting subtitles for ', self fullId.
 	
 			self setSub: topSub ]

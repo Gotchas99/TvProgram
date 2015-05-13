@@ -38,7 +38,7 @@ OpenSubClient >> downloadSubtitle: subDict fileName: aVideoFileName [
 	| r a data base64 zip text zipStream fs srtName |
 	a := {token.
 	{(subDict at: #IDSubtitleFile)}}.
-	r := self proxy invokeMethod: 'DownloadSubtitles' withArgs: a.
+[	r := self proxy invokeMethod: 'DownloadSubtitles' withArgs: a.]on: Error do: [ :ex| Transcript crShow: 'Error in downloadSubtitle:', ex printString ].
 	(r at: 'status') = '200 OK'
 		ifFalse: [ ^ nil ].
 	(data := r at: #data) isEmpty
