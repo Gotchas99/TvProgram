@@ -83,9 +83,14 @@ PirateSeason >> initialize [
 ]
 
 { #category : #'as yet unclassified' }
+PirateSeason >> isViewed [
+	^episodes last isViewed 
+]
+
+{ #category : #'as yet unclassified' }
 PirateSeason >> lookForAll [
-	^ episodes
-		do: [:i | i lookForItIfNotFound]
+	self isViewed
+		ifFalse: [ episodes do: [ :i | i lookForItIfNotFound ] ]
 ]
 
 { #category : #accessing }
@@ -126,6 +131,12 @@ PirateSeason >> notSeen [
 PirateSeason >> printOn: aStream [ 
 	aStream
 		nextPutAll:  self seasonId
+]
+
+{ #category : #'as yet unclassified' }
+PirateSeason >> removeEpisode: anEpisode [
+	episodes remove: anEpisode.
+
 ]
 
 { #category : #'as yet unclassified' }
