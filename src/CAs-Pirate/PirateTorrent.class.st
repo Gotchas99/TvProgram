@@ -176,7 +176,7 @@ PirateTorrent >> doneWithThis [
 	(#(3 4) includes: status)
 		ifTrue: [ self delete ]
 		ifFalse: [ 
-			self DeathRow add: self.
+			self class DeathRow add: self.
 			self startReaper ]
 ]
 
