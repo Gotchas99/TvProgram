@@ -5,7 +5,6 @@ Class {
 		'id',
 		'torrent',
 		'falseTorrents',
-		'location',
 		'subTitle',
 		'viewed',
 		'torrents',
@@ -52,7 +51,15 @@ PirateVideo >> convertTorrent [
 { #category : #'as yet unclassified' }
 PirateVideo >> delete [
 	self deleteSubtitles.
-	torrent isNil ifFalse: [torrent delete].
+	torrent ifNotNil: [ torrent delete.torrent:=nil ].
+	torrents := nil.
+	falseTorrents := nil.
+	videoFile
+		ifNotNil: [ 
+			videoFile reset.
+			videoFile := nil ].
+	subTitle := nil.
+	viewed:=false.
 ]
 
 { #category : #subtitles }

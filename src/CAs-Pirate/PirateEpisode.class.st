@@ -13,6 +13,14 @@ PirateEpisode >> <= aPirateEpisode [
 ]
 
 { #category : #'as yet unclassified' }
+PirateEpisode >> delete [
+	season removeEpisode: self.
+	season:= nil.
+	super delete.
+	
+]
+
+{ #category : #'as yet unclassified' }
 PirateEpisode >> episodeId [
 	^ season seasonId , 'E',self id
 ]

@@ -176,9 +176,7 @@ PirateTorrent >> doneWithThis [
 	(#(3 4) includes: status)
 		ifTrue: [ self delete ]
 		ifFalse: [ 
-			DeathRow isNil
-				ifTrue: [ DeathRow := Set new ].
-			DeathRow add: self.
+			self DeathRow add: self.
 			self startReaper ]
 ]
 
