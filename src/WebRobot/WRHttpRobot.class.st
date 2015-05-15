@@ -61,16 +61,12 @@ WRHttpRobot >> newGetWithState: anURL [
 
 { #category : #'as yet unclassified' }
 WRHttpRobot >> newRequest [
-
-"	request := SptHTTPRequest new.
-	state := request state."
 	request := ZnClient new
 		timeout: 10;
 		numberOfRetries: 3;
 		retryDelay: 2;
 		beOneShot.
-	
-		^request
+	^ request
 ]
 
 { #category : #'as yet unclassified' }
