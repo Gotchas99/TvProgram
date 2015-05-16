@@ -306,7 +306,7 @@ PirateVideo >> subtitles: lang [
 	listTitle := self subtitlesByTitle: lang ]
 		on: Error
 		do: [ :ex | 
-			ex inspect.
+			"ex inspect."
 		"	self halt."
 			(retryCount := retryCount - 1) > 0
 				ifTrue: [ 

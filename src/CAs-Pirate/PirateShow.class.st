@@ -27,7 +27,7 @@ PirateShow class >> fileName [
 	"OSPlatform isUnix ifTrue: [ folder := '/media/cm1store/' ].
 	OSPlatform isWin32 ifTrue: [ folder := 'O:\' ]."
 	folder := Config current torrentFolder.
-	fileName := folder, 	'TVshows'.
+	fileName := folder, 	'/TVshows'.
 	^fileName
 ]
 
