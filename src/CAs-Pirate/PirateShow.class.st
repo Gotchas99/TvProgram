@@ -8,7 +8,8 @@ Class {
 		'archived',
 		'tags',
 		'eztv',
-		'imdb'
+		'imdb',
+		'tmdb'
 	],
 	#classVars : [
 		'Shows'
@@ -211,6 +212,16 @@ PirateShow >> eztv: anIdString [
 	eztv := anIdString 
 ]
 
+{ #category : #accessing }
+PirateShow >> imdb [
+	^ imdb
+]
+
+{ #category : #accessing }
+PirateShow >> imdb: anObject [
+	imdb := anObject
+]
+
 { #category : #'initialize-release' }
 PirateShow >> initialize [
 	super initialize.
@@ -336,9 +347,35 @@ PirateShow >> setEpisodesFromEztv [
 			season addEpisodes: (dict at: key) ]
 ]
 
+{ #category : #'as yet unclassified' }
+PirateShow >> setEpisodesFromTmdb [
+	| dict s s_no season |
+	self tmdb
+		ifNil: [ 
+			self imdb ifNil: [ ^ self ].
+			self tmdb: (TheMovieDb new getTmdbFromImdb: self imdb) ].
+	dict := TheMovieDb new getEpisodes: self tmdb.
+	dict keys sorted
+		do: [ :key | 
+			s_no := key asTwoCharacterString.
+			s := seasons select: [ :each | each id = s_no ].
+			season := s at: 1 ifAbsent: [ self addSeason ].
+			season addEpisodes: (dict at: key) ]
+]
+
 { #category : #accessing }
 PirateShow >> tags [
 	^ tags ifNil: [ tags := SortedCollection new ]
+]
+
+{ #category : #accessing }
+PirateShow >> tmdb [
+	^ tmdb
+]
+
+{ #category : #accessing }
+PirateShow >> tmdb: anObject [
+	tmdb := anObject
 ]
 
 { #category : #'as yet unclassified' }

@@ -42,17 +42,17 @@ PirateEpisode >> getPirateTorrents [
 
 { #category : #'as yet unclassified' }
 PirateEpisode >> getTorrents [
-	| t eztv tpb sem kickass err |
+	| t tpb sem kickass err |
 	t := OrderedCollection new.
 	err := OrderedCollection new.
 	sem := Semaphore new.
-	[ 
+"	[ 
 	self season show eztv isNil
 		ifFalse: [ 
 			[ eztv := self getEztvTorrents ]
 				on: Error
 				do: [ :ex | err add: ex ] ].
-	sem signal ] fork.
+	sem signal ] fork."
 	[ 
 	tpb := nil.	"PirateRobot new getShow: self tpbString."
 	sem signal ] fork.
@@ -63,13 +63,12 @@ PirateEpisode >> getTorrents [
 	sem signal ] fork.
 	sem
 		wait;
-		wait;
 		wait.
 	err isEmpty
 		ifFalse: [ "Error signal: err first printString.self halt"
 			Transcript crShow: 'Error on getTorrents: ' , err printString].
-	eztv isNil
-		ifFalse: [ t addAll: eztv ].
+"	eztv isNil
+		ifFalse: [ t addAll: eztv ]."
 	tpb isNil
 		ifFalse: [ t addAll: tpb ].
 	kickass isNil
