@@ -55,7 +55,7 @@ PirateEpisodeMorph >> addControls [
 		extent: 5 @ 5.
 	self addMorphBack: btnPanel.
 	btnPanel addMorphBack: (self newButton: 'Refresh.' do: #refreshTorrents).
-	btnPanel addMorphBack: (self newButton: 'Eztv' do: #eztvTorrents).
+"	btnPanel addMorphBack: (self newButton: 'Eztv' do: #eztvTorrents)."
 	btnPanel addMorphBack: (self newButton: 'Download' do: #download).
 	btnPanel addMorphBack: (self newButton: 'Remove files' do: #removeFiles).
 	btnPanel addMorphBack: (self newButton: 'Set Torrent' do: #setTorrent).

@@ -134,16 +134,9 @@ PirateTorrent >> checkStatus [
 
 { #category : #converting }
 PirateTorrent >> createVideoFile [
-	| f |
 	self isSingleVideoFile
 		ifFalse: [ self halt ].
-	f := PirateVideoFile new.
-	videoFiles := OrderedCollection with: f.
-	f
-		torrent: self;
-		videoFilename: self videoFilenames first;
-		folder: self folder.
-	^ f
+	^ self createVideoFiles first
 ]
 
 { #category : #converting }
@@ -205,6 +198,13 @@ PirateTorrent >> folder [
 ]
 
 { #category : #testing }
+PirateTorrent >> isARarFile: aFilename [
+	| ext |
+	ext := (Path from: aFilename) extension asLowercase.
+	^ ext = 'rar'
+]
+
+{ #category : #testing }
 PirateTorrent >> isASample: aFilename size: anInt [
 	^ anInt < 50e6
 
@@ -212,11 +212,9 @@ PirateTorrent >> isASample: aFilename size: anInt [
 
 { #category : #testing }
 PirateTorrent >> isAVideoFile: aFilename [
-	| lastDot ext |
-	lastDot := aFilename findLastOccurrenceOfString: '.' startingAt: 1. 
-	ext := aFilename copyFrom: lastDot+1 to: aFilename size. 
-	^ #( 'mp4' 'avi' 'mkv' 'wmv') includes: ext.
-
+	| ext |
+	ext := (Path from: aFilename) extension asLowercase.
+	^ #('mp4' 'avi' 'mkv' 'wmv') includes: ext
 ]
 
 { #category : #testing }
@@ -262,8 +260,9 @@ PirateTorrent >> isSeedingComplete [
 PirateTorrent >> isSingleVideoFile [
 	| files |
 	files := self videoFilenames.
-	(0= files size) ifTrue:[self halt].
-	^ (1= files size)
+	0 = files size
+		ifTrue: [ self halt ].
+	^ 1 = files size
 ]
 
 { #category : #accessing }
@@ -326,7 +325,9 @@ self halt. "kolla alla videofiler först"
 { #category : #'as yet unclassified' }
 PirateTorrent >> removeTorrentAndData [
 	| h |
-	videoFiles := nil.
+	videoFiles ifNotNil:[
+		videoFiles do:[:vf| vf deleteSubtitles].
+	videoFiles := nil].
 	h := self torrentHash.
 	h isEmptyOrNil
 		ifTrue: [ ^ self ].	
@@ -428,13 +429,14 @@ self halt.
 { #category : #'as yet unclassified' }
 PirateTorrent >> videoFilenames [
 	| files fnames |
-"	videoFiles ifNotNil: [ ^videoFiles  ]."
-	files:= TransmissionClient current getFiles: self torrentHash.
-	files isEmptyOrNil ifTrue: [^#()].
-	files := files select: [:f| self isAVideoFile: (f at: 'name')].
-	files := files reject: [ :f | self isASample: (f at: 'name') size: (f at: 'length')].
-	fnames := files collect: [ :file| file at: 'name' ].
-	^ fnames sort.
+	"	videoFiles ifNotNil: [ ^videoFiles  ]."
+	files := TransmissionClient current getFiles: self torrentHash.
+	files isEmptyOrNil
+		ifTrue: [ ^ #() ].
+	files := files select: [ :f | self isAVideoFile: (f at: 'name') ].
+	files := files reject: [ :f | self isASample: (f at: 'name') size: (f at: 'length') ].
+	fnames := files collect: [ :file | file at: 'name' ].
+	^ fnames sort
 ]
 
 { #category : #accessing }

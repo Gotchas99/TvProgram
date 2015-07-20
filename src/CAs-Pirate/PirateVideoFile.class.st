@@ -42,11 +42,15 @@ PirateVideoFile >> computeHashForChunk: fs start: start size: chunkSize [
 	^ hash
 ]
 
-{ #category : #'initialize-release' }
+{ #category : #'as yet unclassified' }
+PirateVideoFile >> deleteSubtitles [
+	self video ifNotNil: [ video deleteSubtitles ]
+]
+
+{ #category : #'as yet unclassified' }
 PirateVideoFile >> doneWithThis [
 	viewTime := TimeStamp now.
-	torrent isNil
-		ifFalse: [ torrent doneWithThis ]
+	torrent ifNotNil: [ torrent doneWithThis ]
 ]
 
 { #category : #accessing }
@@ -75,9 +79,11 @@ PirateVideoFile >> folder: aString [
 { #category : #accessing }
 PirateVideoFile >> fullVideoFilename [
 	| fname |
-	fname := self folder , videoFilename.
-	OSPlatform isUnix ifTrue: [ fname := fname copyReplaceAll: '\' with: '/' ].
-	OSPlatform isWin32 ifTrue: [ fname := fname copyReplaceAll: '/' with: '\' ].
+	fname := self folder , '/' , videoFilename.
+	OSPlatform isUnix
+		ifTrue: [ fname := fname copyReplaceAll: '\' with: '/' ].
+	OSPlatform isWin32
+		ifTrue: [ fname := fname copyReplaceAll: '/' with: '\' ].
 	^ fname
 ]
 
@@ -144,10 +150,11 @@ PirateVideoFile >> printOn: aStream [
 	aStream nextPutAll:  self videoFilename 
 ]
 
-{ #category : #accessing }
+{ #category : #'as yet unclassified' }
 PirateVideoFile >> reset [
-	video := nil.
-	torrent := nil
+	self video: nil.
+	self torrent: nil.
+	self videoFilename: nil.
 ]
 
 { #category : #'not used' }
@@ -168,15 +175,17 @@ PirateVideoFile >> torrent [
 { #category : #accessing }
 PirateVideoFile >> torrent: aTorrent [
 	torrent := aTorrent.
+	folder := nil.
+	
 ]
 
-{ #category : #accessing }
+{ #category : #'as yet unclassified' }
 PirateVideoFile >> validate [
 	self validateTorrent.
 	self validateVideo
 ]
 
-{ #category : #accessing }
+{ #category : #'as yet unclassified' }
 PirateVideoFile >> validateTorrent [
 	torrent isNil
 		ifFalse: [ 
@@ -186,7 +195,7 @@ PirateVideoFile >> validateTorrent [
 					Transcript crShow: 'Removing torrent from: ' , self printString ] ]
 ]
 
-{ #category : #accessing }
+{ #category : #'as yet unclassified' }
 PirateVideoFile >> validateVideo [
 	video isNil
 		ifTrue: [ ^ self ].
@@ -227,6 +236,8 @@ PirateVideoFile >> videoFilename [
 { #category : #accessing }
 PirateVideoFile >> videoFilename: aString [
 	videoFilename := aString.
+	videoHash :=nil.
+	viewTime:=nil.
 ]
 
 { #category : #hashing }

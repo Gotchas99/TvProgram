@@ -34,7 +34,7 @@ PirateManagerMorph >> addControls [
 	lst extent: listboxWidth @ 230.
 	r1 addMorphBack: lst.
 	r1c2 addMorphBack: (self newButton: 'Add show...' do: #addShow).
-	r1c2 addMorphBack: (self newButton: 'Add EZTV...' do: #addEztv).
+	r1c2 addMorphBack: (self newButton: 'Add IMDB...' do: #addImdb).
 	r1c2 addMorphBack: (self newButton: 'Look for new' do: #lookForNew).
 	r1c2 addMorphBack: (self newButton: 'Remove seen' do: #removeSeen).
 	r1c2 addMorphBack: (self newButton: 'Write to file' do: #writeToFile).
@@ -148,6 +148,19 @@ PirateManagerMorph >> addEztv [
 ]
 
 { #category : #'event handling' }
+PirateManagerMorph >> addImdb [
+	| show id |
+	listIndex = 0
+		ifTrue: [ ^ self ].
+	show := self list at: listIndex.
+	id := UIManager default request: 'Add IMDB id:' initialAnswer: show imdb printString.
+"	id isNil
+		ifTrue: [ ^ self ]."
+	show imdb: id.
+	self changed: #list
+]
+
+{ #category : #'event handling' }
 PirateManagerMorph >> addSeason [
 	model2 addSeason.
 	self changed: #list2.
@@ -202,7 +215,7 @@ PirateManagerMorph >> addVideofile [
 		path: PirateTorrent folder
 		preview: nil.
 	file isNil
-		ifTrue: [ ^ self ].
+		ifTrue: [ ^ self ].self halt.
 	vf := PirateVideoFile new.
 	vf videoFilename: file basename.
 	vf folder: file reference parent fullName.
@@ -315,7 +328,8 @@ PirateManagerMorph >> getShowText: aShow [
 	^{
 		aShow name.
 		(aShow newEpisodeCount) > 0 ifTrue:['new'] ifFalse:['-'].
-		(aShow eztv) isNil not ifTrue:['eztv'] ifFalse:['-'].
+		(aShow imdb) isNil not ifTrue:['imdb'] ifFalse:['-'].
+		(aShow tmdb) isNil not ifTrue:['tmdb'] ifFalse:['-'].
 		(aShow notSeenCount) > 0 ifTrue:['viewable'] ifFalse:['-'].
 	}
 ]
@@ -450,14 +464,14 @@ PirateManagerMorph >> refresh [
 { #category : #'event handling' }
 PirateManagerMorph >> removeEpisode [
 	| ep |
-	listIndex3 = 0 ifTrue: [^self].
+	listIndex3 = 0
+		ifTrue: [ ^ self ].
 	ep := model3 episodes at: listIndex3.
 	(self confirm: 'Vill du verkligen ta bort episoden?' , String crlfcrlf , ep name)
-ifTrue:[			ep delete.
-					self changed: #list3.
-					self listIndex3: 0.
-				]
-	
+		ifTrue: [ 
+			ep delete.
+			self changed: #list3.
+			self listIndex3: 0 ]
 ]
 
 { #category : #'event handling' }
@@ -502,10 +516,10 @@ PirateManagerMorph >> setMaxEpisodes [
 	listIndex = 0
 		ifTrue: [ ^ self ].
 	show := self list at: listIndex.
-	self eztv isNil
-		ifTrue: [ UIManager default alert: 'Must have eztv id to do this' ]
+	self imdb isNil
+		ifTrue: [ UIManager default alert: 'Must have imdb id to do this' ]
 		ifFalse: [ 
-			show setEpisodesFromEztv.
+			show setEpisodesFromTmdb.
 			self changed: #list.
 			self changed: #list2.
 			self changed: #list3 ]

@@ -8,6 +8,22 @@ Class {
 }
 
 { #category : #'as yet unclassified' }
+PirateApp class >> initMaid [
+	| delay |
+	TheMaid isNil
+		ifFalse: [ ^ self ].
+	delay := Delay forSeconds: 60 * 60.	"60 minutes"
+	TheMaid := [ 
+	delay wait.
+	PirateVideo getAllSubtitles ] newProcess.
+	TheMaid
+		priority: Processor userBackgroundPriority;
+		name: #theMaid;
+		resume.
+	Transcript crShow: 'Started TheMaid'
+]
+
+{ #category : #'as yet unclassified' }
 PirateApp class >> initialize [ 
 	super initialize .
 	self initializeStartupShutdown.
@@ -29,7 +45,9 @@ PirateApp class >> shutDown: quitting [
 	quitting
 		ifTrue: [ 
 			TheMaid isNil
-				ifFalse: [ TheMaid terminate ] ]
+				ifFalse: [ 
+					TheMaid terminate.
+					TheMaid := nil ] ]
 ]
 
 { #category : #'as yet unclassified' }
@@ -38,8 +56,5 @@ PirateApp class >> startUp: resuming [
 	resuming
 		ifTrue: [ 
 			Config current initializeFromFile.
-			"Workspace
-				openContents:
-					'PirateVideoFile validateAll.
-PirateTorrent setUpAllTorrents.'" ]
+			self initMaid ]
 ]
