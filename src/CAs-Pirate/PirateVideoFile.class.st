@@ -80,9 +80,9 @@ PirateVideoFile >> folder: aString [
 PirateVideoFile >> fullVideoFilename [
 	| fname |
 	fname := self folder , '/' , videoFilename.
-	OSPlatform isUnix
+	Smalltalk os isUnix
 		ifTrue: [ fname := fname copyReplaceAll: '\' with: '/' ].
-	OSPlatform isWin32
+	Smalltalk os isWin32
 		ifTrue: [ fname := fname copyReplaceAll: '/' with: '\' ].
 	^ fname
 ]
@@ -219,13 +219,10 @@ PirateVideoFile >> video: aVideo [
 { #category : #accessing }
 PirateVideoFile >> videoFile [
 	| fs |
-"	fd := FileDirectory on: self folder.
-	fs := fd oldFileOrNoneNamed: self videoFilename ."
-	fs := FileSystem disk readStreamOn: self fullVideoFilename .
-	fs ifNil: [^nil].
+	fs := FileSystem disk readStreamOn: self fullVideoFilename.
+	fs ifNil: [ ^ nil ].
 	fs binary.
 	^ fs
-
 ]
 
 { #category : #accessing }

@@ -45,8 +45,7 @@ PirateEpisode >> getTorrents [
 	| t tpb sem kickass err |
 	t := OrderedCollection new.
 	err := OrderedCollection new.
-	sem := Semaphore new.
-"	[ 
+	sem := Semaphore new.	"	[ 
 	self season show eztv isNil
 		ifFalse: [ 
 			[ eztv := self getEztvTorrents ]
@@ -65,10 +64,9 @@ PirateEpisode >> getTorrents [
 		wait;
 		wait.
 	err isEmpty
-		ifFalse: [ "Error signal: err first printString.self halt"
-			Transcript crShow: 'Error on getTorrents: ' , err printString].
-"	eztv isNil
-		ifFalse: [ t addAll: eztv ]."
+		ifFalse: [ 
+			"			Error signal: err first printString.self halt."
+			Transcript crShow: 'Error on getTorrents: ' , err printString ].
 	tpb isNil
 		ifFalse: [ t addAll: tpb ].
 	kickass isNil

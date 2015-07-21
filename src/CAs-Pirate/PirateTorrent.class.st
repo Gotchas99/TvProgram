@@ -191,7 +191,7 @@ PirateTorrent >> folder [
 			tmp := tmp copyReplaceAll: '\' with: '/'.
 			tmp := tmp copyReplaceAll: '//' with: '/'.
 			(tmp endsWith: '/') ifFalse: [ tmp := tmp ,'/' ].
-			OSPlatform isWin32 ifTrue: [ tmp := tmp copyReplaceAll: '/' with: '\'. ].
+			Smalltalk os isWin32 ifTrue: [ tmp := tmp copyReplaceAll: '/' with: '\'. ].
 			folder := tmp.
 			 "]"
 		^folder
