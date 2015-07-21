@@ -18,18 +18,17 @@ KickassRobot >> getTorrents: aString category: categoryString [
 	suffix := '%20category:' , categoryString , '%20verified:1/'.
 	[ self newGet: baseUrl , aString , suffix ]
 		on: Exception
-		do: [ :ex| 
-			Transcript crShow: 'Exception on Kickass:newGet:', ex printString.
-"			self halt."
+		do: [ :ex | 
+			Transcript crShow: 'Exception on Kickass:newGet:' , ex printString.
+			self halt.
 			^ OrderedCollection new ].
-	self checkOk.	
+	self checkOk.
 	self parseBody.
-"	dud := (dom tagOfClass: HtmlH2Node) children second innerContents."
 	(dom innerContents findString: ' did not match any documents') > 0
 		ifTrue: [ ^ Array new ].
 	main := dom tagWithClass: 'data'.
-	searchRows := (main tagsOfClass: HtmlTRNode) allButFirst .
-	rows := self parseRows: searchRows .
+	searchRows := (main tagsOfClass: HtmlTRNode) allButFirst.
+	rows := self parseRows: searchRows.
 	^ rows
 ]
 

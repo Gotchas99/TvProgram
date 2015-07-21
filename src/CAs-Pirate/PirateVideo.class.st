@@ -64,15 +64,15 @@ PirateVideo >> delete [
 
 { #category : #subtitles }
 PirateVideo >> deleteSubtitles [
-	| srtName fname fs |
+	| srtName fname ref |
 	self videoFile
 		ifNotNil: [ 
 			fname := self videoFile fullVideoFilename.
 			fname
 				ifNotNil: [ 
 					srtName := OpenSubClient new srtFromVideo: fname.
-					fs := FileDirectory forFileName: srtName.
-					fs deleteFileNamed: srtName ] ].
+					ref := srtName asFileReference.
+					ref delete ] ].
 	subTitle := nil
 ]
 
@@ -92,8 +92,7 @@ PirateVideo >> falseTorrents [
 
 { #category : #torrents }
 PirateVideo >> found [
-	^(self isViewed) or: [(self torrents isEmpty not) or: [videoFile isNil not]].
-		
+	^ self isViewed or: [ self torrents isEmpty not or: [ videoFile isNil not ] ]
 ]
 
 { #category : #torrents }
@@ -362,7 +361,8 @@ PirateVideo >> torrents [
 { #category : #torrents }
 PirateVideo >> tpbString [
 	"tpb = The Pirate Bay "
-	^ self fullId encodeForHTTP
+
+	^ self fullId urlEncoded
 ]
 
 { #category : #'as yet unclassified' }

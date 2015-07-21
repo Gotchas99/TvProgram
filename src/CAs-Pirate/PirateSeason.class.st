@@ -84,7 +84,9 @@ PirateSeason >> initialize [
 
 { #category : #'as yet unclassified' }
 PirateSeason >> isViewed [
-	^episodes last isViewed 
+	^ episodes isEmptyOrNil
+		ifTrue: [ ^ true ]
+		ifFalse: [ episodes last isViewed ]
 ]
 
 { #category : #'as yet unclassified' }

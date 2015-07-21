@@ -155,15 +155,14 @@ PirateRobot >> getTest: aString [
 { #category : #private }
 PirateRobot >> getTorrents: aString category: categoryString [
 	| main rows baseUrl suffix searchRows dud |
-	baseUrl := 'https://thepiratebay.se/search/'.	"baseUrl := 'http://pirateproxy.se/search/'."
+	baseUrl := 'https://' , self host , '/search/'.
 	suffix := '/0/7/' , categoryString.
 	[ self newGet: baseUrl , aString , suffix ]
 		on: Exception
-		do: [ :ex| 
-			Transcript crShow: 'Exception on newGet'.
-"			self halt."
+		do: [ :ex | 
+			Transcript crShow: 'Exception on newGet: ', ex printString.	self halt.
 			^ OrderedCollection new ].
-	self checkOk.	
+	self checkOk.
 	self parseBody.
 	dud := (dom tagOfClass: HtmlH2Node) children second innerContents.
 	(dud findString: 'No hits') > 0
@@ -173,6 +172,11 @@ PirateRobot >> getTorrents: aString category: categoryString [
 	searchRows := main children.
 	rows := self parseRows: searchRows allButFirst.
 	^ rows
+]
+
+{ #category : #private }
+PirateRobot >> host [
+	^ 'thepiratebay.mn'
 ]
 
 { #category : #private }
