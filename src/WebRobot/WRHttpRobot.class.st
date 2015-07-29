@@ -64,8 +64,8 @@ WRHttpRobot >> newRequest [
 	request := ZnClient new
 		timeout: 10;
 		numberOfRetries: 3;
-		retryDelay: 2;
-		beOneShot.
+		retryDelay: 2.
+		" request beOneShot."
 	^ request
 ]
 
@@ -83,5 +83,7 @@ WRHttpRobot >> newRequestWithState [
 
 { #category : #'as yet unclassified' }
 WRHttpRobot >> parseBody [
-	dom := (HtmlValidator on: request response contents) loader: WRDummyLoader new; dom 
+	dom := (HtmlValidator on: request response contents)
+		loader: WRDummyLoader new;
+		dom
 ]
