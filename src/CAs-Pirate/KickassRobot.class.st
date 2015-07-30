@@ -11,10 +11,10 @@ KickassRobot >> getShow: aString [
 
 { #category : #'as yet unclassified' }
 KickassRobot >> getTorrents: aString category: categoryString [
-	| main rows baseUrl suffix searchRows |
+	| main rows baseUrl suffix searchRows |self halt.
 	"sample search string
 	https://kickass.to/usearch/Arrow%20category:tv%20verified:1%20season:13%20episode:20/"
-	baseUrl := 'https://kickass.to/usearch/'.
+	baseUrl := 'https://kat.cr/usearch/'.
 	suffix := '%20category:' , categoryString , '%20verified:1/'.
 	[ self newGet: baseUrl , aString , suffix ]
 		on: Exception

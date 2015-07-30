@@ -6,19 +6,16 @@ Class {
 		'listEn',
 		'listIndexEn',
 		'listSwe',
-		'listIndexSwe'
+		'listIndexSwe',
+		'releaseName'
 	],
 	#category : #'CAs-Pirate-Gui'
 }
 
-{ #category : #'as yet unclassified' }
+{ #category : #'initialize-release' }
 PirateSubtitleMorph >> addControls [
 	| r lst btnPanel |
-	self addMorphBack: (StringMorph contents: 'Title: ').	"self
-	addMorph: (PluggableTextMorph
-	on: nil
-	text: #getTitle
-	accept: #setTitle)."
+	self addMorphBack: (StringMorph contents: 'Title: ').
 	lst := PluggableMultiColumnListMorph
 		on: self
 		list: #listEn
@@ -79,10 +76,10 @@ PirateSubtitleMorph >> dblClick [
 { #category : #'model access' }
 PirateSubtitleMorph >> downloadSub: subDict [
 	| os |
-	Cursor wait showWhile: [os := OpenSubClient current.
-		os login.
-		os downloadSubtitle: subDict fileName: (model videoFile fullVideoFilename ).
-		os logout.]
+	Cursor wait
+		showWhile: [ 
+			os := OpenSubClient current.
+			os downloadSubtitle: subDict fileName: model videoFile fullVideoFilename ]
 ]
 
 { #category : #'model access' }
@@ -92,34 +89,31 @@ PirateSubtitleMorph >> findCurrentSub [
 
 { #category : #'as yet unclassified' }
 PirateSubtitleMorph >> getSubColumn: sub [
-	^ {sub at: #MovieName.
-		(sub at: #SeriesSeason) , '->',
-		(sub at: #SeriesEpisode).
-		sub at: #SubRating.
-		sub at: #SubDownloadsCnt.
-		(sub at: #SubHearingImpaired) = '1'
-			ifTrue:['HI']
-			ifFalse:['-'].
-		sub at: #MatchedBy	
-		}
+
+	^ {(sub at: #MovieName).
+	((sub at: #SeriesSeason) , '->' , (sub at: #SeriesEpisode)).
+	(sub at: #SubRating).
+	(sub at: #SubDownloadsCnt).
+	((sub at: #SubHearingImpaired) = '1'
+		ifTrue: [ 'HI' ]
+		ifFalse: [ '-' ]).
+	(sub at: #MatchedBy).
+	(self matchesRelease: sub)}
 ]
 
 { #category : #'model access' }
 PirateSubtitleMorph >> getSubtitles [
-	| |
-	model
-		ifNil: [^ self].
-	Cursor wait showWhile: [
-		listEn := model subtitles: 'eng'.	
-		listEn := listEn .
-		self changed: #listEn.
-		listIndexEn := 0.
-
-		listSwe := model subtitles: 'swe'.
-		listSwe := listSwe .
-		self changed: #listSwe.
-		listIndexSwe := 0.
-	].
+	model ifNil: [ ^ self ].
+	Cursor wait
+		showWhile: [ 
+			listEn := model subtitles: 'eng'.
+			listEn := listEn.
+			self changed: #listEn.
+			listIndexEn := 0.
+			listSwe := model subtitles: 'swe'.
+			listSwe := listSwe.
+			self changed: #listSwe.
+			listIndexSwe := 0 ]
 ]
 
 { #category : #'model access' }
@@ -148,12 +142,10 @@ PirateSubtitleMorph >> getSubtitlesOld [
 
 { #category : #'model access' }
 PirateSubtitleMorph >> listEn [
-	listEn ifNil: [^ nil].
-	listEn isArray 
-		ifTrue: [^ listEn]
-		ifFalse: [^ nil].
-		"collect: [:f | listEn
-				collect: [:i | i at: f]]"
+	listEn ifNil: [ ^ nil ].
+	listEn isArray
+		ifTrue: [ ^ listEn ]
+		ifFalse: [ ^ nil ]
 ]
 
 { #category : #'model access' }
@@ -164,6 +156,7 @@ PirateSubtitleMorph >> listIndexEn [
 
 { #category : #'model access' }
 PirateSubtitleMorph >> listIndexEn: aSmallInteger [ 
+self logCr: 'listIndexEn:',aSmallInteger printString.
 	listIndexEn := aSmallInteger.
 	self changed: #listIndexEn.
 	listIndexSwe:=0.
@@ -194,9 +187,19 @@ PirateSubtitleMorph >> listSwe [
 		ifFalse: [^ nil].
 ]
 
+{ #category : #'as yet unclassified' }
+PirateSubtitleMorph >> matchesRelease: sub [
+	| rel |
+	rel := (sub at: #MovieReleaseName) copyReplaceAll: '.' with: ' '.
+	^ (releaseName includesSubstring: rel)
+		ifTrue: [ 'rel' ]
+		ifFalse: [ '-' ]
+]
+
 { #category : #'model access' }
-PirateSubtitleMorph >> model: anEpisode [ 
+PirateSubtitleMorph >> model: anEpisode [
 	model := anEpisode.
+	releaseName := model torrent name.
 	self getSubtitles
 ]
 
@@ -204,39 +207,18 @@ PirateSubtitleMorph >> model: anEpisode [
 PirateSubtitleMorph >> setSub [
 	| t |
 	self listIndexEn > 0
-		ifTrue: [t := listEn at: listIndexEn].
+		ifTrue: [ t := listEn at: listIndexEn ].
 	self listIndexSwe > 0
-		ifTrue: [t := listSwe at: listIndexSwe].
+		ifTrue: [ t := listSwe at: listIndexSwe ].
 	t isNil
-		ifFalse: [
+		ifFalse: [ 
 			self downloadSub: t.
-			model setSub: t]
+			model setSub: t ]
 ]
 
 { #category : #'as yet unclassified' }
 PirateSubtitleMorph >> temp [
-	| out err desc args proc |
-	self halt.
-	out := FileStream forceNewFileNamed: '/tmp/deleteMe.out'.
-	err := FileStream forceNewFileNamed: '/tmp/deleteMe.err'.
-	desc := Array
-				with: nil
-				with: out
-				with: err.
-	args := Array
-				with: '--fullscreen'
-				with: '/media/cm1store/Torrent/Girls.S01E01.HDTV.x264-ASAP.mp4'.
-	proc := UnixProcess
-				forkJob: '/usr/bin/vlc'
-				arguments: args
-				environment: nil
-				descriptors: desc.
-	proc ifNil: [UnixProcess noAccessorAvailable].
-	[proc isComplete] whileFalse:
-		[(Delay forMilliseconds: 200) wait.].
-	out close.
-	err close.
-	self inform: 'klart!!'.
-	^ proc
-"	^ self"
+	| t |
+	t := listEn at: listIndexEn.
+	t inspect
 ]
