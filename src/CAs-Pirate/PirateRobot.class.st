@@ -154,7 +154,7 @@ PirateRobot >> getTest: aString [
 
 { #category : #private }
 PirateRobot >> getTorrents: aString category: categoryString [
-	| main rows baseUrl suffix searchRows dud |
+	| main rows baseUrl suffix searchRows dud |self halt.
 	baseUrl := 'https://' , self host , '/search/'.
 	suffix := '/0/7/' , categoryString.
 	[ self newGet: baseUrl , aString , suffix ]

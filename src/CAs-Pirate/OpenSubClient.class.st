@@ -36,7 +36,7 @@ OpenSubClient >> compare: a and: b [
 OpenSubClient >> downloadSubtitle: subDict fileName: aVideoFileName [
 	"struct LogIn(string $username, string $password, string $language, string $useragent)"
 	| r a data base64 zip text zipStream fs srtName |
-	a := {token.
+	a := {self token.
 	{(subDict at: #IDSubtitleFile)}}.
 [	r := self proxy invokeMethod: 'DownloadSubtitles' withArgs: a.]on: Error do: [ :ex| Transcript crShow: 'Error in downloadSubtitle:', ex printString ].
 	r ifNil: [  ^ nil ].
@@ -85,7 +85,7 @@ OpenSubClient >> logout [
 OpenSubClient >> proxy [
 	| url |
 	proxy isNil ifTrue: [
-		url := Url absoluteFromText: 'http://api.opensubtitles.org/xml-rpc'.
+		url := ZnUrl fromString: 'http://api.opensubtitles.org/xml-rpc'.
 		proxy := XMLRPCProxy new url: url. 
 	].
 	^ proxy
@@ -102,7 +102,7 @@ OpenSubClient >> searchSubtitles: aDictionary [
 OpenSubClient >> searchSubtitles: aDictionary retries: retries [
 "struct SearchSubtitles(string $token, array(struct('sublanguageid' => string $sublanguageid, 'moviehash' => string $moviehash, 'moviebytesize' => int $moviesize, 'imdbid' => string $imdbid ), struct(...)))"
 	| r a data |
-	a := { token.  {aDictionary} }.
+	a := {self token.  {aDictionary} }.
 	[r := self proxy invokeMethod: 'SearchSubtitles' withArgs: a ]
 		on: Error 
 		do:  [ :ex | 
@@ -185,8 +185,7 @@ OpenSubClient >> searchSubtitlesForHash: aHash size: fileSize season: aSeason ep
 OpenSubClient >> sortSubtitles: aSubDict [
 	| tmp |
 	tmp := aSubDict sort: [ :a :b | self compare: a and: b ].
-	^ tmp .
-	
+	^ tmp
 ]
 
 { #category : #'as yet unclassified' }
@@ -195,4 +194,9 @@ OpenSubClient >> srtFromVideo: aVideoFileName [
 	lastDot := aVideoFileName findLastOccurrenceOfString: '.' startingAt: 1. 
 	base := aVideoFileName copyFrom: 1 to: lastDot-1. 
 	^base , '.srt'
+]
+
+{ #category : #'as yet unclassified' }
+OpenSubClient >> token [
+	^ token ifNil: [ token := 'non-sense' ]
 ]

@@ -414,6 +414,15 @@ PirateTorrent >> torrentHash: aHash [
 
 ]
 
+{ #category : #accessing }
+PirateTorrent >> videoFile [
+	| vf |
+	vf := videoFiles ifNil: [ self createVideoFiles ].
+	vf size = 1
+		ifTrue: [ vf first ]
+		ifFalse: [ self halt ]
+]
+
 { #category : #'to_videofile' }
 PirateTorrent >> videoFilename [
 | files max fname |

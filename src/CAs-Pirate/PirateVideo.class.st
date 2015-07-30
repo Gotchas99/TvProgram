@@ -39,13 +39,20 @@ PirateVideo >> addFalseTorrent: aTorrentArray [
 
 ]
 
-{ #category : #obsolete }
+{ #category : #deprecated }
 PirateVideo >> convertTorrent [
-	torrent class = PirateTorrent ifTrue: [^self ] .
-	torrent = PirateTorrent ifTrue: [^torrent:=nil ] .
-	torrent isString 
-		ifTrue: [torrent:={'???'. torrent. 0. 0}].
-	torrent := PirateTorrent from: torrent.
+	self deprecated: 'Should''nt be needed anymore'.
+	torrent class = PirateTorrent
+		ifTrue: [ ^ self ].
+	torrent = PirateTorrent
+		ifTrue: [ ^ torrent := nil ].
+	torrent isString
+		ifTrue: [ 
+			torrent := {'???'.
+			torrent.
+			0.
+			0} ].
+	torrent := PirateTorrent from: torrent
 ]
 
 { #category : #'as yet unclassified' }
@@ -72,7 +79,8 @@ PirateVideo >> deleteSubtitles [
 				ifNotNil: [ 
 					srtName := OpenSubClient new srtFromVideo: fname.
 					ref := srtName asFileReference.
-					ref delete ] ].
+					ref exists
+						ifTrue: [ ref delete ] ] ].
 	subTitle := nil
 ]
 
@@ -305,8 +313,6 @@ PirateVideo >> subtitles: lang [
 	listTitle := self subtitlesByTitle: lang ]
 		on: Error
 		do: [ :ex | 
-			"ex inspect."
-		"	self halt."
 			(retryCount := retryCount - 1) > 0
 				ifTrue: [ 
 					Transcript crShow: 'retrying subtitles, count left:' , retryCount printString.
@@ -327,11 +333,8 @@ PirateVideo >> topSubtitles [
 		ifTrue: [ 
 			topSub := subs first.
 			os := OpenSubClient current.
-"			os login."
 			os downloadSubtitle: topSub fileName: self videoFilename.
-"			[ os logout ] fork."
-			Transcript crShow: 'setting subtitles for ', self fullId.
-	
+			Transcript crShow: 'setting subtitles for ' , self fullId.
 			self setSub: topSub ]
 ]
 
@@ -399,7 +402,7 @@ PirateVideo >> validateTorrent [
 PirateVideo >> videoFile [
 	((videoFile isNil and: [ torrent notNil ]) and: [ torrent isDownloadComplete ])
 		ifTrue: [ 
-			self videoFile: torrent createVideoFile.
+			self videoFile: torrent videoFile.
 			videoFile video: self ].
 	^ videoFile
 ]

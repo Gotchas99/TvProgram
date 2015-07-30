@@ -53,7 +53,7 @@ PirateEpisode >> getTorrents [
 				do: [ :ex | err add: ex ] ].
 	sem signal ] fork."
 	[ 
-	tpb := nil.	"PirateRobot new getShow: self tpbString."
+	tpb := PirateRobot new getShow: self tpbString.
 	sem signal ] fork.
 	[ 
 	[ kickass := KickassRobot new getShow: self tpbString ]
@@ -65,8 +65,9 @@ PirateEpisode >> getTorrents [
 		wait.
 	err isEmpty
 		ifFalse: [ 
-			"			Error signal: err first printString.self halt."
-			Transcript crShow: 'Error on getTorrents: ' , err printString ].
+			Error signal: err first printString.
+			Transcript crShow: 'Error on getTorrents: ' , err printString ].	"	eztv isNil
+		ifFalse: [ t addAll: eztv ]."
 	tpb isNil
 		ifFalse: [ t addAll: tpb ].
 	kickass isNil
@@ -110,17 +111,19 @@ PirateEpisode >> season: aSeason [
 { #category : #'as yet unclassified' }
 PirateEpisode >> subtitlesByHash: lang [
 	| os hash subs fileSize aSeason anEpisode |
-	self videoFile ifNil:[^#()].
-
+	self videoFile ifNil: [ ^ #() ].
 	hash := self videoFile videoHash.
-	hash ifNil: [^#()]. 
+	hash ifNil: [ ^ #() ].
 	fileSize := self videoFile fileSize.
-	aSeason := self season id asInteger  .
-	anEpisode := self id asInteger  .
-	os:= OpenSubClient current.
-"	os login."
-	subs := os searchSubtitlesForHash: hash size: fileSize season: aSeason episode: anEpisode lang: lang.
-"	os logout."
+	aSeason := self season id asInteger.
+	anEpisode := self id asInteger.
+	os := OpenSubClient current.
+	subs := os
+		searchSubtitlesForHash: hash
+		size: fileSize
+		season: aSeason
+		episode: anEpisode
+		lang: lang.
 	^ subs
 ]
 
@@ -128,12 +131,13 @@ PirateEpisode >> subtitlesByHash: lang [
 PirateEpisode >> subtitlesByTitle: lang [
 	| os subs aName aSeason anEpisode |
 	aName := self season name.
-	aSeason := self season id asInteger  .
-	anEpisode := self id asInteger  .
-
-	os:= OpenSubClient current.
-	os login.
-	subs := os searchSubtitlesByname: aName season: aSeason episode: anEpisode lang: lang.
-	os logout.
+	aSeason := self season id asInteger.
+	anEpisode := self id asInteger.
+	os := OpenSubClient current.
+	subs := os
+		searchSubtitlesByname: aName
+		season: aSeason
+		episode: anEpisode
+		lang: lang.
 	^ subs
 ]
