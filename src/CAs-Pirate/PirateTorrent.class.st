@@ -419,7 +419,7 @@ PirateTorrent >> videoFile [
 	| vf |
 	vf := videoFiles ifNil: [ self createVideoFiles ].
 	vf size = 1
-		ifTrue: [ vf first ]
+		ifTrue: [ ^vf first ]
 		ifFalse: [ self halt ]
 ]
 
