@@ -9,7 +9,8 @@ Class {
 		'tags',
 		'eztv',
 		'imdb',
-		'tmdb'
+		'tmdb',
+		'kat'
 	],
 	#classVars : [
 		'Shows'
@@ -202,12 +203,12 @@ PirateShow >> delete [
 	seasons do: [:s| s delete].
 ]
 
-{ #category : #accessing }
+{ #category : #deprecated }
 PirateShow >> eztv [
 	^ eztv
 ]
 
-{ #category : #accessing }
+{ #category : #deprecated }
 PirateShow >> eztv: anIdString [
 	eztv := anIdString 
 ]
@@ -226,6 +227,16 @@ PirateShow >> imdb: anObject [
 PirateShow >> initialize [
 	super initialize.
 	seasons := SortedCollection new.
+]
+
+{ #category : #accessing }
+PirateShow >> kat [
+	^ kat
+]
+
+{ #category : #accessing }
+PirateShow >> kat: anObject [
+	kat := anObject
 ]
 
 { #category : #'as yet unclassified' }
@@ -317,18 +328,18 @@ PirateShow >> notSeenCount [
 	^ sum
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #special }
 PirateShow >> printOn: aStream [ 
 	aStream nextPutAll: (self name contractTo: 45)
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #special }
 PirateShow >> resetUplinks [
 	^ seasons
 		do: [:i | i resetUplinks: self]
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 PirateShow >> seasons [
 	^seasons
 ]

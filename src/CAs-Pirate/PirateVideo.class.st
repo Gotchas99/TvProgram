@@ -41,7 +41,8 @@ PirateVideo >> addFalseTorrent: aTorrentArray [
 
 { #category : #deprecated }
 PirateVideo >> convertTorrent [
-	self deprecated: 'Should''nt be needed anymore'.
+	"	self deprecated: 'Should''nt be needed anymore'."
+
 	torrent class = PirateTorrent
 		ifTrue: [ ^ self ].
 	torrent = PirateTorrent
@@ -52,7 +53,7 @@ PirateVideo >> convertTorrent [
 			torrent.
 			0.
 			0} ].
-	torrent := PirateTorrent from: torrent
+	^ torrent := PirateTorrent from: torrent
 ]
 
 { #category : #'as yet unclassified' }
@@ -105,7 +106,7 @@ PirateVideo >> found [
 
 { #category : #torrents }
 PirateVideo >> getTopTorrent [
-	torrent := self torrents first.
+	self torrent: self torrents first.
 	self download
 ]
 
@@ -316,6 +317,7 @@ PirateVideo >> subtitles: lang [
 			(retryCount := retryCount - 1) > 0
 				ifTrue: [ 
 					Transcript crShow: 'retrying subtitles, count left:' , retryCount printString.
+					Transcript crShow: ex printString.
 					(Delay forMilliseconds: 500) wait.
 					ex retry ]
 				ifFalse: [ ^ #() ] ].

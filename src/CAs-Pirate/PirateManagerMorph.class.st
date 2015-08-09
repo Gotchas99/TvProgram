@@ -330,6 +330,7 @@ PirateManagerMorph >> getShowText: aShow [
 		(aShow newEpisodeCount) > 0 ifTrue:['new'] ifFalse:['-'].
 		(aShow imdb) isNil not ifTrue:['imdb'] ifFalse:['-'].
 		(aShow tmdb) isNil not ifTrue:['tmdb'] ifFalse:['-'].
+		(aShow kat) isNil not ifTrue:['kat'] ifFalse:['-'].
 		(aShow notSeenCount) > 0 ifTrue:['viewable'] ifFalse:['-'].
 	}
 ]
