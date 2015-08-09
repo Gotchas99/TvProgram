@@ -36,6 +36,11 @@ PirateEpisode >> getEztvTorrents [
 ]
 
 { #category : #'as yet unclassified' }
+PirateEpisode >> getKickassTorrents [
+	^ KickassRobot new getShow: self season show kat season: self season id episode: self id
+]
+
+{ #category : #'as yet unclassified' }
 PirateEpisode >> getPirateTorrents [
 	^ PirateRobot new getShow: self tpbString.
 ]
@@ -45,33 +50,32 @@ PirateEpisode >> getTorrents [
 	| t tpb sem kickass err |
 	t := OrderedCollection new.
 	err := OrderedCollection new.
-	sem := Semaphore new.	"	[ 
-	self season show eztv isNil
-		ifFalse: [ 
-			[ eztv := self getEztvTorrents ]
+	sem := Semaphore new.
+	self season show kat
+		ifNotNil: [ 
+			[ 
+			[ kickass := self getKickassTorrents ]
 				on: Error
-				do: [ :ex | err add: ex ] ].
-	sem signal ] fork."
+				do: [ :ex | err add: ex ].
+			sem signal ] fork ]
+		ifNil: [ 
+			[ 
+			[ kickass := KickassRobot new getShow: self tpbString ]
+				on: Error
+				do: [ :ex | err add: ex ].
+			sem signal ] fork ].
 	[ 
-	tpb := PirateRobot new getShow: self tpbString.
-	sem signal ] fork.
-	[ 
-	[ kickass := KickassRobot new getShow: self tpbString ]
-		on: Error
-		do: [ :ex | err add: ex ].
+	tpb := nil.	"PirateRobot new getShow: self tpbString."
 	sem signal ] fork.
 	sem
 		wait;
 		wait.
-	err isEmpty
-		ifFalse: [ 
+	err
+		ifNotEmpty: [ 
 			Error signal: err first printString.
-			Transcript crShow: 'Error on getTorrents: ' , err printString ].	"	eztv isNil
-		ifFalse: [ t addAll: eztv ]."
-	tpb isNil
-		ifFalse: [ t addAll: tpb ].
-	kickass isNil
-		ifFalse: [ t addAll: kickass ].
+			Transcript crShow: 'Error on getTorrents: ' , err printString ].
+	tpb ifNotNil: [ t addAll: tpb ].
+	kickass ifNotNil: [ t addAll: kickass ].
 	t := t reject: [ :each | each first includesSubstring: '1080p' caseSensitive: false ].
 	^ t
 ]
