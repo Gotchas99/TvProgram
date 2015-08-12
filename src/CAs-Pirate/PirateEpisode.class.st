@@ -77,6 +77,8 @@ PirateEpisode >> getTorrents [
 	tpb ifNotNil: [ t addAll: tpb ].
 	kickass ifNotNil: [ t addAll: kickass ].
 	t := t reject: [ :each | each first includesSubstring: '1080p' caseSensitive: false ].
+	t := t reject: [ :each | each first includesSubstring: 'French' caseSensitive: false ].
+	t := t reject: [ :each | each first includesSubstring: 'subtitulado' caseSensitive: false ].
 	^ t
 ]
 
