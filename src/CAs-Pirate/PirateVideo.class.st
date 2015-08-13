@@ -26,7 +26,7 @@ PirateVideo class >> getAllSubtitles [
 ]
 
 { #category : #'as yet unclassified' }
-PirateVideo class >> validateAllTorents [
+PirateVideo class >> validateAllTorrents [
 	PirateShow shows do: [ :s | 
 		s seasons do: [ :sea | 
 			sea episodes do: [ :e | 

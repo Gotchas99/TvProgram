@@ -99,11 +99,18 @@ PirateTorrent class >> new [
 
 { #category : #'as yet unclassified' }
 PirateTorrent class >> setUpAllTorrents [
+	| t |
 	AllTorrents := Set new.
-	self allInstances
+	PirateShow shows
+		do: [ :show | 
+			show seasons do: [ :season | 
+				season episodes do: [ :ep | 
+					ep isViewed ifFalse:[
+						t:=ep torrent.
+						t ifNotNil: [ t isInServer	ifTrue: [ AllTorrents add: t ] ] ]] ] ]	"self allInstances
 		do: [ :i | 
 			i isInServer
-				ifTrue: [ AllTorrents add: i ] ]
+				ifTrue: [ AllTorrents add: i ] ]"
 ]
 
 { #category : #'as yet unclassified' }
@@ -325,14 +332,18 @@ self halt. "kolla alla videofiler först"
 { #category : #'as yet unclassified' }
 PirateTorrent >> removeTorrentAndData [
 	| h |
-	videoFiles ifNotNil:[
-		videoFiles do:[:vf| vf deleteSubtitles].
-	videoFiles := nil].
+	videoFiles
+		ifNotNil: [ 
+			videoFiles
+				do: [ :vf | 
+					vf deleteSubtitles.
+					vf torrent: nil ].
+			videoFiles := nil ].
 	h := self torrentHash.
 	h isEmptyOrNil
-		ifTrue: [ ^ self ].	
+		ifTrue: [ ^ self ].
 	TransmissionClient current removeTorrent: h.
-	self class allTorrents remove: self	 ifAbsent: [  ]
+	self class allTorrents remove: self ifAbsent: [  ]
 ]
 
 { #category : #accessing }
