@@ -57,7 +57,7 @@ KickassRobot >> getShow: aKatString season: aSeasonId episode: anEpisodeId [
 
 { #category : #'as yet unclassified' }
 KickassRobot >> getTorrents: aString category: categoryString [
-	| main rows baseUrl suffix searchRows |self halt.
+	| main rows baseUrl suffix searchRows |
 	"sample search string
 	https://kickass.to/usearch/Arrow%20category:tv%20verified:1%20season:13%20episode:20/"
 	baseUrl := 'https://kat.cr/usearch/'.

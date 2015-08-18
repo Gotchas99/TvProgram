@@ -31,6 +31,24 @@ PirateTorrent class >> allTorrents [
 ]
 
 { #category : #'as yet unclassified' }
+PirateTorrent class >> asTorrent: aPossibleTorrent [
+	"Accepts a PirateTorrent or an array of 4 items (see from: ) "
+
+	aPossibleTorrent ifNil: [ ^ nil ].
+	aPossibleTorrent class = PirateTorrent
+		ifTrue: [ ^ aPossibleTorrent ].
+	aPossibleTorrent = PirateTorrent
+		ifTrue: [ ^ nil ].
+	aPossibleTorrent isString
+		ifTrue: [ 
+			^ {'???'.
+			aPossibleTorrent.
+			0.
+			0} ].	"assumed to be a Magnet string"
+	^ PirateTorrent from: aPossibleTorrent
+]
+
+{ #category : #'as yet unclassified' }
 PirateTorrent class >> at: aHash [
 	| x |
 	"	all := self allInstances."
@@ -125,6 +143,12 @@ PirateTorrent class >> updateStatuses [
 	notInServer := self allTorrents
 		reject: [ :t | allStats anySatisfy: [ :each | (each at: #hashString) = t torrentHash ] ].
 	notInServer do: [ :t | t status: -1 ]
+]
+
+{ #category : #accessing }
+PirateTorrent >> = aTorrent [
+	aTorrent ifNil: [ ^ false ].
+	^ self magnet infoHash = (PirateTorrent asTorrent: aTorrent) magnet infoHash
 ]
 
 { #category : #testing }
@@ -301,11 +325,9 @@ PirateTorrent >> magnet: aString [
 
 { #category : #accessing }
 PirateTorrent >> name [
-	name isNil
-		ifFalse: [ ^ name ].
+	name ifNotNil: [ ^ name ].
 	name := TransmissionClient current getTitle: self torrentHash.
-	name isNil
-		ifFalse: [ ^ name ].
+	name ifNotNil: [ ^ name ].
 	^ magnet name
 ]
 

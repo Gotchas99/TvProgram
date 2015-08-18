@@ -39,10 +39,8 @@ PirateVideo >> addFalseTorrent: aTorrentArray [
 
 ]
 
-{ #category : #deprecated }
+{ #category : #torrents }
 PirateVideo >> convertTorrent [
-	"	self deprecated: 'Should''nt be needed anymore'."
-
 	torrent class = PirateTorrent
 		ifTrue: [ ^ self ].
 	torrent = PirateTorrent
@@ -293,6 +291,7 @@ PirateVideo >> status [
 	s=0 ifTrue: [^'Seed done'].
 	s=3 ifTrue: [^'Queued'].
 	s=4 ifTrue: [^'Downloading'].
+	s=5 ifTrue: [^'QueuedSeed'].
 	s=6 ifTrue: [^'Seeding'].
 	^'x'
 ]
@@ -349,18 +348,21 @@ PirateVideo >> torrent [
 
 { #category : #torrents }
 PirateVideo >> torrent: aTorrent [
+	torrent = aTorrent
+		ifTrue: [ ^ self ].
 	torrent ifNotNil: [ torrent delete ].
 	videoFile
 		ifNotNil: [ 
 			videoFile reset.
 			videoFile := nil ].
-	torrent := aTorrent.
+	torrent := PirateTorrent asTorrent: aTorrent.
 	self changed
 ]
 
 { #category : #torrents }
 PirateVideo >> torrents [
-	^ torrents ifNil: [torrents := OrderedCollection new]
+	torrents ifNil: [ torrents := OrderedCollection new ].
+	^ torrents 
 ]
 
 { #category : #torrents }

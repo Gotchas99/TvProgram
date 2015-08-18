@@ -20,8 +20,18 @@ Magnet class >> from: anUri [
 ]
 
 { #category : #'as yet unclassified' }
+Magnet >> = aMagnet [
+	^ self infoHash = aMagnet infoHash
+]
+
+{ #category : #'as yet unclassified' }
 Magnet >> from: anUri [
 	uri:= anUri
+]
+
+{ #category : #'as yet unclassified' }
+Magnet >> hash [
+	^ self infoHash
 ]
 
 { #category : #'as yet unclassified' }

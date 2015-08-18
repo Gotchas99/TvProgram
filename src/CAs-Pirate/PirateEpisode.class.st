@@ -8,6 +8,24 @@ Class {
 }
 
 { #category : #'as yet unclassified' }
+PirateEpisode class >> setupAllVideFiles [
+	| eps |
+	eps := PirateShow shows
+		collect: [ :show | 
+			show seasons
+				collect: [ :season | 
+					season episodes
+						collect: [ :ep | 
+							ep isViewed not
+								ifTrue: [ ep ]
+								ifFalse: [ nil ] ] ] ].
+	eps := eps flattened.
+	eps := eps reject: [ :each | each isNil ].
+	eps := eps reject: [ :each | each torrent isNil ].
+	eps := eps select: [ :each | each videoFile isNil ]
+]
+
+{ #category : #'as yet unclassified' }
 PirateEpisode >> <= aPirateEpisode [
 	^(self fullId) caseInsensitiveLessOrEqual: (aPirateEpisode fullId).
 ]
