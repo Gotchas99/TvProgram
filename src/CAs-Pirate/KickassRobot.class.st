@@ -103,22 +103,25 @@ KickassRobot >> parseRows: fullHtml [
 
 { #category : #'as yet unclassified' }
 KickassRobot >> parseRowsShowpage: fullHtml [
-	| rows title leechers seeders torrent |
+	| rows title leechers seeders torrent hrefs |
 	rows := OrderedCollection new.
 	fullHtml
 		do: [ :html | 
 			title := (html tagWithClass: 'cellMainLink') innerContents.
 			title := title copyReplaceAll: '<strong class="red">' with: ''.
 			title := title copyReplaceAll: '</strong>' with: ''.
-			torrent := (html tagWithClass: 'imagnet') href.
-			seeders := (html tagWithClass: 'green') innerContents asInteger.
+"			torrent := (html tagWithClass: 'imagnet') href."
+			hrefs:=(html tagsOfClass: HtmlANode)collect: [:a|a href].
+torrent:= hrefs select: [ :href| href includesSubstring: 'magnet:' ] 
+.			seeders := (html tagWithClass: 'green') innerContents asInteger.
 			leechers := (html tagWithClass: 'lasttd') innerContents asInteger.
-			rows
+			torrent ifNotEmpty:  
+[			rows
 				add:
 					(Array
 						with: title
-						with: torrent
+						with: torrent first
 						with: seeders
-						with: leechers) ].
+						with: leechers) ]].
 	^ rows
 ]
