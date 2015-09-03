@@ -80,7 +80,7 @@ KickassRobot >> getTorrents: aString category: categoryString [
 
 { #category : #'as yet unclassified' }
 KickassRobot >> parseRows: fullHtml [
-	| rows title cell2 leechers seeders torrent |
+	| rows title cell2 leechers seeders torrent hrefs |
 	rows := OrderedCollection new.
 	fullHtml
 		do: [ :html | 
@@ -88,16 +88,19 @@ KickassRobot >> parseRows: fullHtml [
 			title := (cell2 tagWithClass: 'cellMainLink') innerContents.
 			title := title copyReplaceAll: '<strong class="red">' with: ''.
 			title := title copyReplaceAll: '</strong>' with: ''.
-			torrent := (cell2 tagWithClass: 'imagnet') href.
+			hrefs := (html tagsOfClass: HtmlANode) collect: [ :a | a href ].
+			torrent := hrefs select: [ :href | href includesSubstring: 'magnet:' ].
 			seeders := (html tagWithClass: 'green') innerContents asInteger.
 			leechers := (html tagWithClass: 'lasttd') innerContents asInteger.
-			rows
-				add:
-					(Array
-						with: title
-						with: torrent
-						with: seeders
-						with: leechers) ].	"rows first inspect."	"self halt."
+			torrent
+				ifNotEmpty: [ 
+					rows
+						add:
+							(Array
+								with: title
+								with: torrent first
+								with: seeders
+								with: leechers) ] ].	"rows first inspect."	"self halt."
 	^ rows
 ]
 
@@ -110,18 +113,18 @@ KickassRobot >> parseRowsShowpage: fullHtml [
 			title := (html tagWithClass: 'cellMainLink') innerContents.
 			title := title copyReplaceAll: '<strong class="red">' with: ''.
 			title := title copyReplaceAll: '</strong>' with: ''.
-"			torrent := (html tagWithClass: 'imagnet') href."
-			hrefs:=(html tagsOfClass: HtmlANode)collect: [:a|a href].
-torrent:= hrefs select: [ :href| href includesSubstring: 'magnet:' ] 
-.			seeders := (html tagWithClass: 'green') innerContents asInteger.
+			hrefs := (html tagsOfClass: HtmlANode) collect: [ :a | a href ].
+			torrent := hrefs select: [ :href | href includesSubstring: 'magnet:' ].
+			seeders := (html tagWithClass: 'green') innerContents asInteger.
 			leechers := (html tagWithClass: 'lasttd') innerContents asInteger.
-			torrent ifNotEmpty:  
-[			rows
-				add:
-					(Array
-						with: title
-						with: torrent first
-						with: seeders
-						with: leechers) ]].
+			torrent
+				ifNotEmpty: [ 
+					rows
+						add:
+							(Array
+								with: title
+								with: torrent first
+								with: seeders
+								with: leechers) ] ].
 	^ rows
 ]

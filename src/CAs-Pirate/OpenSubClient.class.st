@@ -100,21 +100,26 @@ OpenSubClient >> searchSubtitles: aDictionary [
 
 { #category : #'as yet unclassified' }
 OpenSubClient >> searchSubtitles: aDictionary retries: retries [
-"struct SearchSubtitles(string $token, array(struct('sublanguageid' => string $sublanguageid, 'moviehash' => string $moviehash, 'moviebytesize' => int $moviesize, 'imdbid' => string $imdbid ), struct(...)))"
+	"struct SearchSubtitles(string $token, array(struct('sublanguageid' => string $sublanguageid, 'moviehash' => string $moviehash, 'moviebytesize' => int $moviesize, 'imdbid' => string $imdbid ), struct(...)))"
+
 	| r a data |
-	a := {self token.  {aDictionary} }.
-	[r := self proxy invokeMethod: 'SearchSubtitles' withArgs: a ]
-		on: Error 
-		do:  [ :ex | 
-			Transcript crShow: 'OpenSubTitles: Retries left: ',(retries-1) printString, ', ',ex printString.
-			(retries>0) 
-				ifTrue: [ self searchSubtitles: aDictionary retries: retries-1 ] 
-				ifFalse:[^nil ] ].
-	
-	r ifNil: [ ^nil ].
-	((r at: 'status') =  '401 Unauthorized') ifTrue: [ 
-		self login.  
-		^self searchSubtitles: aDictionary  ].
+	a := {(self token).
+	{aDictionary}}.
+	[ r := self proxy invokeMethod: 'SearchSubtitles' withArgs: a ]
+		on: Error
+		do: [ :ex | 
+			Transcript
+				crShow: 'OpenSubTitles: Retries left: ' , (retries - 1) printString;
+				crShow: ex printString;
+				crShow: aDictionary.
+			retries > 0
+				ifTrue: [ self searchSubtitles: aDictionary retries: retries - 1 ]
+				ifFalse: [ ^ nil ] ].
+	r ifNil: [ ^ nil ].
+	(r at: 'status') = '401 Unauthorized'
+		ifTrue: [ 
+			self login.
+			^ self searchSubtitles: aDictionary ].
 	data := r at: 'data'.
 	^ data
 ]

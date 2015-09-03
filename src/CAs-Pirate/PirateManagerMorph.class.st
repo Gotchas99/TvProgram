@@ -34,7 +34,7 @@ PirateManagerMorph >> addControls [
 	lst extent: listboxWidth @ 230.
 	r1 addMorphBack: lst.
 	r1c2 addMorphBack: (self newButton: 'Add show...' do: #addShow).
-	r1c2 addMorphBack: (self newButton: 'Add IMDB...' do: #addImdb).
+	r1c2 addMorphBack: (self newButton: 'Edit info...' do: #editInfo).
 	r1c2 addMorphBack: (self newButton: 'Look for new' do: #lookForNew).
 	r1c2 addMorphBack: (self newButton: 'Remove seen' do: #removeSeen).
 	r1c2 addMorphBack: (self newButton: 'Write to file' do: #writeToFile).
@@ -291,6 +291,18 @@ PirateManagerMorph >> deleteShow [
 					self changed: #listIndex2.
 					model3 := nil.
 					self changed: #list3 ] ]
+]
+
+{ #category : #'event handling' }
+PirateManagerMorph >> editInfo [
+	| show  |
+	listIndex = 0
+		ifTrue: [ ^ self ].
+	show := self list at: listIndex.
+	PirateShowInfo new
+		show: show;
+		openWithSpec.
+	self changed: #list
 ]
 
 { #category : #'model access' }

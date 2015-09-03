@@ -330,13 +330,12 @@ PirateVideo >> topSubtitles [
 	self isDownloaded
 		ifFalse: [ ^ self ].
 	subs := self subtitles: 'eng'.
-	subs size > 0
-		ifTrue: [ 
-			topSub := subs first.
-			os := OpenSubClient current.
-			os downloadSubtitle: topSub fileName: self videoFilename.
-			Transcript crShow: 'setting subtitles for ' , self fullId.
-			self setSub: topSub ]
+	subs ifEmpty: [ ^ self ].
+	topSub := subs first.
+	os := OpenSubClient current.
+	os downloadSubtitle: topSub fileName: self videoFilename.
+	Transcript crShow: 'setting subtitles for ' , self fullId.
+	self setSub: topSub
 ]
 
 { #category : #torrents }
