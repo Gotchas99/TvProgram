@@ -14,8 +14,9 @@ PirateApp class >> initMaid [
 		ifFalse: [ ^ self ].
 	delay := Delay forSeconds: 60 * 60.	"60 minutes"
 	TheMaid := [ 
+	[ 
 	delay wait.
-	PirateVideo getAllSubtitles ] newProcess.
+	PirateVideo getAllSubtitles ] repeat ] newProcess.
 	TheMaid
 		priority: Processor userBackgroundPriority;
 		name: #theMaid;

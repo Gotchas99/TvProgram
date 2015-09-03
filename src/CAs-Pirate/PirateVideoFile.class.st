@@ -219,7 +219,13 @@ PirateVideoFile >> video: aVideo [
 { #category : #accessing }
 PirateVideoFile >> videoFile [
 	| fs |
-	fs := FileSystem disk readStreamOn: self fullVideoFilename.
+	[ fs := FileSystem disk readStreamOn: self fullVideoFilename ]
+		on: Error
+		do: [ :ex | 
+			Transcript
+				crShow: 'PirateVideoFile: ' , self videoFilename;
+				crShow: ex printString.
+			^ nil ].
 	fs ifNil: [ ^ nil ].
 	fs binary.
 	^ fs
