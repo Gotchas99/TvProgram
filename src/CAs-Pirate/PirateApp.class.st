@@ -42,7 +42,7 @@ PirateApp class >> initializeStartupShutdown [
 
 { #category : #'as yet unclassified' }
 PirateApp class >> shutDown: quitting [
-	Transcript crShow: self name , ' shutDown: ' , quitting printString.
+	"Transcript crShow: self name , ' shutDown: ' , quitting printString."
 	quitting
 		ifTrue: [ 
 			TheMaid isNil
@@ -53,9 +53,15 @@ PirateApp class >> shutDown: quitting [
 
 { #category : #'as yet unclassified' }
 PirateApp class >> startUp: resuming [
-	Transcript crShow: self name , ' startUp: ' , resuming printString.
+	"Transcript crShow: self name , ' startUp: ' , resuming printString."
 	resuming
 		ifTrue: [ 
 			Config current initializeFromFile.
 			self initMaid ]
+]
+
+{ #category : #'as yet unclassified' }
+PirateApp class >> validateState [
+	PirateEpisode validateAll.
+	PirateVideoFile validateAll
 ]

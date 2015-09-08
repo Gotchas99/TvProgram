@@ -72,21 +72,21 @@ PirateShowInfo >> buttonOK: anObject [
 	buttonOK := anObject
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'initailize-release' }
 PirateShowInfo >> initialize [
 	super initialize.
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'initailize-release' }
 PirateShowInfo >> initializePresenter [
 	textName whenTextChanged: [ buttonOK enable ].
 	buttonOK
 		action: [ 
-			"      labelGreeting text: 'Hello, ', self userTitle, ' ', textName text, '!'."
-			buttonOK disable. self delete ]
+			self saveData.
+			self delete ]
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'initailize-release' }
 PirateShowInfo >> initializeWidgets [
 	self instantiateModels: #(
 		labelName	LabelModel 
@@ -135,6 +135,10 @@ PirateShowInfo >> lblKat [
 { #category : #accessing }
 PirateShowInfo >> lblKat: anObject [
 	lblKat := anObject
+]
+
+{ #category : #'as yet unclassified' }
+PirateShowInfo >> saveData [
 ]
 
 { #category : #'as yet unclassified' }

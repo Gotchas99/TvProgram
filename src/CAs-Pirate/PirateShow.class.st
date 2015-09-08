@@ -129,6 +129,12 @@ PirateShow class >> startUp: resuming [
 	self deprecated: 'Moved to PirateApp'
 ]
 
+{ #category : #'as yet unclassified' }
+PirateShow class >> validateAll [
+	PirateEpisode validateAll.
+	PirateVideoFile validateAll
+]
+
 { #category : #files }
 PirateShow class >> writeToFile [
 	FLSerializer serialize: self shows toFileNamed: self fileName,'.fuel'.

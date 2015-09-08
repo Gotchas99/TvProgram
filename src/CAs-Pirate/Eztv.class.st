@@ -1,7 +1,7 @@
 Class {
 	#name : #Eztv,
 	#superclass : #WRHttpRobot,
-	#category : #'CAs-Pirate'
+	#category : #'CAs-Pirate-Old'
 }
 
 { #category : #api }

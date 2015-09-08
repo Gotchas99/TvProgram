@@ -8,7 +8,7 @@ Class {
 }
 
 { #category : #'as yet unclassified' }
-PirateEpisode class >> setupAllVideFiles [
+PirateEpisode class >> setupAllVideoFiles [
 	| eps |
 	eps := PirateShow shows
 		collect: [ :show | 
@@ -23,6 +23,22 @@ PirateEpisode class >> setupAllVideFiles [
 	eps := eps reject: [ :each | each isNil ].
 	eps := eps reject: [ :each | each torrent isNil ].
 	eps := eps select: [ :each | each videoFile isNil ]
+]
+
+{ #category : #'as yet unclassified' }
+PirateEpisode class >> validateAllTorrents [
+	PirateShow shows do: [ :s | 
+		s seasons do: [ :sea | 
+			sea episodes do: [ :e | 
+				e validateTorrent ] ] ]
+]
+
+{ #category : #'as yet unclassified' }
+PirateEpisode class >> validateAllVideoFiles [
+	PirateShow shows do: [ :s | 
+		s seasons do: [ :sea | 
+			sea episodes do: [ :e | 
+				e validateVideofile] ] ]
 ]
 
 { #category : #'as yet unclassified' }
