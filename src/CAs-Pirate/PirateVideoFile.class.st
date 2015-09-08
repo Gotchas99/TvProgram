@@ -30,7 +30,7 @@ PirateVideoFile >> computeHashForChunk2: fs start: start size: chunkSize [
 	^hash
 ]
 
-{ #category : #printing }
+{ #category : #hashing }
 PirateVideoFile >> computeHashForChunk: fs start: start size: chunkSize [
 	| hash buff uint |
 	hash := UInt64 fromHex: '00'.
@@ -42,7 +42,7 @@ PirateVideoFile >> computeHashForChunk: fs start: start size: chunkSize [
 	^ hash
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #subtitles }
 PirateVideoFile >> deleteSubtitles [
 	self video ifNotNil: [ video deleteSubtitles ]
 ]
@@ -142,7 +142,11 @@ PirateVideoFile >> isSeen [
 
 { #category : #testing }
 PirateVideoFile >> isValid [
-	^ self folder isNil not and: [ videoFilename isNil not ]
+	| ref |
+	self folder ifNil: [ ^ false ].
+	videoFilename ifNil: [ ^ false ].
+	ref := self fullVideoFilename asFileReference.
+	^ ref exists
 ]
 
 { #category : #printing }
@@ -150,7 +154,7 @@ PirateVideoFile >> printOn: aStream [
 	aStream nextPutAll:  self videoFilename 
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'initialize-release' }
 PirateVideoFile >> reset [
 	self video: nil.
 	self torrent: nil.
@@ -179,13 +183,13 @@ PirateVideoFile >> torrent: aTorrent [
 	
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #validation }
 PirateVideoFile >> validate [
 	self validateTorrent.
 	self validateVideo
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #validation }
 PirateVideoFile >> validateTorrent [
 	torrent isNil
 		ifFalse: [ 
@@ -195,7 +199,7 @@ PirateVideoFile >> validateTorrent [
 					Transcript crShow: 'Removing torrent from: ' , self printString ] ]
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #validation }
 PirateVideoFile >> validateVideo [
 	video isNil
 		ifTrue: [ ^ self ].

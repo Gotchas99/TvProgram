@@ -121,14 +121,17 @@ PirateTorrent class >> setUpAllTorrents [
 	AllTorrents := Set new.
 	PirateShow shows
 		do: [ :show | 
-			show seasons do: [ :season | 
-				season episodes do: [ :ep | 
-					ep isViewed ifFalse:[
-						t:=ep torrent.
-						t ifNotNil: [ t isInServer	ifTrue: [ AllTorrents add: t ] ] ]] ] ]	"self allInstances
-		do: [ :i | 
-			i isInServer
-				ifTrue: [ AllTorrents add: i ] ]"
+			show seasons
+				do: [ :season | 
+					season episodes
+						do: [ :ep | 
+							ep isViewed
+								ifFalse: [ 
+									t := ep torrent.
+									t
+										ifNotNil: [ 
+											t isInServer
+												ifTrue: [ AllTorrents add: t ] ] ] ] ] ]
 ]
 
 { #category : #'as yet unclassified' }
@@ -454,18 +457,6 @@ PirateTorrent >> videoFile [
 	vf size = 1
 		ifTrue: [ ^vf first ]
 		ifFalse: [ self halt ]
-]
-
-{ #category : #'to_videofile' }
-PirateTorrent >> videoFilename [
-| files max fname |
-self halt.
-	files:= TransmissionClient current getFiles: self torrentHash.
-	files isEmptyOrNil ifTrue: [^nil].
-	max:=0.
-	files do: [:f| (f at: #length)>max ifTrue: [fname:= f at: #name. max:=f at: #length]].
-	^ self folder , fname.
-
 ]
 
 { #category : #'as yet unclassified' }

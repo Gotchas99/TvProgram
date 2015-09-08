@@ -26,11 +26,9 @@ PirateVideo class >> getAllSubtitles [
 ]
 
 { #category : #'as yet unclassified' }
-PirateVideo class >> validateAllTorrents [
-	PirateShow shows do: [ :s | 
-		s seasons do: [ :sea | 
-			sea episodes do: [ :e | 
-				e validateTorrent ] ] ]
+PirateVideo class >> validateAll [
+	self validateAllTorrents.
+	self validateAllVideoFiles
 ]
 
 { #category : #torrents }
@@ -54,7 +52,7 @@ PirateVideo >> convertTorrent [
 	^ torrent := PirateTorrent from: torrent
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'initialize-release' }
 PirateVideo >> delete [
 	self deleteSubtitles.
 	torrent ifNotNil: [ torrent delete.torrent:=nil ].
@@ -118,7 +116,7 @@ PirateVideo >> hasSubtitle [
 	^ (subTitle isNil not)
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'initialize-release' }
 PirateVideo >> icon [
 	^ nil
 ]
@@ -143,11 +141,10 @@ PirateVideo >> initialize [
 
 { #category : #torrents }
 PirateVideo >> isDownloaded [
-	| |
-"	self halt."
-	videoFile ifNotNil: [ ^true ].
-	torrent isNil ifTrue: [^ false].
-	^torrent isDownloadComplete
+	videoFile ifNotNil: [ ^ true ].
+	torrent isNil
+		ifTrue: [ ^ false ].
+	^ torrent isDownloadComplete
 ]
 
 { #category : #torrents }
@@ -200,8 +197,7 @@ PirateVideo >> magnet [
 PirateVideo >> needsTorrent [
 	self isViewed
 		ifTrue: [ ^ false ].
-	videoFile isNil
-		ifFalse: [ ^ false ].
+	videoFile ifNil: [ ^ false ].
 	^ self torrent isNil
 ]
 
@@ -225,34 +221,6 @@ PirateVideo >> play [
 		proc update: #runState  ].
 	^ proc
 
-]
-
-{ #category : #'as yet unclassified' }
-PirateVideo >> play2 [
-	| args proc fname |
-	torrent ifNil:[^self].
-	fname := torrent videoFilename.
-"	out := FileStream forceNewFileNamed: '/tmp/deleteMe.out'.
-	err := FileStream forceNewFileNamed: '/tmp/deleteMe.err'.
-	desc := Array
-				with: nil
-				with: out
-				with: err.
-"	args := Array
-				with: '--fullscreen'
-				with: fname.
-	proc := UnixProcess
-				forkJob: '/usr/bin/vlc'
-				arguments: args
-				environment: nil
-				descriptors: nil.
-	proc ifNil: [UnixProcess noAccessorAvailable].
-	[proc isComplete] whileFalse:
-		[(Delay forMilliseconds: 200) wait.].
-"	out close.
-	err close."
-	^ proc
-"	^ self"
 ]
 
 { #category : #printing }
@@ -316,6 +284,7 @@ PirateVideo >> subtitles: lang [
 			(retryCount := retryCount - 1) > 0
 				ifTrue: [ 
 					Transcript crShow: 'retrying subtitles, count left:' , retryCount printString.
+					Transcript crShow: self fullPrintString .
 					Transcript crShow: ex printString.
 					(Delay forMilliseconds: 500) wait.
 					ex retry ]
@@ -355,6 +324,7 @@ PirateVideo >> torrent: aTorrent [
 			videoFile reset.
 			videoFile := nil ].
 	torrent := PirateTorrent asTorrent: aTorrent.
+	subTitle := nil.
 	self changed
 ]
 
@@ -380,7 +350,7 @@ PirateVideo >> unViewed [
 	^self
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #torrents }
 PirateVideo >> validateTorrent [
 	| t |
 	torrent ifNil: [ ^ self ].
@@ -401,6 +371,22 @@ PirateVideo >> validateTorrent [
 					Transcript crShow: 'Replacing torrent from: ' , self printString ] ]
 ]
 
+{ #category : #'as yet unclassified' }
+PirateVideo >> validateVideofile [
+	videoFile ifNil: [ ^ self ].
+	self isViewed
+		ifTrue: [ ^ self ].
+	videoFile class = PirateVideoFile
+		ifFalse: [ 
+			self videoFile: nil.
+			Transcript crShow: 'Removing videoFile (wrong class) from: ' , self printString.
+			^ self ].
+	videoFile isValid
+		ifFalse: [ 
+			self videoFile: nil.
+			Transcript crShow: 'Removing videoFile (invalid state) from: ' , self printString ]
+]
+
 { #category : #accessing }
 PirateVideo >> videoFile [
 	((videoFile isNil and: [ torrent notNil ]) and: [ torrent isDownloadComplete ])
@@ -412,7 +398,12 @@ PirateVideo >> videoFile [
 
 { #category : #accessing }
 PirateVideo >> videoFile: aVideoFile [
-	videoFile := aVideoFile .
+	videoFile
+		ifNotNil: [ 
+			videoFile class = PirateVideoFile
+				ifTrue: [ videoFile reset ] ].
+	videoFile := aVideoFile.
+	subTitle := nil
 ]
 
 { #category : #accessing }
