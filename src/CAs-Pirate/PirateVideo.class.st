@@ -68,16 +68,7 @@ PirateVideo >> delete [
 
 { #category : #subtitles }
 PirateVideo >> deleteSubtitles [
-	| srtName fname ref |
-	self videoFile
-		ifNotNil: [ 
-			fname := self videoFile fullVideoFilename.
-			fname
-				ifNotNil: [ 
-					srtName := OpenSubClient new srtFromVideo: fname.
-					ref := srtName asFileReference.
-					ref exists
-						ifTrue: [ ref delete ] ] ].
+	self videoFile ifNotNil: [ videoFile deleteSubtitles ].
 	subTitle := nil
 ]
 
@@ -197,7 +188,7 @@ PirateVideo >> magnet [
 PirateVideo >> needsTorrent [
 	self isViewed
 		ifTrue: [ ^ false ].
-	videoFile ifNil: [ ^ false ].
+	videoFile ifNotNil: [ ^ false ].
 	^ self torrent isNil
 ]
 
@@ -319,12 +310,8 @@ PirateVideo >> torrent: aTorrent [
 	torrent = aTorrent
 		ifTrue: [ ^ self ].
 	torrent ifNotNil: [ torrent delete ].
-	videoFile
-		ifNotNil: [ 
-			videoFile reset.
-			videoFile := nil ].
 	torrent := PirateTorrent asTorrent: aTorrent.
-	subTitle := nil.
+	videoFile ifNotNil: [ self videoFile: nil ].
 	self changed
 ]
 
@@ -350,11 +337,11 @@ PirateVideo >> unViewed [
 	^self
 ]
 
-{ #category : #torrents }
+{ #category : #validation }
 PirateVideo >> validateTorrent [
 	| t |
 	torrent ifNil: [ ^ self ].
-	self isViewed 
+	self isViewed
 		ifTrue: [ ^ self ].
 	torrent isInServer
 		ifFalse: [ 
@@ -362,16 +349,18 @@ PirateVideo >> validateTorrent [
 			Transcript crShow: 'Removing torrent from: ' , self printString ]
 		ifTrue: [ 
 			t := PirateTorrent at: torrent torrentHash.
-			t isNil
-				ifTrue: [ 
+			t
+				ifNil: [ 
 					PirateTorrent allTorrents add: torrent.
 					Transcript crShow: 'Adding torrent from: ' , self printString ]
-				ifFalse: [ 
-					torrent := t.
-					Transcript crShow: 'Replacing torrent from: ' , self printString ] ]
+				ifNotNil: [ 
+					t = torrent
+						ifFalse: [ 
+							self torrent: t.
+							Transcript crShow: 'Replacing torrent from: ' , self printString ] ] ]
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #validation }
 PirateVideo >> validateVideofile [
 	videoFile ifNil: [ ^ self ].
 	self isViewed
