@@ -139,6 +139,9 @@ PirateShowInfo >> lblKat: anObject [
 
 { #category : #'as yet unclassified' }
 PirateShowInfo >> saveData [
+	show name: textName text.
+	show imdb: txtImdb text.
+	show kat: txtKat text
 ]
 
 { #category : #'as yet unclassified' }

@@ -16,6 +16,7 @@ PirateApp class >> initMaid [
 	TheMaid := [ 
 	[ 
 	delay wait.
+	PirateTorrent updateStatuses.
 	PirateVideo getAllSubtitles ] repeat ] newProcess.
 	TheMaid
 		priority: Processor userBackgroundPriority;

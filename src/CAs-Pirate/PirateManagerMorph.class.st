@@ -190,17 +190,15 @@ PirateManagerMorph >> addTorrent [
 	listIndex3 = 0
 		ifTrue: [ ^ self ].
 	mag := UIManager default request: 'Add torrent (Magnet link):' initialAnswer: '<Magnet link>'.
-	mag isNil
-		ifTrue: [ ^ self ].
+	mag ifNil: [ ^ self ].
 	t := PirateTorrent magnet: mag.
-	t isNil
-		ifTrue: [ ^ self ].
+	t ifNil: [ ^ self ].
 	ep := model3 episodes at: listIndex3.
 	ep
 		torrent: t;
 		download.
 	self changed: #list3.
-	self refresh.
+	self refresh
 ]
 
 { #category : #'event handling' }
@@ -215,12 +213,14 @@ PirateManagerMorph >> addVideofile [
 		path: PirateTorrent folder
 		preview: nil.
 	file isNil
-		ifTrue: [ ^ self ].self halt.
+		ifTrue: [ ^ self ].
 	vf := PirateVideoFile new.
 	vf videoFilename: file basename.
 	vf folder: file reference parent fullName.
 	ep := model3 episodes at: listIndex3.
-	ep videoFile: vf.
+	ep
+		torrent: nil;
+		videoFile: vf.
 	self changed: #list3
 ]
 

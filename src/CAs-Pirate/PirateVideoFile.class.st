@@ -8,7 +8,8 @@ Class {
 		'folder',
 		'videoFilename',
 		'swesub',
-		'viewTime'
+		'viewTime',
+		'subTitles'
 	],
 	#category : #'CAs-Pirate'
 }
@@ -44,7 +45,15 @@ PirateVideoFile >> computeHashForChunk: fs start: start size: chunkSize [
 
 { #category : #subtitles }
 PirateVideoFile >> deleteSubtitles [
-	self video ifNotNil: [ video deleteSubtitles ]
+	| srtName fname ref |
+	fname := self fullVideoFilename.
+	fname
+		ifNotNil: [ 
+			srtName := OpenSubClient new srtFromVideo: fname.
+			ref := srtName asFileReference.
+			ref exists
+				ifTrue: [ ref delete ] ].
+	subTitles := nil
 ]
 
 { #category : #'as yet unclassified' }
@@ -79,6 +88,7 @@ PirateVideoFile >> folder: aString [
 { #category : #accessing }
 PirateVideoFile >> fullVideoFilename [
 	| fname |
+	self folder ifNil: [ ^ nil ].
 	fname := self folder , '/' , videoFilename.
 	Smalltalk os isUnix
 		ifTrue: [ fname := fname copyReplaceAll: '\' with: '/' ].
@@ -156,9 +166,10 @@ PirateVideoFile >> printOn: aStream [
 
 { #category : #'initialize-release' }
 PirateVideoFile >> reset [
+	self deleteSubtitles.
 	self video: nil.
 	self torrent: nil.
-	self videoFilename: nil.
+	self videoFilename: nil
 ]
 
 { #category : #'not used' }
@@ -227,7 +238,7 @@ PirateVideoFile >> videoFile [
 		on: Error
 		do: [ :ex | 
 			Transcript
-				crShow: 'PirateVideoFile: ' , self videoFilename;
+				crShow: 'PirateVideoFile: ' , self videoFilename printString ;
 				crShow: ex printString.
 			^ nil ].
 	fs ifNil: [ ^ nil ].
