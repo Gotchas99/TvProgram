@@ -68,7 +68,7 @@ KickassRobot >> getTorrents: aString category: categoryString [
 			Transcript crShow: 'Exception on Kickass:newGet:' , ex printString.
 			self halt.
 			^ OrderedCollection new ].
-	self checkOk.
+"	self checkOk."
 	self parseBody.
 	(dom innerContents findString: ' did not match any documents') > 0
 		ifTrue: [ ^ Array new ].
