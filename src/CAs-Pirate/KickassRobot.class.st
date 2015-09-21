@@ -38,7 +38,7 @@ KickassRobot >> getShow: aKatString season: aSeasonId episode: anEpisodeId [
 					s := a innerContents.
 					eps := rs next.
 					seasons at: s put: eps ] ].
-	eps := seasons at: 'Season ' , aSeasonId.
+	eps := seasons at: 'Season ' , aSeasonId ifAbsent: [   	^ OrderedCollection new ].
 	eps := eps children collect: [ :each | each tagWithClass: #infoListCut ].
 	ep := eps select: [ :each | (each tagWithClass: #versionsEpNo) innerContents trimmed = ('Episode ' , anEpisodeId) ].
 	epId := (ep first attributes at: #onclick) parseLiterals second third.
