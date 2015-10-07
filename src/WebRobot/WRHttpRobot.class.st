@@ -65,7 +65,7 @@ WRHttpRobot >> newRequest [
 		timeout: 10;
 		numberOfRetries: 3;
 		retryDelay: 2.
-		" request beOneShot."
+		request beOneShot.
 	^ request
 ]
 
