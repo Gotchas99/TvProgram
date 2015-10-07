@@ -38,7 +38,7 @@ KickassRobot >> getShow: aKatString season: aSeasonId episode: anEpisodeId [
 					s := a innerContents.
 					eps := rs next.
 					seasons at: s put: eps ] ].
-	eps := seasons at: 'Season ' , aSeasonId ifAbsent: [   	^ OrderedCollection new ].
+	eps := seasons at: 'Season ' , aSeasonId ifAbsent: [ ^ OrderedCollection new ].
 	eps := eps children collect: [ :each | each tagWithClass: #infoListCut ].
 	ep := eps select: [ :each | (each tagWithClass: #versionsEpNo) innerContents trimmed = ('Episode ' , anEpisodeId) ].
 	epId := (ep first attributes at: #onclick) parseLiterals second third.
@@ -50,7 +50,8 @@ KickassRobot >> getShow: aKatString season: aSeasonId episode: anEpisodeId [
 	self checkOk.
 	self parseBody.
 	epRoot := dom tagWithClass: #data.
-	rows := self parseRowsShowpage: epRoot children allButFirst.
+	epRoot ifNil: [ ^ #() ].
+	rows := self parseRows: epRoot children allButFirst.
 	rows := rows reject: [ :each | each isNil ].
 	^ rows
 ]
@@ -101,30 +102,5 @@ KickassRobot >> parseRows: fullHtml [
 								with: torrent first
 								with: seeders
 								with: leechers) ] ].	"rows first inspect."	"self halt."
-	^ rows
-]
-
-{ #category : #'as yet unclassified' }
-KickassRobot >> parseRowsShowpage: fullHtml [
-	| rows title leechers seeders torrent hrefs |
-	rows := OrderedCollection new.
-	fullHtml
-		do: [ :html | 
-			title := (html tagWithClass: 'cellMainLink') innerContents.
-			title := title copyReplaceAll: '<strong class="red">' with: ''.
-			title := title copyReplaceAll: '</strong>' with: ''.
-			hrefs := (html tagsOfClass: HtmlANode) collect: [ :a | a href ].
-			torrent := hrefs select: [ :href | href includesSubstring: 'magnet:' ].
-			seeders := (html tagWithClass: 'green') innerContents asInteger.
-			leechers := (html tagWithClass: 'lasttd') innerContents asInteger.
-			torrent
-				ifNotEmpty: [ 
-					rows
-						add:
-							(Array
-								with: title
-								with: torrent first
-								with: seeders
-								with: leechers) ] ].
 	^ rows
 ]

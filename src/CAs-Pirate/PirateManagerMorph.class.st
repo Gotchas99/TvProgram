@@ -300,7 +300,7 @@ PirateManagerMorph >> editInfo [
 		ifTrue: [ ^ self ].
 	show := self list at: listIndex.
 	PirateShowInfo new
-		show: show;
+		show: show; 
 		openWithSpec.
 	self changed: #list
 ]
