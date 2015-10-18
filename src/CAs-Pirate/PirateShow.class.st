@@ -226,7 +226,9 @@ PirateShow >> imdb [
 
 { #category : #accessing }
 PirateShow >> imdb: anObject [
-	imdb := anObject
+	 imdb :=anObject isEmptyOrNil
+		ifTrue: [ nil ]
+		ifFalse: [ anObject ]
 ]
 
 { #category : #'initialize-release' }
@@ -242,7 +244,9 @@ PirateShow >> kat [
 
 { #category : #accessing }
 PirateShow >> kat: anObject [
-	kat := anObject
+	kat := anObject isEmptyOrNil
+		ifTrue: [ nil ]
+		ifFalse: [ anObject ]
 ]
 
 { #category : #'as yet unclassified' }

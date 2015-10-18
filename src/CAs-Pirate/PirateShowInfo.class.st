@@ -100,6 +100,7 @@ PirateShowInfo >> initializeWidgets [
 	labelName text: 'Show title'.
 	textName autoAccept: true.
 	lblImdb text: 'Imdb ID'.
+	txtImdb autoAccept: true.
 	lblKat text: 'Kickass ID'.
 	txtKat autoAccept: true.
 	buttonOK
