@@ -169,13 +169,17 @@ PirateTorrent >> checkStatus [
 { #category : #converting }
 PirateTorrent >> createVideoFile [
 	self isSingleVideoFile
-		ifFalse: [ self halt ].
+		ifFalse: [ 
+			self videoFilenames detect: [ :each | self isARarFile: each ] ifFound: [ self inform: self name , ' is a RAR-file' ].
+			self halt ].
 	^ self createVideoFiles first
 ]
 
 { #category : #converting }
 PirateTorrent >> createVideoFiles [
 	| f |
+	self videoFilenames detect: [ :each | self isARarFile: each ] ifFound: [ self inform: self name , ' is a RAR-file' ].
+	self halt.
 	videoFiles := OrderedCollection new.
 	self videoFilenames
 		do: [ :fname | 

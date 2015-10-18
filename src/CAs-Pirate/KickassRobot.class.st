@@ -41,6 +41,8 @@ KickassRobot >> getShow: aKatString season: aSeasonId episode: anEpisodeId [
 	eps := seasons at: 'Season ' , aSeasonId ifAbsent: [ ^ OrderedCollection new ].
 	eps := eps children collect: [ :each | each tagWithClass: #infoListCut ].
 	ep := eps select: [ :each | (each tagWithClass: #versionsEpNo) innerContents trimmed = ('Episode ' , anEpisodeId) ].
+	ep isEmptyOrNil
+		ifTrue: [ ^ #() ].
 	epId := (ep first attributes at: #onclick) parseLiterals second third.
 	[ self newGet: 'https://kat.cr/media/getepisode/' , epId ]
 		on: Exception
