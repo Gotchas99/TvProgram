@@ -56,6 +56,12 @@ PirateVideoFile >> deleteSubtitles [
 	subTitles := nil
 ]
 
+{ #category : #'initialize-release' }
+PirateVideoFile >> disconnect [
+	self video ifNotNil: [ video videoFile: nil ].
+	self reset
+]
+
 { #category : #'as yet unclassified' }
 PirateVideoFile >> doneWithThis [
 	viewTime := TimeStamp now.

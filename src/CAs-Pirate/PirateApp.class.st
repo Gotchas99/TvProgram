@@ -63,6 +63,7 @@ PirateApp class >> startUp: resuming [
 
 { #category : #'as yet unclassified' }
 PirateApp class >> validateState [
+	PirateTorrent validateAll.
 	PirateEpisode validateAll.
 	PirateVideoFile validateAll
 ]
