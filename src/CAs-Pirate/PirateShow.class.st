@@ -184,6 +184,13 @@ PirateShow >> addTag: aString [
 	self tags addIfNotPresent: aString 
 ]
 
+{ #category : #'as yet unclassified' }
+PirateShow >> allEpisodes [
+	| ep |
+	ep := seasons collect: [ :s | s episodes ].
+	^ ep flattened
+]
+
 { #category : #accessing }
 PirateShow >> archived [
 	^ archived ifNil: [ archived := false ]
@@ -247,6 +254,15 @@ PirateShow >> kat: anObject [
 	kat := anObject isEmptyOrNil
 		ifTrue: [ nil ]
 		ifFalse: [ anObject ]
+]
+
+{ #category : #'as yet unclassified' }
+PirateShow >> lastSeen [
+	| seen |
+	seen := self allEpisodes select: [ :e | e isViewed ].
+	seen isEmpty
+		ifTrue: [ ^ nil ]
+		ifFalse: [ ^ seen last ]
 ]
 
 { #category : #'as yet unclassified' }
@@ -326,6 +342,14 @@ PirateShow >> nextNeedsTorrent [
 	model isEmpty
 		ifTrue: [ ^ nil ]
 		ifFalse: [ ^ model first ]
+]
+
+{ #category : #'as yet unclassified' }
+PirateShow >> nextToSee [
+	| last |
+	self allEpisodes isEmptyOrNil ifTrue:[^nil].
+	last := self lastSeen.
+	last ifNil: [ ^ self allEpisodes first ] ifNotNil: [ ^ self allEpisodes after: last ifAbsent: [ nil ] ]
 ]
 
 { #category : #'as yet unclassified' }

@@ -139,16 +139,13 @@ PirateViewableMorph >> play [
 PirateViewableMorph >> refresh [
 	| tmp |
 	model := OrderedCollection new.
-	tmp := shows collect: [:s|s nextEpisode].
-	tmp := tmp reject: [:i| i isNil].
-	self showsStarted ifTrue: [
-		tmp := tmp reject: [:i|
-			(i id = '01') and: [i season id = '01']
-			]
-		].
-	model:= tmp.
-	self changed: #list.
- 
+	tmp := shows collect: [ :s | s nextToSee ].
+	tmp := tmp reject: [ :i | i isNil ].
+	tmp select: [ :e | e isViewable ].
+	self showsStarted
+		ifTrue: [ tmp := tmp reject: [ :i | i id = '01' and: [ i season id = '01' ] ] ].
+	model := tmp.
+	self changed: #list
 ]
 
 { #category : #'as yet unclassified' }

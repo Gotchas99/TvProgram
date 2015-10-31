@@ -148,6 +148,17 @@ PirateTorrent class >> updateStatuses [
 	notInServer do: [ :t | t status: -1 ]
 ]
 
+{ #category : #'as yet unclassified' }
+PirateTorrent class >> validateAll [
+	| gone |
+	Transcript crShow: 'Validating torrents.'.
+	gone := self allTorrents reject: [ :t | t isInServer ].
+	gone
+		do: [ :t | 
+			Transcript crShow: 'Removing torrent (not in server): ' , t name.
+			t removeTorrentAndData ]
+]
+
 { #category : #accessing }
 PirateTorrent >> = aTorrent [
 	aTorrent ifNil: [ ^ false ].
@@ -178,8 +189,11 @@ PirateTorrent >> createVideoFile [
 { #category : #converting }
 PirateTorrent >> createVideoFiles [
 	| f |
-	self videoFilenames detect: [ :each | self isARarFile: each ] ifFound: [ self inform: self name , ' is a RAR-file' ].
-	self halt.
+	self videoFilenames
+		detect: [ :each | self isARarFile: each ]
+		ifFound: [ 
+			self inform: self name , ' is a RAR-file'.
+			self halt ].
 	videoFiles := OrderedCollection new.
 	self videoFilenames
 		do: [ :fname | 
@@ -363,15 +377,11 @@ PirateTorrent >> removeTorrentAndData [
 	| h |
 	videoFiles
 		ifNotNil: [ 
-			videoFiles
-				do: [ :vf | 
-					vf deleteSubtitles.
-					vf torrent: nil ].
+			videoFiles do: [ :vf | vf disconnect ].
 			videoFiles := nil ].
 	h := self torrentHash.
 	h isEmptyOrNil
-		ifTrue: [ ^ self ].
-	TransmissionClient current removeTorrent: h.
+		ifFalse: [ TransmissionClient current removeTorrent: h ].
 	self class allTorrents remove: self ifAbsent: [  ]
 ]
 
@@ -421,6 +431,8 @@ PirateTorrent >> status: anInt [
 			downloaded := false.
 			(#(5 6) includes: status)
 				ifTrue: [ downloaded := true ].
+			(#(-1) includes: status)
+				ifTrue: [ self removeTorrentAndData ].
 			(#(0) includes: status)
 				ifTrue: [ downloaded := (TransmissionClient current getTotalSize: self torrentHash) > 0 ].
 			downloaded
