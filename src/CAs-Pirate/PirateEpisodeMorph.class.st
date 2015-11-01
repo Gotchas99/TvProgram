@@ -127,22 +127,15 @@ PirateEpisodeMorph >> findCurrentTorrent [
 	| torrent m |
 	torrent := model magnet.
 	torrent isEmptyOrNil
-		ifTrue: [^ self].
-	1
-		to: torrents size
-		do: [:i | 
-			m := torrents at: i.
-			torrent
-					= (m at: 2)
-				ifTrue: [self listIndex: i]].
-1
-		to: torrentsSwe size
-		do: [:i | 
-			m := torrentsSwe at: i.
-			torrent
-					= (m at: 2)
-				ifTrue: [self listIndexSwe:i]].
-
+		ifTrue: [ ^ self ].
+	1 to: torrents size do: [ :i | 
+		m := torrents at: i.
+		torrent = (m at: 2)
+			ifTrue: [ self listIndex: i ] ].
+	1 to: torrentsSwe size do: [ :i | 
+		m := torrentsSwe at: i.
+		torrent = (m at: 2)
+			ifTrue: [ self listIndexSwe: i ] ]
 ]
 
 { #category : #'model access' }
