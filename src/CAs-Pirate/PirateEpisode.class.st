@@ -110,9 +110,8 @@ PirateEpisode >> getTorrents [
 			Transcript crShow: 'Error on getTorrents: ' , err printString ].
 	tpb ifNotNil: [ t addAll: tpb ].
 	kickass ifNotNil: [ t addAll: kickass ].
-	t := t reject: [ :each | each first includesSubstring: '1080p' caseSensitive: false ].
-	t := t reject: [ :each | each first includesSubstring: 'French' caseSensitive: false ].
-	t := t reject: [ :each | each first includesSubstring: 'subtitulado' caseSensitive: false ].
+	#('1080p' 'French' '1080p' 'subtitulado')
+		do: [ :word | t := t reject: [ :each | each first includesSubstring: word caseSensitive: false ] ].
 	^ t
 ]
 

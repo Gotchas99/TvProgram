@@ -346,10 +346,12 @@ PirateShow >> nextNeedsTorrent [
 
 { #category : #'as yet unclassified' }
 PirateShow >> nextToSee [
-	| last |
-	self allEpisodes isEmptyOrNil ifTrue:[^nil].
-	last := self lastSeen.
-	last ifNil: [ ^ self allEpisodes first ] ifNotNil: [ ^ self allEpisodes after: last ifAbsent: [ nil ] ]
+	| notSeen |
+	notSeen := self allEpisodes reject: [ :each | each isViewed ].
+	notSeen isEmptyOrNil
+		ifTrue: [ ^ nil ]
+		ifFalse: [ ^notSeen first ]	"last := self lastSeen.
+	last ifNil: [ ^ self allEpisodes first ] ifNotNil: [ ^ self allEpisodes after: last ifAbsent: [ nil ] ]"
 ]
 
 { #category : #'as yet unclassified' }
