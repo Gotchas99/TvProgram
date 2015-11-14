@@ -50,7 +50,7 @@ PirateVideoFile >> deleteSubtitles [
 	fname
 		ifNotNil: [ 
 			srtName := OpenSubClient new srtFromVideo: fname.
-			ref := srtName asFileReference.
+			ref := srtName.
 			ref exists
 				ifTrue: [ ref delete ] ].
 	subTitles := nil
@@ -80,10 +80,13 @@ PirateVideoFile >> fileSize [
 
 { #category : #accessing }
 PirateVideoFile >> folder [
-	^ folder
+	folder
 		ifNil: [ 
 			torrent isNil
-				ifFalse: [ folder := torrent folder ] ]
+				ifFalse: [ folder := torrent folder ] ].
+	(folder isKindOf: String)
+		ifTrue: [ folder := folder asFileReference ].
+	^ folder
 ]
 
 { #category : #accessing }
@@ -95,11 +98,11 @@ PirateVideoFile >> folder: aString [
 PirateVideoFile >> fullVideoFilename [
 	| fname |
 	self folder ifNil: [ ^ nil ].
-	fname := self folder , '/' , videoFilename.
-	Smalltalk os isUnix
+	fname := self folder / videoFilename.
+"	Smalltalk os isUnix
 		ifTrue: [ fname := fname copyReplaceAll: '\' with: '/' ].
 	Smalltalk os isWin32
-		ifTrue: [ fname := fname copyReplaceAll: '/' with: '\' ].
+		ifTrue: [ fname := fname copyReplaceAll: '/' with: '\' ]."
 	^ fname
 ]
 
@@ -161,7 +164,7 @@ PirateVideoFile >> isValid [
 	| ref |
 	self folder ifNil: [ ^ false ].
 	videoFilename ifNil: [ ^ false ].
-	ref := self fullVideoFilename asFileReference.
+	ref := self fullVideoFilename .
 	^ ref exists
 ]
 
