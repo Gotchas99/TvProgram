@@ -35,11 +35,14 @@ OpenSubClient >> compare: a and: b [
 { #category : #'as yet unclassified' }
 OpenSubClient >> downloadSubtitle: subDict fileName: aVideoFileName [
 	"struct LogIn(string $username, string $password, string $language, string $useragent)"
+
 	| r a data base64 zip text zipStream fs srtName |
-	a := {self token.
+	a := {(self token).
 	{(subDict at: #IDSubtitleFile)}}.
-[	r := self proxy invokeMethod: 'DownloadSubtitles' withArgs: a.]on: Error do: [ :ex| Transcript crShow: 'Error in downloadSubtitle:', ex printString ].
-	r ifNil: [  ^ nil ].
+	[ r := self proxy invokeMethod: 'DownloadSubtitles' withArgs: a ]
+		on: Error
+		do: [ :ex | Transcript crShow: 'Error in downloadSubtitle:' , ex printString ].
+	r ifNil: [ ^ nil ].
 	(r at: 'status') = '200 OK'
 		ifFalse: [ ^ nil ].
 	(data := r at: #data) isEmpty
@@ -48,7 +51,7 @@ OpenSubClient >> downloadSubtitle: subDict fileName: aVideoFileName [
 	zip := Base64MimeConverter mimeDecodeToBytes: base64 readStream.
 	zipStream := GZipReadStream on: zip.
 	text := zipStream contents.
-	srtName := self srtFromVideo: aVideoFileName.	"	fs:=FileDirectory default forceNewFileNamed: srtName."
+	srtName := self srtFromVideo: aVideoFileName.
 	fs := FileSystem disk openFileStream: srtName writable: true.
 	fs nextPutAll: text.
 	fs close.
@@ -195,10 +198,10 @@ OpenSubClient >> sortSubtitles: aSubDict [
 
 { #category : #'as yet unclassified' }
 OpenSubClient >> srtFromVideo: aVideoFileName [
-	| lastDot base |
-	lastDot := aVideoFileName findLastOccurrenceOfString: '.' startingAt: 1. 
+	"	lastDot := aVideoFileName findLastOccurrenceOfString: '.' startingAt: 1. 
 	base := aVideoFileName copyFrom: 1 to: lastDot-1. 
-	^base , '.srt'
+	^base , '.srt'"
+	^ (aVideoFileName fullPath withExtension: 'srt') asFileReference
 ]
 
 { #category : #'as yet unclassified' }

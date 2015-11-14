@@ -29,7 +29,7 @@ TransmissionClient >> addTorrent: aTorrentString [
 	| args req |
 	args := Dictionary new.
 	args at: 'filename' put: aTorrentString.
-	args at: 'download-dir' put: self folder.
+	args at: 'download-dir' put: self folder pathString .
 	args at: 'priority-low' put: #().
 	req := Dictionary new.
 	req at: 'method' put: 'torrent-add'.
@@ -39,13 +39,9 @@ TransmissionClient >> addTorrent: aTorrentString [
 
 { #category : #'as yet unclassified' }
 TransmissionClient >> folder [
-	| folder transFolder sep |
+	| folder transFolder  |
 	transFolder := self getDownloadDir.
-	(Path isAbsoluteUnixPath: transFolder)
-		ifTrue: [ sep := '/' ].
-	(Path isAbsoluteWindowsPath: transFolder)
-		ifTrue: [ sep := '\' ].
-	folder := transFolder , sep , '_TvProgram'.
+	folder := transFolder asFileReference / '_TVprogram'.
 	^ folder
 ]
 

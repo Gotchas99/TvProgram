@@ -9,15 +9,16 @@ Class {
 
 { #category : #'as yet unclassified' }
 PirateApp class >> initMaid [
-	| delay |
-	TheMaid isNil
-		ifFalse: [ ^ self ].
+	| delay  plist |
+	plist := Process allInstances reject: [ :p | p isTerminated ].
+	(plist anySatisfy: [ :p | p name = #theMaid ])
+		ifTrue: [ ^ self ].
 	delay := Delay forSeconds: 60 * 60.	"60 minutes"
 	TheMaid := [ 
 	[ 
-	delay wait.
 	PirateTorrent updateStatuses.
-	PirateVideo getAllSubtitles ] repeat ] newProcess.
+	PirateVideo getAllSubtitles.
+	delay wait ] repeat ] newProcess.
 	TheMaid
 		priority: Processor userBackgroundPriority;
 		name: #theMaid;
@@ -43,7 +44,6 @@ PirateApp class >> initializeStartupShutdown [
 
 { #category : #'as yet unclassified' }
 PirateApp class >> shutDown: quitting [
-	"Transcript crShow: self name , ' shutDown: ' , quitting printString."
 	quitting
 		ifTrue: [ 
 			TheMaid isNil
@@ -54,7 +54,6 @@ PirateApp class >> shutDown: quitting [
 
 { #category : #'as yet unclassified' }
 PirateApp class >> startUp: resuming [
-	"Transcript crShow: self name , ' startUp: ' , resuming printString."
 	resuming
 		ifTrue: [ 
 			Config current initializeFromFile.
