@@ -139,7 +139,7 @@ ConfigurationOfTvProgram >> baseline01: spec [
 			project: 'Ston' with: [
 				spec
 					className: #ConfigurationOfSton;
-					versionString: #'stable';
+					versionString: '0.10';
 					loads: #('Core' );
 					repository: 'http://smalltalkhub.com/mc/SvenVanCaekenberghe/STON/main/' ];
 			project: 'Base32' with: [
