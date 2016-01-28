@@ -148,15 +148,13 @@ ConfigurationOfTvProgram >> baseline01: spec [
 					versionString: #'stable';
 					repository: 'http://smalltalkhub.com/mc/UdoSchneider/Base32/main/' ].
 		spec 
-			package: 'CAs-Blocket' with: [
-				spec requires: #('WebRobot' ). ];
 			package: 'HTML';
 			package: 'WebRobot' with: [
 				spec requires: #('HTML' ). ];
 			package: 'OSProcess';
 			package: 'XMLRPC-Client-Core';
 			package: 'CAs-Pirate' with: [
-				spec requires: #('XMLParser' 'NeoJSON' 'WebRobot' 'JSON' 'CAs-Blocket' 'INIFile' 'OSProcess' 'Ston' 'XMLRPC-Client-Core' 'Base32' ). ];
+				spec requires: #('XMLParser' 'NeoJSON' 'WebRobot' 'JSON' 'INIFile' 'OSProcess' 'Ston' 'XMLRPC-Client-Core' 'Base32' ). ];
 			package: #'CAs-PirateTest' with: [
 				spec requires: #('CAs-Pirate' ). ].
 		spec 
