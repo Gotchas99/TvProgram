@@ -41,11 +41,10 @@ WRHttpRobot >> get: anURL [
 ]
 
 { #category : #'as yet unclassified' }
-WRHttpRobot >> newGet: anURL [ 
+WRHttpRobot >> newGet: anURL [
 	self newRequest.
 	request url: anURL.
-	request get.
-"	request waitOnReady"
+	request get
 ]
 
 { #category : #'as yet unclassified' }
@@ -65,7 +64,7 @@ WRHttpRobot >> newRequest [
 		timeout: 10;
 		numberOfRetries: 3;
 		retryDelay: 2.
-		request beOneShot.
+	request beOneShot.
 	^ request
 ]
 
