@@ -150,10 +150,10 @@ PirateTorrent class >> updateStatuses [
 
 { #category : #'as yet unclassified' }
 PirateTorrent class >> validateAll [
-	| gone |
+	|  inValids |
 	Transcript crShow: 'Validating torrents.'.
-	gone := self allTorrents reject: [ :t | t isInServer ].
-	gone
+	inValids := self allTorrents reject: [ :t | t isValid ].
+	inValids 
 		do: [ :t | 
 			Transcript crShow: 'Removing torrent (not in server): ' , t name.
 			t removeTorrentAndData ]
@@ -193,13 +193,13 @@ PirateTorrent >> createVideoFiles [
 		detect: [ :each | self isARarFile: each ]
 		ifFound: [ 
 			self inform: self name , ' is a RAR-file'.
+			self log: self name , ' is a RAR-file'.
 			self halt ].
 	videoFiles := OrderedCollection new.
 	self videoFilenames
 		do: [ :fname | 
 			f := PirateVideoFile new.
 			f
-				torrent: self;
 				videoFilename: fname;
 				folder: self folder.
 			videoFiles add: f ].
@@ -315,6 +315,23 @@ PirateTorrent >> isSingleVideoFile [
 	0 = files size
 		ifTrue: [ self halt ].
 	^ 1 = files size
+]
+
+{ #category : #testing }
+PirateTorrent >> isValid [
+	| invalidVf |
+	self isInServer
+		ifFalse: [ ^ false ].
+	videoFiles
+		ifNotNil: [ 
+			invalidVf := videoFiles reject: [ :f | f isValid ].
+			invalidVf
+				do: [ :f | 
+					videoFiles remove: f.
+					f disconnect ].
+			videoFiles isEmpty
+				ifTrue: [ videoFiles := nil ] ].
+	^ true
 ]
 
 { #category : #accessing }
