@@ -63,7 +63,7 @@ PirateVideoFile >> disconnect [
 
 { #category : #'as yet unclassified' }
 PirateVideoFile >> doneWithThis [
-	viewTime := TimeStamp now.
+	viewTime := DateAndTime now.
 
 ]
 
@@ -248,7 +248,5 @@ PirateVideoFile >> viewTime [
 	^ viewTime
 		ifNil: [ 
 			self isSeen
-				ifTrue: [ 
-					self doneWithThis.
-					viewTime := TimeStamp now ] ]
+				ifTrue: [ self doneWithThis ] ]
 ]

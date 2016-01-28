@@ -1,6 +1,6 @@
 Class {
 	#name : #PirateEpisodeMorph,
-	#superclass : #BlocketRootMorph,
+	#superclass : #PirateRootMorph,
 	#instVars : [
 		'model',
 		'allTorrents',

@@ -1,6 +1,6 @@
 Class {
 	#name : #PirateSubtitleMorph,
-	#superclass : #BlocketRootMorph,
+	#superclass : #PirateRootMorph,
 	#instVars : [
 		'model',
 		'listEn',
