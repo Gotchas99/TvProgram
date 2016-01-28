@@ -156,6 +156,8 @@ ConfigurationOfTvProgram >> baseline01: spec [
 			package: 'CAs-Pirate' with: [
 				spec requires: #('XMLParser' 'NeoJSON' 'WebRobot' 'JSON' 'INIFile' 'OSProcess' 'Ston' 'XMLRPC-Client-Core' 'Base32' ). ];
 			package: #'CAs-PirateTest' with: [
+				spec requires: #('CAs-Pirate' ). ];
+			package: #'CAs-PirateWeb' with: [
 				spec requires: #('CAs-Pirate' ). ].
 		spec 
 			group: 'default' with: #('core' );
