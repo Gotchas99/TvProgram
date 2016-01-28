@@ -1,6 +1,6 @@
 Class {
 	#name : #PirateSeason,
-	#superclass : #PostgresObject,
+	#superclass : #Object,
 	#instVars : [
 		'show',
 		'episodes',

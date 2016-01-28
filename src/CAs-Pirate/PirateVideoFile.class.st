@@ -1,6 +1,6 @@
 Class {
 	#name : #PirateVideoFile,
-	#superclass : #PostgresObject,
+	#superclass : #Object,
 	#instVars : [
 		'video',
 		'videoHash',

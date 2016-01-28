@@ -1,6 +1,6 @@
 Class {
 	#name : #PirateApp,
-	#superclass : #PostgresObject,
+	#superclass : #Object,
 	#classVars : [
 		'TheMaid'
 	],

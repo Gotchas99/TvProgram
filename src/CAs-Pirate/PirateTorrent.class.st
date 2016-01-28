@@ -1,6 +1,6 @@
 Class {
 	#name : #PirateTorrent,
-	#superclass : #PostgresObject,
+	#superclass : #Object,
 	#instVars : [
 		'name',
 		'magnet',
