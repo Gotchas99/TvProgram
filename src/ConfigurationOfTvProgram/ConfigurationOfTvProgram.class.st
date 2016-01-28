@@ -148,7 +148,8 @@ ConfigurationOfTvProgram >> baseline01: spec [
 					versionString: #'stable';
 					repository: 'http://smalltalkhub.com/mc/UdoSchneider/Base32/main/' ].
 		spec 
-			package: 'CAs-Blocket';
+			package: 'CAs-Blocket' with: [
+				spec requires: #('WebRobot' ). ];
 			package: 'HTML';
 			package: 'WebRobot' with: [
 				spec requires: #('HTML' ). ];
