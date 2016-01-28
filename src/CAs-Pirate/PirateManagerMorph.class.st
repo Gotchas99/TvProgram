@@ -1,6 +1,6 @@
 Class {
 	#name : #PirateManagerMorph,
-	#superclass : #BlocketRootMorph,
+	#superclass : #PirateRootMorph,
 	#instVars : [
 		'list',
 		'listIndex',

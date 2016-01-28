@@ -304,7 +304,7 @@ PirateTorrent >> isSeedingComplete [
 	times := times reject: [ :t | t isNil ].
 	times isEmpty
 		ifTrue: [ overtime := false ]
-		ifFalse: [ overtime := times allSatisfy: [ :t | TimeStamp now - t > (Duration days: 45) ] ].
+		ifFalse: [ overtime := times allSatisfy: [ :t | DateAndTime now - t > (Duration days: 45) ] ].
 	^ overtime or: [ TransmissionClient current isSeedingComplete: self torrentHash ]
 ]
 
