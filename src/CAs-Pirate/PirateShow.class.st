@@ -166,17 +166,28 @@ PirateShow >> <= aPirateShow [
 
 { #category : #'as yet unclassified' }
 PirateShow >> addSeason [
-	| newSeason |
-	newSeason := PirateSeason new.
-	newSeason id: (self maxSeason + 1) asTwoCharacterString.
-	self addSeason: newSeason.
-	^ newSeason
+	| newSeasonId |
+	newSeasonId := self maxSeason + 1.
+	^ self addSeasonNo: newSeasonId
 ]
 
 { #category : #'as yet unclassified' }
-PirateShow >> addSeason: aSeason [ 
+PirateShow >> addSeason: aSeason [
+	aSeason show: self.
+	(seasons isKindOf: SortedCollection)
+		ifFalse: [ seasons := seasons asSortedCollection ].
 	seasons add: aSeason.
-	aSeason show: self
+	seasons reSort
+]
+
+{ #category : #'as yet unclassified' }
+PirateShow >> addSeasonNo: aSeasonNumber [
+	| newSeason |
+	aSeasonNumber isNumber ifTrue:[aSeasonNumber:=aSeasonNumber asTwoCharacterString].
+	newSeason := PirateSeason new.
+	newSeason id: aSeasonNumber.
+	self addSeason: newSeason.
+	^ newSeason
 ]
 
 { #category : #accessing }
@@ -380,7 +391,7 @@ PirateShow >> seasons [
 	^seasons
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #deprecated }
 PirateShow >> setEpisodesFromEztv [
 	| dict s s_no season |
 	self eztv ifNil: [ ^ self ].
@@ -406,7 +417,7 @@ PirateShow >> setEpisodesFromTmdb [
 		do: [ :key | 
 			s_no := key asTwoCharacterString.
 			s := seasons select: [ :each | each id = s_no ].
-			season := s at: 1 ifAbsent: [ self addSeason ].
+			season := s at: 1 ifAbsent: [ self addSeasonNo: key ].
 			season addEpisodes: (dict at: key) ]
 ]
 
@@ -423,10 +434,4 @@ PirateShow >> tmdb [
 { #category : #accessing }
 PirateShow >> tmdb: anObject [
 	tmdb := anObject
-]
-
-{ #category : #'as yet unclassified' }
-PirateShow >> tpbString [
-	"tpb = The Pirate Bay"
-	^self name, '%20', (self nextEpisode)
 ]

@@ -245,13 +245,12 @@ PirateManagerMorph >> archiveShow [
 { #category : #'event handling' }
 PirateManagerMorph >> dblClick [
 	"self inform: 'dubbelclickade'."
+
 	listIndex > 0
-		ifTrue: [
+		ifTrue: [ 
 			model2 := self list at: listIndex.
 			self changed: #list2.
-			self listIndex2: 1.
-"			model3 := nil.
-			self changed: #list3 "]
+			self listIndex2: self list2 size ]
 ]
 
 { #category : #'event handling' }
@@ -527,7 +526,7 @@ PirateManagerMorph >> setMaxEpisodes [
 	listIndex = 0
 		ifTrue: [ ^ self ].
 	show := self list at: listIndex.
-	self imdb isNil
+	show imdb isNil
 		ifTrue: [ UIManager default alert: 'Must have imdb id to do this' ]
 		ifFalse: [ 
 			show setEpisodesFromTmdb.

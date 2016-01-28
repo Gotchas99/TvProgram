@@ -52,6 +52,7 @@ TheMovieDb >> getTmdbFromImdb: anImdb [
 	url queryAt: #external_source add: #imdb_id.
 	url queryAt: #api_key add: self apiKey.
 	request := ZnClient new
+		beOneShot ;
 		timeout: 10;
 		numberOfRetries: 3;
 		retryDelay: 2;
