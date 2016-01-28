@@ -119,13 +119,18 @@ ConfigurationOfTvProgram >> baseline01: spec [
 			project: 'XMLParser' with: [
 				spec
 					className: #ConfigurationOfXMLParser;
-					versionString: '2.5.9';
+					versionString: '2.4.9';
 					repository: 'http://smalltalkhub.com/mc/PharoExtras/XMLParser/main/' ];
 			project: 'NeoJSON' with: [
 				spec
 					className: #ConfigurationOfNeoJSON;
-					versionString: '13';
+					versionString: '9';
 					repository: 'http://mc.stfx.eu/Neo' ];
+			project: 'JSON' with: [
+				spec
+					className: #ConfigurationOfJSON;
+					versionString: '1.0';
+					repository: 'http://smalltalkhub.com/mc/PharoExtras/JSON/main/' ];
 			project: 'INIFile' with: [
 				spec
 					className: #ConfigurationOfINIFile;
@@ -134,7 +139,7 @@ ConfigurationOfTvProgram >> baseline01: spec [
 			project: 'Ston' with: [
 				spec
 					className: #ConfigurationOfSton;
-					versionString: '0.21';
+					versionString: #'stable';
 					loads: #('Core' );
 					repository: 'http://smalltalkhub.com/mc/SvenVanCaekenberghe/STON/main/' ];
 			project: 'Base32' with: [
@@ -143,16 +148,15 @@ ConfigurationOfTvProgram >> baseline01: spec [
 					versionString: #'stable';
 					repository: 'http://smalltalkhub.com/mc/UdoSchneider/Base32/main/' ].
 		spec 
+			package: 'CAs-Blocket';
 			package: 'HTML';
 			package: 'WebRobot' with: [
 				spec requires: #('HTML' ). ];
 			package: 'OSProcess';
 			package: 'XMLRPC-Client-Core';
 			package: 'CAs-Pirate' with: [
-				spec requires: #('XMLParser' 'NeoJSON' 'WebRobot' 'INIFile' 'OSProcess' 'Ston' 'XMLRPC-Client-Core' 'Base32' ). ];
+				spec requires: #('XMLParser' 'NeoJSON' 'WebRobot' 'JSON' 'CAs-Blocket' 'INIFile' 'OSProcess' 'Ston' 'XMLRPC-Client-Core' 'Base32' ). ];
 			package: #'CAs-PirateTest' with: [
-				spec requires: #('CAs-Pirate' ). ];
-			package: #'CAs-PirateWeb' with: [
 				spec requires: #('CAs-Pirate' ). ].
 		spec 
 			group: 'default' with: #('core' );
