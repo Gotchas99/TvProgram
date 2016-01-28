@@ -57,7 +57,11 @@ PirateApp class >> startUp: resuming [
 	resuming
 		ifTrue: [ 
 			Config current initializeFromFile.
-			self initMaid ]
+			self initMaid.
+			Gofer new
+				smalltalkhubUser: 'Gotchas' project: 'TvProgram';
+				package: 'ConfigurationOfTvProgram';
+				update ]
 ]
 
 { #category : #'as yet unclassified' }
