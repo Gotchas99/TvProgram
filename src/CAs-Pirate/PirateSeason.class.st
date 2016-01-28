@@ -25,8 +25,10 @@ PirateSeason >> addEpisode [
 
 { #category : #'as yet unclassified' }
 PirateSeason >> addEpisode: anEpisode [
-	episodes add: anEpisode.
 	anEpisode season: self.
+	(episodes isKindOf: SortedCollection)
+		ifFalse: [ episodes := episodes asSortedCollection ].
+	episodes add: anEpisode
 ]
 
 { #category : #'as yet unclassified' }
@@ -40,7 +42,7 @@ PirateSeason >> addEpisodeNo: anInteger [
 
 { #category : #'as yet unclassified' }
 PirateSeason >> addEpisodes: newMax [
-	1 + self maxEpisode to: newMax do: [ :i | self addEpisodeNo: i ]
+	[ self maxEpisode < newMax ] whileTrue: [ self addEpisode ]
 ]
 
 { #category : #'as yet unclassified' }
@@ -48,7 +50,7 @@ PirateSeason >> delete [
 	episodes do: [:e| e delete].
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 PirateSeason >> episodes [ 
 	^episodes 
 ]
@@ -59,19 +61,19 @@ PirateSeason >> found [
 		select: [ :i  | i found]
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 PirateSeason >> fullId [
 	^ show name , ' S' , self id
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 PirateSeason >> id [
 	id isNil
-		ifTrue: [^ 'undefined'].
+		ifTrue: [ ^ 'undefined' ].
 	^ id
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 PirateSeason >> id: aString [
 	id := aString
 ]
@@ -79,7 +81,7 @@ PirateSeason >> id: aString [
 { #category : #'as yet unclassified' }
 PirateSeason >> initialize [
 	super initialize.
-	episodes := OrderedCollection new.
+	episodes := SortedCollection new.
 ]
 
 { #category : #'as yet unclassified' }
@@ -105,7 +107,7 @@ PirateSeason >> maxEpisode [
 	^ ids max
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 PirateSeason >> name [
 	^show name
 ]
@@ -114,13 +116,6 @@ PirateSeason >> name [
 PirateSeason >> newFound [
 	^ episodes
 		select: [:i | i newFound]
-]
-
-{ #category : #'as yet unclassified' }
-PirateSeason >> nextEpisode [
-	episodes isEmptyOrNil ifTrue: [^'E*'].
-
-^'E*'
 ]
 
 { #category : #'as yet unclassified' }
@@ -153,12 +148,12 @@ PirateSeason >> seasonId [
 	^ 'S' , self id
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 PirateSeason >> show [
 	^show
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 PirateSeason >> show: aShow [
 	^show := aShow
 ]
