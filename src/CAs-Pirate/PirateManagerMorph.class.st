@@ -464,14 +464,12 @@ PirateManagerMorph >> play [
 
 { #category : #'event handling' }
 PirateManagerMorph >> refresh [
-	Cursor wait showWhile: [
-		PirateTorrent updateStatuses .
-		self changed: #list.
-		self changed: #list3 .
-		"PirateTorrent cleanUpSeedingDoneOnce."
-"		Transcript show: '-------------'; cr."
-	].
-	
+	Cursor wait
+		showWhile: [ 
+			PirateTorrent updateStatuses.
+			PirateApp validateState.
+			self changed: #list.
+			self changed: #list3 ]
 ]
 
 { #category : #'event handling' }

@@ -2,7 +2,6 @@ Class {
 	#name : #PirateVideoFile,
 	#superclass : #PostgresObject,
 	#instVars : [
-		'torrent',
 		'video',
 		'videoHash',
 		'folder',
@@ -65,7 +64,7 @@ PirateVideoFile >> disconnect [
 { #category : #'as yet unclassified' }
 PirateVideoFile >> doneWithThis [
 	viewTime := TimeStamp now.
-	torrent ifNotNil: [ torrent doneWithThis ]
+
 ]
 
 { #category : #accessing }
@@ -80,10 +79,6 @@ PirateVideoFile >> fileSize [
 
 { #category : #accessing }
 PirateVideoFile >> folder [
-	folder
-		ifNil: [ 
-			torrent isNil
-				ifFalse: [ folder := torrent folder ] ].
 	(folder isKindOf: String)
 		ifTrue: [ folder := folder asFileReference ].
 	^ folder
@@ -155,8 +150,8 @@ PirateVideoFile >> initialize [
 
 { #category : #testing }
 PirateVideoFile >> isSeen [
-	viewTime isNil ifFalse:[^true].
-	video ifNil: [ ^false ] ifNotNil: [  ^video isViewed].
+	^ viewTime ifNil not
+		"	video ifNil: [ ^ false ] ifNotNil: [ ^ video isViewed ]"
 ]
 
 { #category : #testing }
@@ -177,7 +172,6 @@ PirateVideoFile >> printOn: aStream [
 PirateVideoFile >> reset [
 	self deleteSubtitles.
 	self video: nil.
-	self torrent: nil.
 	self videoFilename: nil
 ]
 
@@ -191,32 +185,9 @@ PirateVideoFile >> swesub: aBoolean [
 	swesub := aBoolean 
 ]
 
-{ #category : #accessing }
-PirateVideoFile >> torrent [
-	^torrent
-]
-
-{ #category : #accessing }
-PirateVideoFile >> torrent: aTorrent [
-	torrent := aTorrent.
-	folder := nil.
-	
-]
-
 { #category : #validation }
 PirateVideoFile >> validate [
-	self validateTorrent.
 	self validateVideo
-]
-
-{ #category : #validation }
-PirateVideoFile >> validateTorrent [
-	torrent isNil
-		ifFalse: [ 
-			torrent isInServer not
-				ifTrue: [ 
-					torrent := nil.
-					Transcript crShow: 'Removing torrent from: ' , self printString ] ]
 ]
 
 { #category : #validation }

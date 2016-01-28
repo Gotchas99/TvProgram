@@ -132,7 +132,12 @@ PirateVideo >> initialize [
 
 { #category : #torrents }
 PirateVideo >> isDownloaded [
-(	videoFile isNil not and: [ videoFile isValid ])ifTrue: [ ^ true ].
+	videoFile
+		ifNotNil: [ 
+			^ true	"videoFile isValid 
+		ifTrue: [ ^ true ]
+		ifFalse:[videoFile reset.
+			videoFile := nil ] " ].
 	torrent isNil
 		ifTrue: [ ^ false ].
 	^ torrent isDownloadComplete

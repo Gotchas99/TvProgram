@@ -357,6 +357,7 @@ TransmissionClient >> sendReq: aJSON [
 			request post ].	"	resp := Json readFrom: request contents readStream.
 "
 	resp := NeoJSONReader fromString: request contents readStream.
+	request close.
 	^ resp
 ]
 

@@ -27,6 +27,7 @@ TheMovieDb >> getEpisodes: aTmdbId [
 	url := self baseUrl / #tv / aTmdbId.
 	url queryAt: #api_key add: self apiKey.
 	request := ZnClient new
+		beOneShot ;
 		timeout: 10;
 		numberOfRetries: 3;
 		retryDelay: 2;
