@@ -42,6 +42,16 @@ PirateApp class >> initializeStartupShutdown [
 
 ]
 
+{ #category : #files }
+PirateApp class >> readFromNewFile [
+	| stuff |
+	stuff := FLMaterializer materializeFromFileNamed: PirateShow fileName , '_new.fuel'.
+	PirateShow show: (stuff at: #shows).
+	PirateTorrent allTorrents: (stuff at: #allTorrents).
+	PirateTorrent DeathRow: (stuff at: #deathRow).
+	Transcript crShow: 'File read'
+]
+
 { #category : #'as yet unclassified' }
 PirateApp class >> shutDown: quitting [
 	quitting
@@ -69,4 +79,19 @@ PirateApp class >> validateState [
 	PirateTorrent validateAll.
 	PirateEpisode validateAll.
 	PirateVideoFile validateAll
+]
+
+{ #category : #files }
+PirateApp class >> writeToNewFile [
+	| stuff |
+	stuff := Dictionary
+		newFrom:
+			{(#shows -> PirateShow shows).
+			(#allTorrents -> PirateTorrent allTorrents).
+			(#deathRow -> PirateTorrent DeathRow)}.
+	FLSerializer serialize: stuff toFileNamed: PirateShow fileName , '_new.fuel'.
+	Transcript
+		show: 'File written';
+		cr.
+	GrowlMorph openWithLabel: 'File written' contents: ''
 ]

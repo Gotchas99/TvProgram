@@ -26,8 +26,18 @@ PirateTorrent class >> DeathRow [
 ]
 
 { #category : #'as yet unclassified' }
+PirateTorrent class >> DeathRow: aSet [
+	DeathRow := aSet
+]
+
+{ #category : #'as yet unclassified' }
 PirateTorrent class >> allTorrents [ 
 	^AllTorrents ifNil: [AllTorrents:= Set new].
+]
+
+{ #category : #'as yet unclassified' }
+PirateTorrent class >> allTorrents: aSet [
+	AllTorrents := aSet
 ]
 
 { #category : #'as yet unclassified' }
@@ -177,21 +187,16 @@ PirateTorrent >> checkStatus [
 
 ]
 
-{ #category : #converting }
-PirateTorrent >> createVideoFile [
-	self isSingleVideoFile
-		ifFalse: [ 
-			self videoFilenames detect: [ :each | self isARarFile: each ] ifFound: [ self inform: self name , ' is a RAR-file' ].
-			self halt ].
-	^ self createVideoFiles first
+{ #category : #testing }
+PirateTorrent >> containsRarFile [
+	^ videoFiles anySatisfy: [ :f | self isARarFile: f ]
 ]
 
 { #category : #converting }
 PirateTorrent >> createVideoFiles [
 	| f |
-	self videoFilenames
-		detect: [ :each | self isARarFile: each ]
-		ifFound: [ 
+	self containsRarFile
+		ifTrue: [ 
 			self inform: self name , ' is a RAR-file'.
 			self log: self name , ' is a RAR-file'.
 			self halt ].
@@ -486,9 +491,9 @@ PirateTorrent >> torrentHash: aHash [
 { #category : #accessing }
 PirateTorrent >> videoFile [
 	| vf |
-	vf := videoFiles ifNil: [ self createVideoFiles ].
+	vf := self videoFiles.
 	vf size = 1
-		ifTrue: [ ^vf first ]
+		ifTrue: [ ^ vf first ]
 		ifFalse: [ self halt ]
 ]
 
