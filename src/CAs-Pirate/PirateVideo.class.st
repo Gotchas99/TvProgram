@@ -206,17 +206,18 @@ PirateVideo >> newFound [
 { #category : #'as yet unclassified' }
 PirateVideo >> play [
 	| args proc fname player |
-	self isViewable ifFalse: [^self].
+	self isViewable
+		ifFalse: [ ^ self ].
 	player := Config current vlcFolder.
-	fname := self videoFilename.
-	args :=  ' --fullscreen --extraintf rc -I qt --rc-host 127.0.0.1:9092 "', fname, '" '.
+	fname := self videoFilename fullName.
+	args := ' --fullscreen --extraintf rc -I qt --rc-host 127.0.0.1:9092 "' , fname , '" '.
 	proc := OSProcess command: player , args.
-	proc ifNil: [^self].
-	[proc isComplete] whileFalse:
-		[(Delay forMilliseconds: 200) wait.
-		proc update: #runState  ].
+	proc ifNil: [ ^ self ].
+	[ proc isComplete ]
+		whileFalse: [ 
+			(Delay forMilliseconds: 200) wait.
+			proc update: #runState ].
 	^ proc
-
 ]
 
 { #category : #printing }

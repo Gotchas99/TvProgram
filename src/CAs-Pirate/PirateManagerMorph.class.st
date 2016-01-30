@@ -582,6 +582,6 @@ PirateManagerMorph >> viewables [
 
 { #category : #'event handling' }
 PirateManagerMorph >> writeToFile [
-	Cursor wait showWhile: [PirateShow writeToFile].
+	Cursor wait showWhile: [PirateApp writeToNewFile].
 	^self 
 ]

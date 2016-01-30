@@ -150,8 +150,8 @@ PirateVideoFile >> initialize [
 
 { #category : #testing }
 PirateVideoFile >> isSeen [
-	^ viewTime ifNil not
-		"	video ifNil: [ ^ false ] ifNotNil: [ ^ video isViewed ]"
+	^ viewTime isNil not
+		"	video ifNil: [ ^ false ] ifNotNil: [ ^ video isViewed ]" 
 ]
 
 { #category : #testing }

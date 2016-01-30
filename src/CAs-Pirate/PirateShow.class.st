@@ -120,6 +120,11 @@ PirateShow class >> shows [
 ]
 
 { #category : #'as yet unclassified' }
+PirateShow class >> shows: aShowList [
+	Shows := aShowList
+]
+
+{ #category : #'as yet unclassified' }
 PirateShow class >> shutDown: quitting [
 	self deprecated: 'Moved to PirateApp'
 ]
