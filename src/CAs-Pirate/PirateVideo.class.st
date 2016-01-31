@@ -18,6 +18,7 @@ PirateVideo class >> getAllSubtitles [
 	| needsSubs delay viewables |
 	delay := Delay forSeconds: 5.	"self halt."
 	viewables := PirateShow shows collect: [ :show | show allEpisodes select: [ :ep | ep isViewable ] ].
+	viewables:= viewables flattened.
 
 	needsSubs := viewables select: [ :ep | ep hasSubtitle not ].
 	needsSubs
@@ -379,12 +380,14 @@ PirateVideo >> validateVideofile [
 
 { #category : #accessing }
 PirateVideo >> videoFile [
-	((videoFile isNil and: [ torrent notNil ]) and: [ torrent isDownloadComplete ])
-		ifTrue: [ 
-			torrent isSingleVideoFile
-				ifTrue: [ 
-					self videoFile: torrent videoFile.
-					videoFile video: self ] ].
+	videoFile ifNotNil: [ ^ videoFile ].
+	torrent ifNil: [ ^ nil ].
+	torrent isDownloadComplete
+		ifFalse: [ ^ nil ].
+	torrent isSingleVideoFile
+		ifFalse: [ ^ nil ].
+	self videoFile: torrent videoFile.
+	videoFile video: self.
 	^ videoFile
 ]
 
