@@ -17,7 +17,8 @@ Class {
 PirateVideo class >> getAllSubtitles [
 	| needsSubs delay viewables |
 	delay := Delay forSeconds: 5.	"self halt."
-	viewables := self allSubInstances select: [ :ep | ep isViewable ].
+	viewables := PirateShow shows collect: [ :show | show allEpisodes select: [ :ep | ep isViewable ] ].
+
 	needsSubs := viewables select: [ :ep | ep hasSubtitle not ].
 	needsSubs
 		do: [ :ep | 
@@ -132,14 +133,8 @@ PirateVideo >> initialize [
 
 { #category : #torrents }
 PirateVideo >> isDownloaded [
-	videoFile
-		ifNotNil: [ 
-			^ true	"videoFile isValid 
-		ifTrue: [ ^ true ]
-		ifFalse:[videoFile reset.
-			videoFile := nil ] " ].
-	torrent isNil
-		ifTrue: [ ^ false ].
+	videoFile ifNotNil: [ ^ true ].
+	torrent ifNil: [ ^ false ].
 	^ torrent isDownloadComplete
 ]
 
@@ -152,8 +147,8 @@ PirateVideo >> isDownloading [
 
 { #category : #testing }
 PirateVideo >> isViewable [
-	(self isViewed )ifTrue:[^false].
-	
+	self isViewed
+		ifTrue: [ ^ false ].
 	^ self isDownloaded
 ]
 
@@ -386,8 +381,10 @@ PirateVideo >> validateVideofile [
 PirateVideo >> videoFile [
 	((videoFile isNil and: [ torrent notNil ]) and: [ torrent isDownloadComplete ])
 		ifTrue: [ 
-			self videoFile: torrent videoFile.
-			videoFile video: self ].
+			torrent isSingleVideoFile
+				ifTrue: [ 
+					self videoFile: torrent videoFile.
+					videoFile video: self ] ].
 	^ videoFile
 ]
 
@@ -408,11 +405,10 @@ PirateVideo >> videoFilename [
 
 { #category : #'as yet unclassified' }
 PirateVideo >> viewed [
-	viewed:=true.
+	viewed := true.
 	self changed.
 	self deleteSubtitles.
 	torrent ifNotNil: [ torrent doneWithThis ].
 	self videoFile ifNotNil: [ self videoFile doneWithThis ].
-"	[self videoFile doneWithThis. ] forkAt: Processor userBackgroundPriority."
-	^self
+	^ self
 ]

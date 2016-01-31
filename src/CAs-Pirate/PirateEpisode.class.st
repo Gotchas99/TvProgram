@@ -10,17 +10,8 @@ Class {
 { #category : #'as yet unclassified' }
 PirateEpisode class >> setupAllVideoFiles [
 	| eps |
-	eps := PirateShow shows
-		collect: [ :show | 
-			show seasons
-				collect: [ :season | 
-					season episodes
-						collect: [ :ep | 
-							ep isViewed not
-								ifTrue: [ ep ]
-								ifFalse: [ nil ] ] ] ].
+	eps := PirateShow shows collect: [ :show | show allEpisodes reject: [ :ep | ep isViewed ] ].
 	eps := eps flattened.
-	eps := eps reject: [ :each | each isNil ].
 	eps := eps reject: [ :each | each torrent isNil ].
 	eps := eps select: [ :each | each videoFile isNil ]
 ]
