@@ -126,11 +126,6 @@ ConfigurationOfTvProgram >> baseline01: spec [
 					className: #ConfigurationOfNeoJSON;
 					versionString: '9';
 					repository: 'http://mc.stfx.eu/Neo' ];
-			project: 'JSON' with: [
-				spec
-					className: #ConfigurationOfJSON;
-					versionString: '1.0';
-					repository: 'http://smalltalkhub.com/mc/PharoExtras/JSON/main/' ];
 			project: 'INIFile' with: [
 				spec
 					className: #ConfigurationOfINIFile;
@@ -154,7 +149,7 @@ ConfigurationOfTvProgram >> baseline01: spec [
 			package: 'OSProcess';
 			package: 'XMLRPC-Client-Core';
 			package: 'CAs-Pirate' with: [
-				spec requires: #('XMLParser' 'NeoJSON' 'WebRobot' 'JSON' 'INIFile' 'OSProcess' 'Ston' 'XMLRPC-Client-Core' 'Base32' ). ];
+				spec requires: #('XMLParser' 'NeoJSON' 'WebRobot' 'INIFile' 'OSProcess' 'Ston' 'XMLRPC-Client-Core' 'Base32' ). ];
 			package: #'CAs-PirateTest' with: [
 				spec requires: #('CAs-Pirate' ). ];
 			package: #'CAs-PirateWeb' with: [
