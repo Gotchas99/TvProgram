@@ -93,11 +93,8 @@ PirateVideoFile >> folder: aString [
 PirateVideoFile >> fullVideoFilename [
 	| fname |
 	self folder ifNil: [ ^ nil ].
+	self videoFilename ifNil: [ ^ nil ].
 	fname := self folder / videoFilename.
-"	Smalltalk os isUnix
-		ifTrue: [ fname := fname copyReplaceAll: '\' with: '/' ].
-	Smalltalk os isWin32
-		ifTrue: [ fname := fname copyReplaceAll: '/' with: '\' ]."
 	^ fname
 ]
 

@@ -189,7 +189,11 @@ PirateTorrent >> checkStatus [
 
 { #category : #testing }
 PirateTorrent >> containsRarFile [
-	^ videoFiles anySatisfy: [ :f | self isARarFile: f ]
+	| files |
+	files := TransmissionClient current getFiles: self torrentHash.
+	files isEmptyOrNil
+		ifTrue: [ ^ false ].
+	^ files anySatisfy: [ :f | self isARarFile: (f at: 'name') ]
 ]
 
 { #category : #converting }
@@ -263,7 +267,7 @@ PirateTorrent >> isARarFile: aFilename [
 
 { #category : #testing }
 PirateTorrent >> isASample: aFilename size: anInt [
-	^ anInt < 50e6
+	^ anInt < 40e6
 
 ]
 
