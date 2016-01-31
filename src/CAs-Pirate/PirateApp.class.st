@@ -9,7 +9,7 @@ Class {
 
 { #category : #'as yet unclassified' }
 PirateApp class >> initMaid [
-	| delay  plist |
+	| delay plist |
 	plist := Process allInstances reject: [ :p | p isTerminated ].
 	(plist anySatisfy: [ :p | p name = #theMaid ])
 		ifTrue: [ ^ self ].
