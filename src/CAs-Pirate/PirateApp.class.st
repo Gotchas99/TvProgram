@@ -46,7 +46,7 @@ PirateApp class >> initializeStartupShutdown [
 PirateApp class >> readFromNewFile [
 	| stuff |
 	stuff := FLMaterializer materializeFromFileNamed: PirateShow fileName , '_new.fuel'.
-	PirateShow show: (stuff at: #shows).
+	PirateShow shows: (stuff at: #shows).
 	PirateTorrent allTorrents: (stuff at: #allTorrents).
 	PirateTorrent DeathRow: (stuff at: #deathRow).
 	Transcript crShow: 'File read'
