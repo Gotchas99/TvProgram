@@ -143,7 +143,8 @@ PirateViewableMorph >> refresh [
 	tmp := tmp reject: [ :i | i isNil ].
 	tmp := tmp select: [ :e | e isViewable ].
 	self showsStarted
-		ifTrue: [ tmp := tmp reject: [ :i | i id = '01' and: [ i season id = '01' ] ] ].
+		ifTrue: [ tmp := tmp reject: [ :i | i id = '01' and: [ i season id = '01' ] ] ]
+		ifFalse: [ tmp := tmp select: [ :i | i id = '01' and: [ i season id = '01' ] ] ].
 	model := tmp.
 	self changed: #list
 ]

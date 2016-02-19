@@ -41,7 +41,7 @@ TransmissionClient >> addTorrent: aTorrentString [
 TransmissionClient >> folder [
 	| folder transFolder  |
 	transFolder := self getDownloadDir.
-	folder := transFolder asFileReference / '_TVprogram'.
+	folder := transFolder asFileReference / '_TvProgram'.
 	^ folder
 ]
 

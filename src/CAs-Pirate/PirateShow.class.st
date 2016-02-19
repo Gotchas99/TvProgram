@@ -134,12 +134,6 @@ PirateShow class >> startUp: resuming [
 	self deprecated: 'Moved to PirateApp'
 ]
 
-{ #category : #'as yet unclassified' }
-PirateShow class >> validateAll [
-	PirateEpisode validateAll.
-	PirateVideoFile validateAll
-]
-
 { #category : #files }
 PirateShow class >> writeToFile [
 	FLSerializer serialize: self shows toFileNamed: self fileName,'.fuel'.
@@ -217,16 +211,6 @@ PirateShow >> archived: aBool [
 	archived:= aBool .
 ]
 
-{ #category : #accessing }
-PirateShow >> currentSeason [
-	^currentSeason
-]
-
-{ #category : #accessing }
-PirateShow >> currentSeason: aSeason [
-	currentSeason := aSeason
-]
-
 { #category : #'as yet unclassified' }
 PirateShow >> delete [
 	seasons do: [:s| s delete].
@@ -287,7 +271,7 @@ PirateShow >> lookForAll [
 		do: [:i | i lookForAll]
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 PirateShow >> maxSeason [
 	"(Array with: '11' asInteger with: '12' asInteger )max ."
 	| ids |

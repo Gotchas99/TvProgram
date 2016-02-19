@@ -172,6 +172,11 @@ PirateVideoFile >> reset [
 	self videoFilename: nil
 ]
 
+{ #category : #subtitles }
+PirateVideoFile >> srtFileName [
+	^ self fullVideoFilename withExtension: 'srt'
+]
+
 { #category : #'not used' }
 PirateVideoFile >> swesub [
 	^ swesub ifNil: [ swesub := false ]
