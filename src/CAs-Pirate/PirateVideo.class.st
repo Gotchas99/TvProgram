@@ -18,9 +18,11 @@ PirateVideo class >> getAllSubtitles [
 	| needsSubs delay viewables |
 	delay := Delay forSeconds: 5.	"self halt."
 	viewables := PirateShow shows collect: [ :show | show allEpisodes select: [ :ep | ep isViewable ] ].
-	viewables:= viewables flattened.
-
+	viewables := viewables flattened.
 	needsSubs := viewables select: [ :ep | ep hasSubtitle not ].
+	needsSubs := needsSubs reject: [ :ep | ep torrent containsRarFile ].
+	needsSubs := needsSubs reject: [ :ep | ep videoFile isNil ].
+	needsSubs := needsSubs select: [ :ep | ep videoFile isValid ].
 	needsSubs
 		do: [ :ep | 
 			ep topSubtitles.
@@ -403,7 +405,7 @@ PirateVideo >> videoFile: aVideoFile [
 
 { #category : #accessing }
 PirateVideo >> videoFilename [
-	^self videoFile fullVideoFilename
+	self videoFile ifNil: [ ^ nil ] ifNotNil: [ :vf | ^ vf fullVideoFilename ]
 ]
 
 { #category : #'as yet unclassified' }
