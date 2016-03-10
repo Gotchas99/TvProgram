@@ -44,12 +44,10 @@ PirateVideoFile >> computeHashForChunk: fs start: start size: chunkSize [
 
 { #category : #subtitles }
 PirateVideoFile >> deleteSubtitles [
-	| srtName fname ref |
-	fname := self fullVideoFilename.
-	fname
+	| ref |
+	ref := self srtFileName.
+	ref
 		ifNotNil: [ 
-			srtName := OpenSubClient new srtFromVideo: fname.
-			ref := srtName.
 			ref exists
 				ifTrue: [ ref delete ] ].
 	subTitles := nil
@@ -109,6 +107,13 @@ PirateVideoFile >> getUint64From: aByteArray [
 	^ integer
 ]
 
+{ #category : #subtitles }
+PirateVideoFile >> hasSubtitle [
+	| ref |
+	ref := self srtFileName.
+	ref ifNotNil: [ ^ ref exists ] ifNil: [ ^ false ]
+]
+
 { #category : #hashing }
 PirateVideoFile >> hash2: fs [
 	| hashChunkSize chunkSize size head tail hash |
@@ -160,6 +165,13 @@ PirateVideoFile >> isValid [
 	^ ref exists
 ]
 
+{ #category : #subtitles }
+PirateVideoFile >> needsSubtitle [
+	| ref |
+	ref := self srtFileName.
+	ref ifNotNil: [ ^ ref exists not ] ifNil: [ ^ false ]
+]
+
 { #category : #printing }
 PirateVideoFile >> printOn: aStream [ 
 	aStream nextPutAll:  self videoFilename 
@@ -173,8 +185,19 @@ PirateVideoFile >> reset [
 ]
 
 { #category : #subtitles }
+PirateVideoFile >> setSub: aText [
+	| srtName fs |
+	srtName := self srtFileName.
+	fs := FileSystem disk openFileStream: srtName writable: true.
+	fs nextPutAll: aText.
+	fs close
+]
+
+{ #category : #subtitles }
 PirateVideoFile >> srtFileName [
-	^ self fullVideoFilename withExtension: 'srt'
+	^ self fullVideoFilename 
+		ifNotNilDo: [ :fname | fname withExtension: 'srt' ] 
+		ifNil: [ ^ nil ]
 ]
 
 { #category : #'not used' }

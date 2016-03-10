@@ -97,11 +97,11 @@ PirateShowInfo >> initializeWidgets [
 		txtKat TextInputFieldModel 
 		buttonOK ButtonModel
 	).
-	labelName text: 'Show title'.
+	labelName label: 'Show title'.
 	textName autoAccept: true.
-	lblImdb text: 'Imdb ID'.
+	lblImdb label: 'Imdb ID'.
 	txtImdb autoAccept: true.
-	lblKat text: 'Kickass ID'.
+	lblKat label: 'Kickass ID'.
 	txtKat autoAccept: true.
 	buttonOK
 		label: 'OK';

@@ -75,11 +75,12 @@ PirateSubtitleMorph >> dblClick [
 
 { #category : #'model access' }
 PirateSubtitleMorph >> downloadSub: subDict [
-	| os |
+	| os text |
 	Cursor wait
 		showWhile: [ 
 			os := OpenSubClient current.
-			os downloadSubtitle: subDict fileName: model videoFile fullVideoFilename ]
+			text := os downloadSubtitle: subDict.
+			model videoFile setSub: text ]
 ]
 
 { #category : #'model access' }
@@ -210,10 +211,7 @@ PirateSubtitleMorph >> setSub [
 		ifTrue: [ t := listEn at: listIndexEn ].
 	self listIndexSwe > 0
 		ifTrue: [ t := listSwe at: listIndexSwe ].
-	t isNil
-		ifFalse: [ 
-			self downloadSub: t.
-			model setSub: t ]
+	t ifNotNil: [ self downloadSub: t ]
 ]
 
 { #category : #'as yet unclassified' }

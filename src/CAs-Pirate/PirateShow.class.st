@@ -18,6 +18,22 @@ Class {
 	#category : #'CAs-Pirate'
 }
 
+{ #category : #files }
+PirateShow class >> allEpisodes [
+	| ep |
+	ep := self shows collect: [ :s | s allEpisodes ].
+	^ ep flattened
+]
+
+{ #category : #files }
+PirateShow class >> allViewableEpisodes [
+	| ep sh |
+	sh := self shows reject: [ :s | s archived ].
+	ep := sh collect: [ :s | s allEpisodes ].
+	ep := ep flattened select: [ :e | e isViewable ].
+	^ ep
+]
+
 { #category : #'as yet unclassified' }
 PirateShow class >> at: aTitle [
 	^self shows detect: [ :s | s name = aTitle ]
@@ -358,9 +374,7 @@ PirateShow >> nextToSee [
 PirateShow >> notSeenCount [
 	| sum |
 	sum := 0.
-	seasons
-		do: [:s | sum:=sum+(s notSeen size)
-				].
+	seasons do: [ :s | sum := sum + s notSeen size ].
 	^ sum
 ]
 
