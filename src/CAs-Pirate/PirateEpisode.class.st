@@ -17,6 +17,20 @@ PirateEpisode class >> setupAllVideoFiles [
 ]
 
 { #category : #'as yet unclassified' }
+PirateEpisode class >> updateStatuses [
+	| ep vfs |
+	ep := PirateShow allEpisodes.
+	ep := ep reject: [ :e | e isViewed ].
+	ep := ep select: [ :e | e videoFile isNil ].
+	ep := ep reject: [ :e | e torrent isNil ].
+	ep := ep reject: [ :e | e torrent containsRarFile ].
+	ep do: [ :e | (e torrent isDownloadComplete)ifTrue:[
+			vfs:= e torrent videoFiles.
+			(vfs size = 1 )ifTrue:
+			[self videoFile: vfs first]. ]]
+]
+
+{ #category : #'as yet unclassified' }
 PirateEpisode class >> validateAllTorrents [
 	PirateShow shows do: [ :s | 
 		s seasons do: [ :sea | 
@@ -55,24 +69,29 @@ PirateEpisode >> fullId [
 	^ season fullId , 'E',self id
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #torrents }
+PirateEpisode >> getExtraTorrents [
+	^ ExtraTorrentRobot new getTorrents: self tpbString
+]
+
+{ #category : #torrents }
 PirateEpisode >> getEztvTorrents [
 	^ Eztv new getShow: self season show eztv episode: self episodeId
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #torrents }
 PirateEpisode >> getKickassTorrents [
 	^ KickassRobot new getShow: self season show kat season: self season id episode: self id
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #torrents }
 PirateEpisode >> getPirateTorrents [
 	^ PirateRobot new getShow: self tpbString.
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #torrents }
 PirateEpisode >> getTorrents [
-	| t tpb sem kickass err |
+	| t tpb sem kickass err extra |
 	t := OrderedCollection new.
 	err := OrderedCollection new.
 	sem := Semaphore new.
@@ -90,9 +109,15 @@ PirateEpisode >> getTorrents [
 				do: [ :ex | err add: ex ].
 			sem signal ] fork ].
 	[ 
+	[ extra := self getExtraTorrents ]
+		on: Error
+		do: [ :ex | err add: ex ].
+	sem signal ] fork.
+	[ 
 	tpb := nil.	"PirateRobot new getShow: self tpbString."
 	sem signal ] fork.
 	sem
+		wait;
 		wait;
 		wait.
 	err
@@ -100,13 +125,14 @@ PirateEpisode >> getTorrents [
 			Error signal: err first printString.
 			Transcript crShow: 'Error on getTorrents: ' , err printString ].
 	tpb ifNotNil: [ t addAll: tpb ].
+	extra ifNotNil: [ t addAll: extra ].
 	kickass ifNotNil: [ t addAll: kickass ].
-	#('1080p' 'French' 'spanish' 'subtitulado' 'x265' 'vostfr' 'subtitulado')
+	#('1080p' 'French' 'spanish' 'subtitulado' 'x265' 'vostfr')
 		do: [ :word | t := t reject: [ :each | each first includesSubstring: word caseSensitive: false ] ].
 	^ t
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #torrents }
 PirateEpisode >> needsTorrent [
 	self season show archived
 		ifTrue: [ ^ false ].
@@ -115,12 +141,11 @@ PirateEpisode >> needsTorrent [
 
 { #category : #'as yet unclassified' }
 PirateEpisode >> resetFileAndStatus [
-	Transcript show:'hej'.
+	Transcript show: 'hej'.
 	torrent := nil.
 	falseTorrents := nil.
-	subTitle := nil.
 	viewed := false.
-	Transcript show:' då! '
+	Transcript show: ' då! '
 ]
 
 { #category : #'as yet unclassified' }
@@ -138,7 +163,7 @@ PirateEpisode >> season: aSeason [
 	season := aSeason
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #subtitles }
 PirateEpisode >> subtitlesByHash: lang [
 	| os hash subs fileSize aSeason anEpisode |
 	self videoFile ifNil: [ ^ #() ].
@@ -157,7 +182,7 @@ PirateEpisode >> subtitlesByHash: lang [
 	^ subs
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #subtitles }
 PirateEpisode >> subtitlesByTitle: lang [
 	| os subs aName aSeason anEpisode |
 	aName := self season name.

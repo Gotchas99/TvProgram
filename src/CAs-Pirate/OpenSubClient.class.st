@@ -33,6 +33,28 @@ OpenSubClient >> compare: a and: b [
 ]
 
 { #category : #'as yet unclassified' }
+OpenSubClient >> downloadSubtitle: subDict [
+	"struct LogIn(string $username, string $password, string $language, string $useragent)"
+
+	| r a data base64 zip text zipStream |
+	a := {(self token).
+	{(subDict at: #IDSubtitleFile)}}.
+	[ r := self proxy invokeMethod: 'DownloadSubtitles' withArgs: a ]
+		on: Error
+		do: [ :ex | Transcript crShow: 'Error in downloadSubtitle:' , ex printString ].
+	r ifNil: [ ^ nil ].
+	(r at: 'status') = '200 OK'
+		ifFalse: [ ^ nil ].
+	(data := r at: #data) isEmpty
+		ifTrue: [ ^ nil ].
+	base64 := data first at: #data.
+	zip := Base64MimeConverter mimeDecodeToBytes: base64 readStream.
+	zipStream := GZipReadStream on: zip.
+	text := zipStream contents.
+	^ text
+]
+
+{ #category : #'as yet unclassified' }
 OpenSubClient >> downloadSubtitle: subDict fileName: aVideoFileName [
 	"struct LogIn(string $username, string $password, string $language, string $useragent)"
 

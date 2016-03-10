@@ -203,7 +203,7 @@ PirateTorrent >> createVideoFiles [
 		ifTrue: [ 
 			self inform: self name , ' is a RAR-file'.
 			self log: self name , ' is a RAR-file'.
-			self halt ].
+"			self halt "].
 	videoFiles := OrderedCollection new.
 	self videoFilenames
 		do: [ :fname | 
@@ -288,15 +288,6 @@ PirateTorrent >> isDownloadComplete [
 ]
 
 { #category : #testing }
-PirateTorrent >> isDownloaded [
-"	downloaded ifNil: [downloaded := false].
-	downloaded ifFalse: [
-		downloaded := TransmissionClient current isComplete: self torrentHash.].
-	^downloaded."
-	^#(3 4 5 6) includes: self status
-]
-
-{ #category : #testing }
 PirateTorrent >> isDownloading [
 	^ #(3 4) includes: self status
 ]
@@ -320,9 +311,9 @@ PirateTorrent >> isSeedingComplete [
 { #category : #testing }
 PirateTorrent >> isSingleVideoFile [
 	| files |
-	files := self videoFilenames.
-	0 = files size
-		ifTrue: [ self halt ].
+	files := self videoFiles.
+"	0 = files size
+		ifTrue: [ self halt ]."
 	^ 1 = files size
 ]
 
