@@ -38,7 +38,7 @@ ExtraTorrentRobot >> getTorrents: aString [
 			^ OrderedCollection new ].
 	self checkOk.
 	self parseBody.
-	(dom innerContents findString: '<i>No torrents</i>') > 0
+	(dom innerContents findString: 'total <b style="color: #ff0000;">0</b> torrents found on your search query') > 0
 		ifTrue: [ ^ Array new ].
 	main := (dom tagWithClass: 'tl') .
 	searchRows := (main tagsWithClass: 'tlr') .
