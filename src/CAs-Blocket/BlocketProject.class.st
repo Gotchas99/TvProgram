@@ -4,7 +4,8 @@ Class {
 	#instVars : [
 		'name',
 		'searches',
-		'result'
+		'result',
+		'lastRefresh'
 	],
 	#category : #'CAs-Blocket'
 }
@@ -23,6 +24,11 @@ BlocketProject class >> newBlandare [
 ]
 
 { #category : #'as yet unclassified' }
+BlocketProject >> <= aProject [
+	^self name <= aProject name
+]
+
+{ #category : #'as yet unclassified' }
 BlocketProject >> addItem: anItem [
 	result addIfNotPresent: anItem
 ]
@@ -37,7 +43,7 @@ BlocketProject >> addSearch: aString [
 BlocketProject >> initialize [
 	name := 'Nytt projekt'.
 	result := SortedCollection new.
-	searches := OrderedCollection new.
+	searches := SortedCollection new.
 ]
 
 { #category : #'as yet unclassified' }
@@ -51,16 +57,46 @@ BlocketProject >> name: aString [
 ]
 
 { #category : #'as yet unclassified' }
+BlocketProject >> printOn: aStream [
+	aStream 
+		nextPutAll: 'BlocketProject(';
+		nextPutAll: self name;
+		nextPutAll: ')'.   
+]
+
+{ #category : #'as yet unclassified' }
+BlocketProject >> printString [
+	^self name contractTo: 45
+]
+
+{ #category : #'as yet unclassified' }
 BlocketProject >> refresh [
-	| t1 |
+	| items gone |
+	gone := result reject: [ :item | BlocketRobot new checkIfItemExists: item ].
+	gone
+		do: [ :item | 
+			item gone.
+			item isStarred
+				ifFalse: [ result remove: item ] ].
 	searches
-		do: [:t3 | 
-			t1 := BlocketRobot new getList: t3.
-			t1
-				do: [:t4 | self addItem: t4]]
+		do: [ :searchText | 
+			items := BlocketRobot new getList: searchText.
+			items do: [ :item | self addItem: item ] ].
+	lastRefresh := DateAndTime now
+]
+
+{ #category : #'as yet unclassified' }
+BlocketProject >> removeSearch: aString [
+" a search is a Blocket-URL that gives a list of items"
+	searches remove: aString
 ]
 
 { #category : #'as yet unclassified' }
 BlocketProject >> result [
 	^result
+]
+
+{ #category : #'as yet unclassified' }
+BlocketProject >> searches [
+	^searches
 ]
