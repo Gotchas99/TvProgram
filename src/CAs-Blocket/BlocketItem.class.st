@@ -1,5 +1,5 @@
 Class {
-	#name : #BlockItem,
+	#name : #BlocketItem,
 	#superclass : #Object,
 	#instVars : [
 		'id',
@@ -15,7 +15,7 @@ Class {
 }
 
 { #category : #accessing }
-BlockItem >> <= aBlockItem [
+BlocketItem >> <= aBlockItem [
 	(self dateTime class = DateAndTime)
 		ifTrue:[(aBlockItem dateTime class = DateAndTime)
 			ifTrue: [^(self dateTime) <= (aBlockItem dateTime)]
@@ -27,22 +27,22 @@ BlockItem >> <= aBlockItem [
 ]
 
 { #category : #accessing }
-BlockItem >> = aBlockItem [
+BlocketItem >> = aBlockItem [
 	^(self id) = (aBlockItem id)
 ]
 
 { #category : #accessing }
-BlockItem >> area: aString [
+BlocketItem >> area: aString [
 	self at: #area put: aString
 ]
 
 { #category : #'access primitives' }
-BlockItem >> at: key [
-	^props at: key ifAbsent: [^nil]
+BlocketItem >> at: key [
+	^self at: key ifAbsent: [^nil]
 ]
 
 { #category : #'access primitives' }
-BlockItem >> at: key ifAbsent: aBlock [ 
+BlocketItem >> at: key ifAbsent: aBlock [ 
 	"Answer the value associated with the key or, if key isn't found,
 	answer the result of evaluating aBlock."
 
@@ -51,187 +51,234 @@ BlockItem >> at: key ifAbsent: aBlock [
 ]
 
 { #category : #'access primitives' }
-BlockItem >> at: key put: anObject [
+BlocketItem >> at: key put: anObject [
 	props at: key put: anObject.
 	^anObject
 ]
 
 { #category : #accessing }
-BlockItem >> category: aString [
+BlocketItem >> category: aString [
 	self at: #category put: aString
 ]
 
 { #category : #accessing }
-BlockItem >> date [
-	(self at: #date) isNil ifTrue: [self refresh].
-	^self at: #date
-]
-
-{ #category : #accessing }
-BlockItem >> date: aString [
-	^self at: #date put: aString
-]
-
-{ #category : #accessing }
-BlockItem >> dateTime [
-	(self date class = Date)
-		ifTrue: [^DateAndTime date: (self at: #date) time: (self at: #time) asTime ]
-		ifFalse: [^(self at: #date) , (self at: #time)].
+BlocketItem >> dateTime [
+	^self at: #dateTime
 	
 ]
 
 { #category : #accessing }
-BlockItem >> dateTimeString [
-	^(self dateTime printString)
+BlocketItem >> dateTime: aDateAndTime [
+	^self at: #dateTime put: aDateAndTime
+	
 ]
 
 { #category : #accessing }
-BlockItem >> desc [
+BlocketItem >> dateTimeString [
+	| s  |
+	s := String new writeStream.
+	self dateTime printYMDOn: s.
+	s << ' '.
+	self dateTime printHMSOn: s.
+	^ s contents
+]
+
+{ #category : #accessing }
+BlocketItem >> desc [
 	(self at: #desc) isNil ifTrue: [self refresh].
 	self at: #viewed put: DateAndTime now.
-	^self at: #desc
+	^self at: #desc ifAbsent: [ '<hittar ingen text>' ]
 ]
 
 { #category : #accessing }
-BlockItem >> desc: aString [
+BlocketItem >> desc: aString [
 	^self at: #desc put: aString
 ]
 
+{ #category : #actions }
+BlocketItem >> dontShow [
+	self starred: false.
+	^ self at: #dontshow put: true
+]
+
+{ #category : #actions }
+BlocketItem >> gone [
+	^(self at: #gone put: true) 
+]
+
 { #category : #testing }
-BlockItem >> dontShow [
-	^(self at: #dontshow put: true) 
+BlocketItem >> goneMark [
+	(self at: #gone) isNil ifTrue:[^''] ifFalse:[ ^'Gone' ]
 ]
 
 { #category : #accessing }
-BlockItem >> html: aString [
+BlocketItem >> hash [
+	^id hash
+]
+
+{ #category : #accessing }
+BlocketItem >> html: aString [
 	html := aString
 ]
 
 { #category : #accessing }
-BlockItem >> id [
+BlocketItem >> id [
 	^id
 ]
 
 { #category : #accessing }
-BlockItem >> id: aString [
+BlocketItem >> id: aString [
 	id := aString asSymbol
 ]
 
 { #category : #accessing }
-BlockItem >> images [
-	(self at: #images) isNil ifTrue: [self refresh].
-	^self at: #images
+BlocketItem >> images [
+	(self at: #images) isNil
+		ifTrue: [ self refresh ].
+	^ self at: #images
 ]
 
 { #category : #'initialize-release' }
-BlockItem >> initialize [
+BlocketItem >> initialize [
 	props := Dictionary new.
 ]
 
 { #category : #testing }
-BlockItem >> isDontShow [
+BlocketItem >> isDontShow [
 	^(self at: #dontshow ifAbsent: [ ^false] ) 
 ]
 
 { #category : #testing }
-BlockItem >> isViewed [
+BlocketItem >> isGone [
+	^(self at: #gone) isNil not
+]
+
+{ #category : #testing }
+BlocketItem >> isStarred [
+	^ (self at: #star) ifNotNil: [ :x | x ] ifNil: [ false ]
+]
+
+{ #category : #testing }
+BlocketItem >> isViewed [
 	^(self at: #viewed) isNil not
 ]
 
 { #category : #accessing }
-BlockItem >> listColumns [
-	^Array with: ( self date) with: (self title)
+BlocketItem >> listColumns [
+	^ Array with: self date with: self title
 ]
 
 { #category : #testing }
-BlockItem >> newMark [
+BlocketItem >> newMark [
 	(self at: #viewed) isNil ifTrue:[^'Ny'] ifFalse:[ ^'' ]
 ]
 
 { #category : #accessing }
-BlockItem >> oldPrice [
+BlocketItem >> oldPrice [
 	((self at: #oldPrice) isNil  and: [self at: #priceCut]) ifTrue: [self refresh].
 	(self at: #oldPrice) ifNil: [^''].
 	^self at: #oldPrice
 ]
 
 { #category : #accessing }
-BlockItem >> oldPrice: aString [
+BlocketItem >> oldPrice: aString [
 	^self at: #oldPrice put: aString
 ]
 
 { #category : #accessing }
-BlockItem >> price [
+BlocketItem >> price [
 	^self at: #price
 ]
 
 { #category : #accessing }
-BlockItem >> price: aString [
+BlocketItem >> price: aString [
 	self at: #price put: aString
 ]
 
 { #category : #accessing }
-BlockItem >> priceCut [
+BlocketItem >> priceCut [
 	^ (self at: #priceCut) 
 		or: [(self at: #oldPrice) notNil]
 ]
 
 { #category : #accessing }
-BlockItem >> priceCut: aString [
+BlocketItem >> priceCut: aString [
 	self at: #priceCut put: aString
 ]
 
 { #category : #printing }
-BlockItem >> printString [
+BlocketItem >> printOn: aStream [
+	aStream
+		nextPutAll: 'BlocketItem (';
+		nextPutAll: (self title contractTo: 45);
+		nextPutAll: ')'
+]
+
+{ #category : #printing }
+BlocketItem >> printString [
 	^self title contractTo: 45
 ]
 
-{ #category : #'category name' }
-BlockItem >> refresh [
+{ #category : #actions }
+BlocketItem >> refresh [
 	| newProps images |
 	newProps := BlocketRobot new getItemFromUrl: self url.
-	newProps isNil ifTrue: [ ^nil ].
-	newProps keysAndValuesDo: [:key :val| self at: key put: val].
-	images := props at: #images. 
-	images isEmpty ifTrue: [images add: (self thumb)].
+	newProps isNil
+		ifTrue: [ ^ nil ].
+	newProps = #notFound
+		ifTrue: [ ^ nil ].
+	newProps keysAndValuesDo: [ :key :val | self at: key put: val ].
+	images := props at: #images.
+	images isEmpty
+		ifTrue: [ images add: self thumb ].
 	self at: #LastFound: put: DateAndTime now
 ]
 
+{ #category : #actions }
+BlocketItem >> starred [
+	^ self at: #star put: self isStarred not
+]
+
+{ #category : #actions }
+BlocketItem >> starred: aBoolean [
+	^ self at: #star put: aBoolean 
+]
+
 { #category : #accessing }
-BlockItem >> thumb [
+BlocketItem >> thumb [
 	thumb isNil ifTrue: [^nil].
 	^thumb attributes at: #src
 	
 ]
 
 { #category : #accessing }
-BlockItem >> thumb: anIMG [
+BlocketItem >> thumb: anIMG [
 	thumb := anIMG
 	
 "self attributes at: 'src' "
 ]
 
 { #category : #accessing }
-BlockItem >> time: aString [
-	^self at: #time put: aString asTime
+BlocketItem >> title [
+	^self at: #title ifAbsent:['<okänt item>']
 ]
 
 { #category : #accessing }
-BlockItem >> title [
-	^self at: #title
-]
-
-{ #category : #accessing }
-BlockItem >> title: aString [
+BlocketItem >> title: aString [
 	props at: #title put: aString
 ]
 
 { #category : #accessing }
-BlockItem >> url [
+BlocketItem >> url [
 	^url
 ]
 
 { #category : #accessing }
-BlockItem >> url: aString [
+BlocketItem >> url: aString [
 	url := aString
+]
+
+{ #category : #actions }
+BlocketItem >> viewed [
+	^(self at: #viewed put: true) 
 ]

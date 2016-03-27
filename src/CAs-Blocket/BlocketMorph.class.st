@@ -8,7 +8,7 @@ Class {
 		'project',
 		'title'
 	],
-	#category : #'CAs-Blocket'
+	#category : #'CAs-Blocket-Morph'
 }
 
 { #category : #'as yet unclassified' }
