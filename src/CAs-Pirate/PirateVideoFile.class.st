@@ -243,7 +243,7 @@ PirateVideoFile >> videoFile [
 		on: Error
 		do: [ :ex | 
 			Transcript
-				crShow: 'PirateVideoFile: ' , self videoFilename printString ;
+				crShow: 'Error: PirateVideoFile: ' , self videoFilename printString ;
 				crShow: ex printString.
 			^ nil ].
 	fs ifNil: [ ^ nil ].

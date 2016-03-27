@@ -305,7 +305,7 @@ PirateVideo >> topSubtitles [
 
 { #category : #torrents }
 PirateVideo >> torrent [
-	torrent isNil ifTrue: [^ nil].
+	torrent ifNil: [^ nil].
 	torrent class = PirateTorrent ifFalse: [self convertTorrent] .
 	^ torrent
 ]
