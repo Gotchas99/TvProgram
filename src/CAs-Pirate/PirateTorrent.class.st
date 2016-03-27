@@ -127,21 +127,17 @@ PirateTorrent class >> new [
 
 { #category : #'as yet unclassified' }
 PirateTorrent class >> setUpAllTorrents [
-	| t |
-	AllTorrents := Set new.
-	PirateShow shows
-		do: [ :show | 
-			show seasons
-				do: [ :season | 
-					season episodes
-						do: [ :ep | 
-							ep isViewed
-								ifFalse: [ 
-									t := ep torrent.
-									t
-										ifNotNil: [ 
-											t isInServer
-												ifTrue: [ AllTorrents add: t ] ] ] ] ] ]
+	| t hasTorrent all inServer | 
+	all := Set new.
+	hasTorrent := PirateShow allEpisodes select: [ :ep | ep torrent isNotNil ].
+	inServer:= hasTorrent select:[:item| t:= item torrent. t isInServer].
+	inServer
+		do: [ :ep | 
+			t := ep torrent.
+					ep isViewed
+						ifTrue: [ t doneWithThis ]
+						ifFalse: [ all add: t ] ] .
+	self allTorrents: all
 ]
 
 { #category : #'as yet unclassified' }
@@ -224,7 +220,7 @@ PirateTorrent >> delete [
 PirateTorrent >> doneWithThis [
 	self allVideosSeen
 		ifFalse: [ ^ self ].
-	(TransmissionClient current isTorrentInServer: self torrentHash)
+	self isInServer
 		ifFalse: [ ^ self ].
 	self checkStatus.
 	(#(3 4) includes: status)
@@ -407,12 +403,12 @@ PirateTorrent >> seeders: anInteger [
 	seeders := anInteger 
 ]
 
-{ #category : #testing }
+{ #category : #'as yet unclassified' }
 PirateTorrent >> serverRoot [
 	^TransmissionClient current getDownloadDir
 ]
 
-{ #category : #testing }
+{ #category : #'as yet unclassified' }
 PirateTorrent >> serverRoot2 [
 	^'/media/store2tb/Torrent'
 ]
