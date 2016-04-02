@@ -17,10 +17,10 @@ PirateEpisode class >> getVideoFiles [
 		do: [ :e | 
 			vfs := e torrent videoFiles.
 			vfs size = 1
-				ifTrue: [ self videoFile: vfs first ] ]
+				ifTrue: [ e videoFile: vfs first ] ]
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #temporaries }
 PirateEpisode class >> setupAllVideoFiles [
 	| eps |
 	eps := PirateShow shows collect: [ :show | show allEpisodes reject: [ :ep | ep isViewed ] ].
