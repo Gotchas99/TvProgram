@@ -17,6 +17,7 @@ PirateApp class >> initMaid [
 	TheMaid := [ 
 	[ 
 	PirateTorrent updateStatuses.
+	PirateEpisode getVideoFiles.
 	PirateVideo getAllSubtitles.
 	delay wait ] repeat ] newProcess.
 	TheMaid
@@ -56,8 +57,8 @@ PirateApp class >> readFromNewFile [
 PirateApp class >> shutDown: quitting [
 	quitting
 		ifTrue: [ 
-			TheMaid isNil
-				ifFalse: [ 
+			TheMaid
+				ifNotNil: [ 
 					TheMaid terminate.
 					TheMaid := nil ] ]
 ]

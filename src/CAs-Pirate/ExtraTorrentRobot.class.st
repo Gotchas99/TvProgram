@@ -30,18 +30,17 @@ ExtraTorrentRobot >> getTorrents: aString [
 	http://extratorrent.cc/search/?new=1&search=blacklist+s03e02&s_cat=8"
 	baseUrl := 'http://extratorrent.cc/search/?new=1&search='.
 	suffix := '&s_cat=8'.
-	[ self newGet: baseUrl , aString , suffix ]
+	[ self newGet: baseUrl , (self searchStringFrom: aString) , suffix ]
 		on: Exception
 		do: [ :ex | 
 			Transcript crShow: 'Exception on ExtraTorrent:newGet:' , ex printString.
-			self halt.
 			^ OrderedCollection new ].
 	self checkOk.
 	self parseBody.
 	(dom innerContents findString: 'total <b style="color: #ff0000;">0</b> torrents found on your search query') > 0
 		ifTrue: [ ^ Array new ].
-	main := (dom tagWithClass: 'tl') .
-	searchRows := (main tagsWithClass: 'tlr') .
+	main := dom tagWithClass: 'tl'.
+	searchRows := main tagsWithClass: 'tlr'.
 	rows := self parseRows: searchRows.
 	^ rows
 ]
@@ -86,4 +85,9 @@ ExtraTorrentRobot >> parseRows: fullHtml [
 						with: r third
 						with: r fourth) ].
 	^ rows
+]
+
+{ #category : #'as yet unclassified' }
+ExtraTorrentRobot >> searchStringFrom: aTitle [
+	^ aTitle copyReplaceAll: ' ' with: '+'
 ]
