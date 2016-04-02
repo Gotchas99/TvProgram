@@ -195,7 +195,7 @@ PirateTorrent >> containsRarFile [
 { #category : #converting }
 PirateTorrent >> createVideoFiles [
 	| f |
-	self downloaded
+	self isDownloadComplete
 		ifFalse: [ ^ nil ].
 	self containsRarFile
 		ifTrue: [ 
