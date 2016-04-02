@@ -466,7 +466,8 @@ PirateManagerMorph >> refresh [
 	Cursor wait
 		showWhile: [ 
 			PirateTorrent updateStatuses.
-"			PirateApp validateState."
+			PirateVideo getVideoFiles.	"			
+			PirateApp validateState."
 			self changed: #list.
 			self changed: #list3 ]
 ]

@@ -195,11 +195,12 @@ PirateTorrent >> containsRarFile [
 { #category : #converting }
 PirateTorrent >> createVideoFiles [
 	| f |
+	self downloaded
+		ifFalse: [ ^ nil ].
 	self containsRarFile
 		ifTrue: [ 
 			self inform: self name , ' is a RAR-file'.
-			self log: self name , ' is a RAR-file'.
-"			self halt "].
+			self log: self name , ' is a RAR-file'	"			self halt " ].
 	videoFiles := OrderedCollection new.
 	self videoFilenames
 		do: [ :fname | 
@@ -485,7 +486,9 @@ PirateTorrent >> videoFile [
 	vf := self videoFiles.
 	vf size = 1
 		ifTrue: [ ^ vf first ]
-		ifFalse: [ self halt ]
+		ifFalse: [ 
+			"self halt "
+			^ nil ]
 ]
 
 { #category : #'as yet unclassified' }

@@ -8,26 +8,25 @@ Class {
 }
 
 { #category : #'as yet unclassified' }
+PirateEpisode class >> getVideoFiles [
+	| ep vfs |
+	ep := PirateShow allViewableEpisodes.
+	ep := ep select: [ :e | e videoFile isNil ].	"	ep := ep reject: [ :e | e torrent isNil ]."
+	ep := ep reject: [ :e | e torrent containsRarFile ].
+	ep
+		do: [ :e | 
+			vfs := e torrent videoFiles.
+			vfs size = 1
+				ifTrue: [ self videoFile: vfs first ] ]
+]
+
+{ #category : #'as yet unclassified' }
 PirateEpisode class >> setupAllVideoFiles [
 	| eps |
 	eps := PirateShow shows collect: [ :show | show allEpisodes reject: [ :ep | ep isViewed ] ].
 	eps := eps flattened.
 	eps := eps reject: [ :each | each torrent isNil ].
 	eps := eps select: [ :each | each videoFile isNil ]
-]
-
-{ #category : #'as yet unclassified' }
-PirateEpisode class >> updateStatuses [
-	| ep vfs |
-	ep := PirateShow allEpisodes.
-	ep := ep reject: [ :e | e isViewed ].
-	ep := ep select: [ :e | e videoFile isNil ].
-	ep := ep reject: [ :e | e torrent isNil ].
-	ep := ep reject: [ :e | e torrent containsRarFile ].
-	ep do: [ :e | (e torrent isDownloadComplete)ifTrue:[
-			vfs:= e torrent videoFiles.
-			(vfs size = 1 )ifTrue:
-			[self videoFile: vfs first]. ]]
 ]
 
 { #category : #'as yet unclassified' }
@@ -71,10 +70,10 @@ PirateEpisode >> fullId [
 
 { #category : #torrents }
 PirateEpisode >> getExtraTorrents [
-	^ ExtraTorrentRobot new getTorrents: self tpbString
+	^ ExtraTorrentRobot new getTorrents: self fullId
 ]
 
-{ #category : #torrents }
+{ #category : #deprecated }
 PirateEpisode >> getEztvTorrents [
 	^ Eztv new getShow: self season show eztv episode: self episodeId
 ]
@@ -108,10 +107,10 @@ PirateEpisode >> getTorrents [
 				on: Error
 				do: [ :ex | err add: ex ].
 			sem signal ] fork ].
-	[ 
-	[ extra := self getExtraTorrents ]
+	[extra:= nil. 
+	"[ extra := self getExtraTorrents ]
 		on: Error
-		do: [ :ex | err add: ex ].
+		do: [ :ex | err add: ex ]."
 	sem signal ] fork.
 	[ 
 	tpb := nil.	"PirateRobot new getShow: self tpbString."
