@@ -16,10 +16,8 @@ Class {
 PirateVideo class >> getAllSubtitles [
 	| needsSubs delay viewables |
 	delay := Delay forSeconds: 5.	"self halt."
-	viewables := PirateShow shows collect: [ :show | show allEpisodes select: [ :ep | ep isViewable ] ].
-	viewables := viewables flattened.
-	needsSubs := viewables select: [ :ep | ep hasSubtitle not ].
-	needsSubs := needsSubs reject: [ :ep | ep torrent containsRarFile ].
+	viewables := PirateShow allViewableEpisodes.
+	needsSubs := viewables reject: [ :ep | ep hasSubtitle ].
 	needsSubs := needsSubs reject: [ :ep | ep videoFile isNil ].
 	needsSubs := needsSubs select: [ :ep | ep videoFile isValid ].
 	needsSubs
