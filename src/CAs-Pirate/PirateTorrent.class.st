@@ -138,7 +138,7 @@ PirateTorrent class >> setUpAllTorrents [
 	| t hasTorrent all inServer |
 	all := Set new.
 	hasTorrent := PirateShow allEpisodes select: [ :ep | ep torrent isNotNil ].
-	hasTorrent := PirateShow allEpisodes do: [ :ep | ep torrent checkStatus ].
+	hasTorrent do: [ :ep | ep torrent checkStatus ].
 	inServer := hasTorrent
 		select: [ :item | 
 			t := item torrent.
