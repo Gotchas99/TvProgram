@@ -67,6 +67,14 @@ PirateTorrent class >> at: aHash [
 ]
 
 { #category : #'as yet unclassified' }
+PirateTorrent class >> atAllInstances: aHash [
+	| x all |
+	all := self allInstances.
+	x := all detect: [ :i | i torrentHash = aHash ] ifNone: [ nil ].
+	^ x
+]
+
+{ #category : #'as yet unclassified' }
 PirateTorrent class >> cleanUpSeedingDone [
 	 | delay |
 	delay := Delay forSeconds: 10.
@@ -448,7 +456,13 @@ PirateTorrent >> status: anInt [
 			(#(-1) includes: status)
 				ifTrue: [ self removeTorrentAndData ].
 			(#(0) includes: status)
-				ifTrue: [ downloaded := (TransmissionClient current getTotalSize: self torrentHash) > 0 ].
+				ifTrue: [ 
+					(TransmissionClient current isDownloadComplete: self torrentHash)
+						ifTrue: [ downloaded := true ]
+						ifFalse: [ 
+							"paused. this state is not in transmission, only here"
+							status := 7.
+							downloaded := false ] ].
 			downloaded
 				ifTrue: [ [ self videoHash ] forkAt: Processor userBackgroundPriority ] ].
 	^ status

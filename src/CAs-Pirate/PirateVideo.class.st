@@ -27,6 +27,20 @@ PirateVideo class >> getAllSubtitles [
 ]
 
 { #category : #'as yet unclassified' }
+PirateVideo class >> havingTorrentHash: aHash [
+	| t eps ep |
+	eps := PirateShow allEpisodes.
+	t := eps select: [ :e | e torrent isNotNil ].
+	t isEmptyOrNil
+		ifTrue: [ ^ nil ].
+	t := t select: [ :e | e torrent torrentHash = aHash ].
+	t isEmptyOrNil
+		ifTrue: [ ^ nil ].
+	ep := t first.
+	^ ep
+]
+
+{ #category : #'as yet unclassified' }
 PirateVideo class >> validateAll [
 	self validateAllTorrents.
 	self validateAllVideoFiles
@@ -249,11 +263,12 @@ PirateVideo >> status [
 	| s |
 	s := self statusCode .
 	s= -1 ifTrue: [^ '-'].
-	s=0 ifTrue: [^'Seed done'].
+	s=0 ifTrue: [^'Paused/Done'].
 	s=3 ifTrue: [^'Queued'].
 	s=4 ifTrue: [^'Downloading'].
 	s=5 ifTrue: [^'QueuedSeed'].
 	s=6 ifTrue: [^'Seeding'].
+	s=7 ifTrue: [^'Paused'].
 	^'x'
 ]
 
