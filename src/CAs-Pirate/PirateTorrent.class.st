@@ -135,16 +135,20 @@ PirateTorrent class >> new [
 
 { #category : #'as yet unclassified' }
 PirateTorrent class >> setUpAllTorrents [
-	| t hasTorrent all inServer | 
+	| t hasTorrent all inServer |
 	all := Set new.
 	hasTorrent := PirateShow allEpisodes select: [ :ep | ep torrent isNotNil ].
-	inServer:= hasTorrent select:[:item| t:= item torrent. t isInServer].
+	inServer := hasTorrent
+		select: [ :item | 
+			t := item torrent.
+			t isInServer ].
 	inServer
 		do: [ :ep | 
 			t := ep torrent.
-					ep isViewed
-						ifTrue: [ t doneWithThis ]
-						ifFalse: [ all add: t ] ] .
+			t checkStatus.
+			ep isViewed
+				ifTrue: [ t doneWithThis ]
+				ifFalse: [ all add: t ] ].
 	self allTorrents: all
 ]
 

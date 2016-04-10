@@ -359,11 +359,13 @@ PirateVideo >> validateTorrent [
 	| t |
 	torrent ifNil: [ ^ self ].
 	self isViewed
-		ifTrue: [ ^ self ].
+		ifTrue: [ 
+			videoFile ifNotNil: [ videoFile doneWithThis ].
+			torrent doneWithThis ].
 	torrent isInServer
 		ifFalse: [ 
-			torrent := nil.
-			Transcript crShow: 'Removing torrent from: ' , self printString ]
+			self download.
+			Transcript crShow: 'Adding torrent to Transmission: ' , self printString ]
 		ifTrue: [ 
 			t := PirateTorrent at: torrent torrentHash.
 			t
@@ -425,7 +427,7 @@ PirateVideo >> viewed [
 	viewed := true.
 	self changed.
 	self deleteSubtitles.
-	torrent ifNotNil: [ torrent doneWithThis ].
 	self videoFile ifNotNil: [ self videoFile doneWithThis ].
+	torrent ifNotNil: [ torrent doneWithThis ].
 	^ self
 ]

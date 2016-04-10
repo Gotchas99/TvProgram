@@ -152,19 +152,13 @@ TransmissionClient >> getMagnet: aTorrentId [
 
 { #category : #access }
 TransmissionClient >> getStatus: aTorrentId [
-	| args req resp ts |
-	args := Dictionary new.
-	args at: 'ids'	put: (Array with: aTorrentId ). 
-	args at: 'fields' put: {'id'. 'status'. } .
-	req := Dictionary new.
-	req at: 'method' put: 'torrent-get'.
-	req at: 'arguments' put: args.
-	"^" 
-	resp:=self sendReq: req .
-	ts := (resp at: #arguments) at: #torrents.
-	ts isEmptyOrNil ifTrue: [^#()].
-	^ ts first at: #status.
-	
+	| ts fields |
+	fields := {'id'.
+	'status'}.
+	ts := self callMethod: 'torrent-get' for: aTorrentId with: fields.
+	ts isEmptyOrNil
+		ifTrue: [ ^ -1 ].
+	^ ts first at: #status
 ]
 
 { #category : #access }
