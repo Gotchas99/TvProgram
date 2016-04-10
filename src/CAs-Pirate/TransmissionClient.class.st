@@ -23,6 +23,18 @@ TransmissionClient class >> new [
 ]
 
 { #category : #'as yet unclassified' }
+TransmissionClient class >> statusTxt [
+"
+paused, torrent, metadata not found,no downloads yet
+	percentDone:0, isFinished:false, leftUntilDone:0, status:0, totalSize:0
+	
+seeding
+	percentDone:1, isFinished:false, leftUntilDone:0, status:6, totalSize: 306430027 
+	
+"
+]
+
+{ #category : #action }
 TransmissionClient >> addTorrent: aTorrentString [
 	"a torrent-URL or a magnet-link"
 
@@ -37,7 +49,23 @@ TransmissionClient >> addTorrent: aTorrentString [
 	^ self sendReq: req
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #private }
+TransmissionClient >> callMethod: aMethod for: aTorrentId with: aListOfFields [
+	| args req resp ts |
+	args := Dictionary new.
+	args at: 'ids' put: (Array with: aTorrentId).
+	args at: 'fields' put: aListOfFields.
+	req := Dictionary new.
+	req at: 'method' put: aMethod.
+	req at: 'arguments' put: args.	
+	resp := self sendReq: req.
+	ts := (resp at: #arguments) at: #torrents.
+	ts isEmptyOrNil
+		ifTrue: [ ^ #() ].
+	^ ts
+]
+
+{ #category : #access }
 TransmissionClient >> folder [
 	| folder transFolder  |
 	transFolder := self getDownloadDir.
@@ -45,7 +73,7 @@ TransmissionClient >> folder [
 	^ folder
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #access }
 TransmissionClient >> getAll [
 	| args req resp t torrents |
 	args := Dictionary new.
@@ -58,7 +86,7 @@ TransmissionClient >> getAll [
 	^torrents := (resp at: #arguments) at: #torrents
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #access }
 TransmissionClient >> getDir: aTorrentId [
 	| args req resp ts |
 	args := Dictionary new.
@@ -75,7 +103,7 @@ TransmissionClient >> getDir: aTorrentId [
 	
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #access }
 TransmissionClient >> getDownloadDir [
 	| args req resp dir |
 	args := Dictionary new.
@@ -88,7 +116,7 @@ TransmissionClient >> getDownloadDir [
 	^ dir 
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #access }
 TransmissionClient >> getFiles: aTorrentId [
 	| args req resp ts |
 	args := Dictionary new.
@@ -105,7 +133,7 @@ TransmissionClient >> getFiles: aTorrentId [
 	
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #access }
 TransmissionClient >> getMagnet: aTorrentId [
 	| args req resp ts |
 	args := Dictionary new.
@@ -122,7 +150,7 @@ TransmissionClient >> getMagnet: aTorrentId [
 	
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #access }
 TransmissionClient >> getStatus: aTorrentId [
 	| args req resp ts |
 	args := Dictionary new.
@@ -139,7 +167,7 @@ TransmissionClient >> getStatus: aTorrentId [
 	
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #access }
 TransmissionClient >> getTitle: aTorrentId [
 	| args req resp ts |
 	args := Dictionary new.
@@ -156,7 +184,7 @@ TransmissionClient >> getTitle: aTorrentId [
 	
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #access }
 TransmissionClient >> getTorrents [
 	"a torrent-URL or a magnet-link"
 	| args req |
@@ -169,7 +197,7 @@ TransmissionClient >> getTorrents [
 		at: 'arguments') at: 'torrents'
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #access }
 TransmissionClient >> getTotalSize: aTorrentId [
 	| args req resp ts |
 	args := Dictionary new.
@@ -186,35 +214,32 @@ TransmissionClient >> getTotalSize: aTorrentId [
 	
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'initialize - release' }
 TransmissionClient >> initialize [
 	xSessionId :='dummy' .
 
 ]
 
-{ #category : #'as yet unclassified' }
-TransmissionClient >> isComplete: aTorrentId [ 
-	| args req resp t torrents |
-	args := Dictionary new.
-	args
-		at: 'ids'
-		put:  aTorrentId .
-"		put: 'recently-active'."
-	args at: 'fields' put: {'id'. 'totalSize'. 'leftUntilDone'. 'isFinished'. 'percentDone'. 'status'} .
-	req := Dictionary new.
-	req at: 'method' put: 'torrent-get'.
-	req at: 'arguments' put: args.
-	"^" 
-	resp:=self sendReq: req .
-	torrents := (resp at: #arguments) at: #torrents.
-	torrents isEmpty ifTrue: [^false].
+{ #category : #testing }
+TransmissionClient >> isDownloadComplete: aTorrentId [
+	| t torrents fields |
+	fields := {'id'.
+	'totalSize'.
+	'leftUntilDone'.
+	'isFinished'.
+	'percentDone'.
+	'status'}.
+	torrents := self callMethod: 'torrent-get' for: aTorrentId with: fields.
+	torrents isEmpty
+		ifTrue: [ ^ false ].
 	t := torrents first.
-	( t at: #totalSize)= 0 ifTrue: [ ^false ].
+	(t at: #totalSize) = 0
+		ifTrue: [ ^ false ].
 	Transcript show: (t at: #status).
-	^ 0 = (t at: #leftUntilDone).
+	^ 0 = (t at: #leftUntilDone)
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #testing }
 TransmissionClient >> isHashInServer: aMagnet [
 	| args req resp torrents |
 	args := Dictionary new.
@@ -232,25 +257,7 @@ TransmissionClient >> isHashInServer: aMagnet [
 	^torrents isEmpty not.
 ]
 
-{ #category : #'as yet unclassified' }
-TransmissionClient >> isMagnetInServer: aHash [
-	| args req resp torrents |
-	args := Dictionary new.
-	args
-		at: 'ids'
-		put:  aHash .
-"		put: 'recently-active'."
-	args at: 'fields' put: {'id'. 'leftUntilDone'. 'isFinished'. 'percentDone'. 'status'} .
-	req := Dictionary new.
-	req at: 'method' put: 'torrent-get'.
-	req at: 'arguments' put: args.
-	"^" 
-	resp:=self sendReq: req .
-	torrents := (resp at: #arguments) at: #torrents.
-	^torrents isEmpty not.
-]
-
-{ #category : #'as yet unclassified' }
+{ #category : #testing }
 TransmissionClient >> isSeedingComplete: aTorrentId [
 	| args req resp t torrents maxSeedTime |
 	maxSeedTime := 90*24*60*60.
@@ -281,25 +288,7 @@ TransmissionClient >> isSeedingComplete: aTorrentId [
 	^ 0 = (t at: #status)
 ]
 
-{ #category : #'as yet unclassified' }
-TransmissionClient >> isTorrentInServer: aHash [
-	| args req resp torrents |
-	args := Dictionary new.
-	args
-		at: 'ids'
-		put:  aHash .
-"		put: 'recently-active'."
-	args at: 'fields' put: {'id'. 'leftUntilDone'. 'isFinished'. 'percentDone'. 'status'} .
-	req := Dictionary new.
-	req at: 'method' put: 'torrent-get'.
-	req at: 'arguments' put: args.
-	"^" 
-	resp:=self sendReq: req .
-	torrents := (resp at: #arguments) at: #torrents.
-	^torrents isEmpty not.
-]
-
-{ #category : #'as yet unclassified' }
+{ #category : #private }
 TransmissionClient >> newRequest: aString [
 	| request anURL |
 	anURL := 'http://' , Config current host , ':' , Config current port asString , '/transmission/rpc'.
@@ -313,7 +302,7 @@ TransmissionClient >> newRequest: aString [
 	^ request
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #action }
 TransmissionClient >> removeTorrent: aTorrentId [ 
 	| args req |
 	args := Dictionary new.
@@ -327,61 +316,28 @@ TransmissionClient >> removeTorrent: aTorrentId [
 	^ self sendReq: req 
 ]
 
-{ #category : #'as yet unclassified' }
-TransmissionClient >> removeTorrentX: aTorrentId [ 
-	| args req |
-	args := Dictionary new.
-	args
-		at: 'ids'
-		put: (Array with: aTorrentId ). 
-	args at: 'delete-local-data' put: 'true'.
-	req := Dictionary new.
-	req at: 'method' put: 'torrent-remove'.
-	req at: 'arguments' put: args.
-	^ self sendReq: req 
-]
-
-{ #category : #'as yet unclassified' }
+{ #category : #private }
 TransmissionClient >> sendReq: aJSON [
 	| request resp reqString |
 	(aJSON isKindOf: String)
 		ifTrue: [ reqString := aJSON ]
-		ifFalse: [ reqString :=NeoJSONWriter toString: aJSON ].	"		ifFalse: [reqString := Json render: aJSON].
-"
+		ifFalse: [ reqString := NeoJSONWriter toString: aJSON ].
 	request := self newRequest: reqString.
 	request post.
 	request response code = 409
 		ifTrue: [ 
 			self setSessionIdFrom: request.
 			request := self newRequest: reqString.
-			request post ].	"	resp := Json readFrom: request contents readStream.
-"
+			request post ].
 	resp := NeoJSONReader fromString: request contents readStream.
 	request close.
 	^ resp
 ]
 
-{ #category : #'as yet unclassified' }
-TransmissionClient >> setSessionIdFrom: aRequest [ 
-	| headers | 
+{ #category : #private }
+TransmissionClient >> setSessionIdFrom: aRequest [
+	| headers |
 	headers := aRequest response headers.
 	(headers includesKey: 'x-transmission-session-id')
-		ifTrue: [xSessionId := headers at: 'x-transmission-session-id']
-]
-
-{ #category : #'as yet unclassified' }
-TransmissionClient >> test [
-	| req |
-	host := 'cm1'.
-	port := 9091.
-	req := '{ 
-	         "arguments": {
-	             "fields": [ "id", "name", "totalSize" ],
-	             "ids": [ 7, 10 ]
-	         },
-	         "method": "torrent-get",
-	         "tag": 39693
-	      }'.
-"	self halt."
-	^self sendReq: req
+		ifTrue: [ xSessionId := headers at: 'x-transmission-session-id' ]
 ]
