@@ -80,6 +80,9 @@ PirateViewableMorph >> getEpisodeText: anEpisode [
 	(anEpisode id).
 	(anEpisode hasSubtitle
 		ifTrue: [ 'subs' ]
+		ifFalse: [ ' - ' ]).
+	(anEpisode season downloaded
+		ifTrue: [ 'Season' ]
 		ifFalse: [ ' - ' ])}
 ]
 

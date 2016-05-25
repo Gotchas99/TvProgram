@@ -50,6 +50,15 @@ PirateSeason >> delete [
 	episodes do: [:e| e delete].
 ]
 
+{ #category : #'as yet unclassified' }
+PirateSeason >> downloaded [
+	"Is the entire season download, i.e. viewed or viewable"
+
+	| complete |
+	complete := episodes noneSatisfy: [ :ep | ep isViewed not and: [ ep isViewable not ] ].
+	^ complete
+]
+
 { #category : #accessing }
 PirateSeason >> episodes [ 
 	^episodes 
