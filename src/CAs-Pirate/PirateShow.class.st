@@ -228,6 +228,14 @@ PirateShow >> archived: aBool [
 ]
 
 { #category : #'as yet unclassified' }
+PirateShow >> currentSeason [
+	| next |
+	next := self nextEpisode.
+	next ifNil: [ ^ nil ].
+	^ next season
+]
+
+{ #category : #'as yet unclassified' }
 PirateShow >> delete [
 	seasons do: [:s| s delete].
 ]
