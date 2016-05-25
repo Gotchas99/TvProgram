@@ -11,7 +11,8 @@ Class {
 PirateEpisode class >> getVideoFiles [
 	| ep vfs |
 	ep := PirateShow allViewableEpisodes.
-	ep := ep select: [ :e | e videoFile isNil ].	"	ep := ep reject: [ :e | e torrent isNil ]."
+	ep := ep select: [ :e | e videoFile isNil ].
+	ep := ep select: [ :e | e torrent isNotNil ].
 	ep := ep reject: [ :e | e torrent containsRarFile ].
 	ep
 		do: [ :e | 

@@ -7,7 +7,8 @@ Class {
 		'falseTorrents',
 		'viewed',
 		'torrents',
-		'videoFile'
+		'videoFile',
+		'prevPosition'
 	],
 	#category : #'CAs-Pirate'
 }
@@ -160,6 +161,11 @@ PirateVideo >> isDownloading [
 ]
 
 { #category : #testing }
+PirateVideo >> isPaused [
+	^ prevPosition isNotNil and: [ prevPosition > 0 ]
+]
+
+{ #category : #testing }
 PirateVideo >> isViewable [
 	self isViewed
 		ifTrue: [ ^ false ].
@@ -212,8 +218,19 @@ PirateVideo >> newFound [
 	^ (torrent isNil) and: [ self torrents isEmptyOrNil not ]
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #playing }
 PirateVideo >> play [
+	| fname v |
+	self isViewable
+		ifFalse: [ ^ self ].
+	fname := self videoFilename fullName.self halt.
+	v := VlcClient new.
+	v when: #stoppedAt: send: #playbackStoppedAt: to: self.
+	v play: fname atPos: (prevPosition ifNil: [ 0 ])
+]
+
+{ #category : #'as yet unclassified' }
+PirateVideo >> playOld [
 	| args proc fname player d |
 	self isViewable
 		ifFalse: [ ^ self ].
@@ -228,6 +245,12 @@ PirateVideo >> play [
 			d wait.
 			proc update: #runState ].
 	^ proc
+]
+
+{ #category : #playing }
+PirateVideo >> playbackStoppedAt: aPosition [
+	prevPosition := aPosition.
+	self triggerEvent: #stopped
 ]
 
 { #category : #printing }
