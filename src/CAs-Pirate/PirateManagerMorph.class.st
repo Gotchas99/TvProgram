@@ -8,7 +8,8 @@ Class {
 		'listIndex2',
 		'model2',
 		'model3',
-		'listIndex3'
+		'listIndex3',
+		'playingEp'
 	],
 	#category : #'CAs-Pirate-Gui'
 }
@@ -445,20 +446,24 @@ PirateManagerMorph >> pairing [
 { #category : #'event handling' }
 PirateManagerMorph >> play [
 	| ep |
-	listIndex3 > 0
-		ifTrue: [
-			ep := model3 episodes at: listIndex3.
-			ep isDownloaded ifTrue: [
-				ep play.
-				(self confirm: 'Did you see the entire show?') ifTrue: [
-					[ep viewed.				
-					self changed: #list1.
-					self changed: #list3 ] forkAt: Processor userBackgroundPriority .		
-				].
-"				(self confirm: 'Subtitles OK?') ifTrue: ["
-"					ep viewed."	"]."
-			].
-		]
+	listIndex3 = 0
+		ifTrue: [ ^ self ].
+	ep := model3 episodes at: listIndex3.
+	ep isDownloaded
+		ifTrue: [ 
+			playingEp := ep.
+			ep when: #stopped send: #playStopped to: self.
+			ep play ]	"(self confirm: 'Subtitles OK?') ifTrue: [ep viewed.]."
+]
+
+{ #category : #'event handling' }
+PirateManagerMorph >> playStopped [
+	(self confirm: 'Did you see the entire show?')
+		ifTrue: [ 
+			playingEp viewed.
+			self changed: #list1.
+			self changed: #list3 ].
+	playingEp removeActionsWithReceiver: self	"(self confirm: 'Subtitles OK?') ifTrue: [ep viewed.]."
 ]
 
 { #category : #'event handling' }

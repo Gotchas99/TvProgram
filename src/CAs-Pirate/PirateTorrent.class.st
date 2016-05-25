@@ -206,22 +206,23 @@ PirateTorrent >> containsRarFile [
 
 { #category : #converting }
 PirateTorrent >> createVideoFiles [
-	| f |
+	| f vf |
 	self isDownloadComplete
 		ifFalse: [ ^ nil ].
 	self containsRarFile
 		ifTrue: [ 
 			self inform: self name , ' is a RAR-file'.
-			self log: self name , ' is a RAR-file'	"			self halt " ].
-	videoFiles := OrderedCollection new.
+			self log: self name , ' is a RAR-file'.
+			^ nil ].
+	vf := OrderedCollection new.
 	self videoFilenames
 		do: [ :fname | 
 			f := PirateVideoFile new.
 			f
 				videoFilename: fname;
 				folder: self folder.
-			videoFiles add: f ].
-	^ videoFiles
+			vf add: f ].
+	^ videoFiles := vf
 ]
 
 { #category : #accessing }
@@ -509,7 +510,7 @@ PirateTorrent >> videoFile [
 			^ nil ]
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 PirateTorrent >> videoFilenames [
 	| files fnames |
 	"	videoFiles ifNotNil: [ ^videoFiles  ]."

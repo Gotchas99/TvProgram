@@ -5,7 +5,8 @@ Class {
 		'shows',
 		'listIndex',
 		'model',
-		'showsStarted'
+		'showsStarted',
+		'playingEp'
 	],
 	#category : #'CAs-Pirate-Gui'
 }
@@ -71,12 +72,15 @@ PirateViewableMorph >> dblClick [
 
 { #category : #'as yet unclassified' }
 PirateViewableMorph >> getEpisodeText: anEpisode [
-
- ^{anEpisode season show name.
-	anEpisode season id.
-	anEpisode id. 
-	(anEpisode hasSubtitle)ifTrue:['subs']ifFalse:[' - '].
-	}.
+	^ {(anEpisode hasSubtitle
+		ifTrue: [ '*' ]
+		ifFalse: [ '' ]).
+	(anEpisode season show name).
+	(anEpisode season id).
+	(anEpisode id).
+	(anEpisode hasSubtitle
+		ifTrue: [ 'subs' ]
+		ifFalse: [ ' - ' ])}
 ]
 
 { #category : #'as yet unclassified' }
@@ -119,20 +123,23 @@ PirateViewableMorph >> model:  allShows [
 { #category : #'as yet unclassified' }
 PirateViewableMorph >> play [
 	| ep |
-	(self listIndex = 0) ifTrue: [^self].
+	self listIndex = 0
+		ifTrue: [ ^ self ].
 	ep := model at: listIndex.
 	ep isDownloaded
 		ifTrue: [ 
-			ep play.
-			(self confirm: 'Did you see the entire show?')
-				ifTrue: [ 
-					[ 
-"					(self confirm: 'Subtitles OK?')
-				ifTrue: [  ].
-"					ep viewed.
-					self refresh.
-					self changed: #list ] forkAt: Processor userBackgroundPriority ].
-			 ]
+			playingEp := ep.
+			ep when: #stopped send: #playStopped to: self.
+			ep play ]
+]
+
+{ #category : #'as yet unclassified' }
+PirateViewableMorph >> playStopped [
+	(self confirm: 'Did you see the entire show?')
+		ifTrue: [ playingEp viewed ].
+	playingEp removeActionsWithReceiver: self.
+	self refresh.
+	self changed: #list	"(self confirm: 'Subtitles OK?') ifTrue: [  ]."
 ]
 
 { #category : #'as yet unclassified' }
