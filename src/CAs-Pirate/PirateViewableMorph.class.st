@@ -72,7 +72,7 @@ PirateViewableMorph >> dblClick [
 
 { #category : #'as yet unclassified' }
 PirateViewableMorph >> getEpisodeText: anEpisode [
-	^ {(anEpisode hasSubtitle
+	^ {(anEpisode isPaused
 		ifTrue: [ '*' ]
 		ifFalse: [ '' ]).
 	(anEpisode season show name).
