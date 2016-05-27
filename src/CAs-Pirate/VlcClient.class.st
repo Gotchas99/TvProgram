@@ -55,7 +55,8 @@ VlcClient >> old [
 
 { #category : #'initialize - release' }
 VlcClient >> openStream [
-	stream ifNotNil: [ stream destroy ].
+	self closeStream.
+	(Delay forSeconds: 1) wait.
 	stream := SocketStream openConnectionToHostNamed: 'localhost' port: 9092.
 	stream noTimeout
 ]
@@ -119,7 +120,12 @@ VlcClient >> playOld: aFilename [
 { #category : #private }
 VlcClient >> processLine: aLine [
 	| tok |
-	(aLine includesSubstring: 'state:')
+	"WorldState
+		addDeferredUIMessage: [ 
+			Transcript
+				show: 'Got line:' , aLine;
+				cr ]."
+	(aLine includesSubstring: 'X_state:')
 		ifTrue: [ 
 			tok := (aLine findTokens: ' ') last.
 			tok = ')'
@@ -144,7 +150,7 @@ VlcClient >> startAskingPos [
 			self sendCommand: 'get_time'.
 			d wait ] ]
 		on: ConnectionTimedOut
-		do: [  ] ] forkAt: Processor userBackgroundPriority
+		do: [ self crLog: 'ask pos. stream not connected' ] ] forkAt: Processor userBackgroundPriority
 ]
 
 { #category : #'process creation' }

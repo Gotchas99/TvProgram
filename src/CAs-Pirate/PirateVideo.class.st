@@ -223,7 +223,7 @@ PirateVideo >> play [
 	| fname v |
 	self isViewable
 		ifFalse: [ ^ self ].
-	fname := self videoFilename fullName.self halt.
+	fname := self videoFilename fullName.
 	v := VlcClient new.
 	v when: #stoppedAt: send: #playbackStoppedAt: to: self.
 	v play: fname atPos: (prevPosition ifNil: [ 0 ])
