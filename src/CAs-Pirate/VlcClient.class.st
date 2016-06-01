@@ -119,12 +119,16 @@ VlcClient >> playOld: aFilename [
 
 { #category : #private }
 VlcClient >> processLine: aLine [
-	| tok |
+	| tok line |
 	"WorldState
 		addDeferredUIMessage: [ 
 			Transcript
 				show: 'Got line:' , aLine;
 				cr ]."
+	(aLine beginsWith: '>')
+		ifTrue: [ line := aLine allButFirst ]
+		ifFalse: [ line := aLine ].
+		line := line trimmed.
 	(aLine includesSubstring: 'X_state:')
 		ifTrue: [ 
 			tok := (aLine findTokens: ' ') last.
