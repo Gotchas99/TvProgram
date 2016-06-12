@@ -13,52 +13,49 @@ Class {
 
 { #category : #'as yet unclassified' }
 PirateViewableMorph >> addControls [
-	| r lst btnPanel morph started |
+	| r lst btnPanel started |
 	started := CheckboxMorph on: self selected: #showsStarted changeSelected: #showStarted.
 	started label: 'Show only started'.
 	started height: 20.
 	self addMorphBack: started.
 	lst := PluggableMultiColumnListMorph
-				on: self
-				list: #list
-				selected: #listIndex
-				changeSelected: #listIndex:.
-		"		menu: #listMenu:."
+		on: self
+		list: #list
+		selected: #listIndex
+		changeSelected: #listIndex:
+		menu: nil
+		keystroke: nil.
 	lst doubleClickSelector: #dblClick.
-	lst wrapSelector: #getEpisodeText:  .
+	lst wrapSelector: #getEpisodeText:.
 	lst color: Color white.
 	lst extent: 400 @ 400.
 	self addMorphBack: lst.
-	
 	btnPanel := self newRow.
-	btnPanel color: Color transparent;
-		 borderWidth: 0;
-		 layoutInset: 2;
-		 wrapCentering: #center;
-		 cellPositioning: #topCenter;
-		 hResizing: #shrinkWrap;
-		 vResizing: #shrinkWrap;
-		 extent: 5 @ 5.
+	btnPanel
+		color: Color transparent;
+		borderWidth: 0;
+		layoutInset: 2;
+		wrapCentering: #center;
+		cellPositioning: #topCenter;
+		hResizing: #shrinkWrap;
+		vResizing: #shrinkWrap;
+		extent: 5 @ 5.
 	self addMorphBack: btnPanel.
-	btnPanel
-		addMorphBack: (self newButton: 'Refresh' do: #refresh).
-	btnPanel
-		addMorphBack: (self newButton: 'Play' do: #play).
-	btnPanel
-		addMorphBack: (self newButton: 'Subtitles...' do: #subtitles).
-	btnPanel
-		addMorphBack: (self newButton: 'Top Sub' do: #topSubtitles).
-	"------------------------------------"
-	r := AlignmentMorph newRow color: Color transparent;
-				 borderWidth: 0;
-				 layoutInset: 0.
-	r wrapCentering: #center;
-		 cellPositioning: #topCenter;
-		 hResizing: #shrinkWrap;
-		 vResizing: #shrinkWrap;
-		 extent: 5 @ 5.
+	btnPanel addMorphBack: (self newButton: 'Refresh' do: #refresh).
+	btnPanel addMorphBack: (self newButton: 'Play' do: #play).
+	btnPanel addMorphBack: (self newButton: 'Subtitles...' do: #subtitles).
+	btnPanel addMorphBack: (self newButton: 'Top Sub' do: #topSubtitles).	"------------------------------------"
+	r := AlignmentMorph newRow
+		color: Color transparent;
+		borderWidth: 0;
+		layoutInset: 0.
 	r
-		addMorphBack: (self newButton: 'Close' do: #delete).
+		wrapCentering: #center;
+		cellPositioning: #topCenter;
+		hResizing: #shrinkWrap;
+		vResizing: #shrinkWrap;
+		extent: 5 @ 5.
+	r addMorphBack: (self newButton: 'Close' do: #delete).
 	r addTransparentSpacerOfSize: 8 @ 0.
 	self addMorphFront: r
 ]
