@@ -128,14 +128,14 @@ VlcClient >> processLine: aLine [
 	(aLine beginsWith: '>')
 		ifTrue: [ line := aLine allButFirst ]
 		ifFalse: [ line := aLine ].
-		line := line trimmed.
-	(aLine includesSubstring: 'X_state:')
+	line := line trimmed.
+	(line includesSubstring: 'X_state:')
 		ifTrue: [ 
-			tok := (aLine findTokens: ' ') last.
+			tok := (line findTokens: ' ') last.
 			tok = ')'
 				ifFalse: [ state := tok ] ].
-	aLine isAllDigits
-		ifTrue: [ pos := aLine asInteger ]
+	line isAllDigits
+		ifTrue: [ pos := line asInteger ]
 ]
 
 { #category : #private }
