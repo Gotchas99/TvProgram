@@ -76,6 +76,15 @@ PirateApp class >> startUp: resuming [
 ]
 
 { #category : #'as yet unclassified' }
+PirateApp class >> updateScript [
+	"
+ConfigurationOfTvProgram project development load.
+"
+
+	
+]
+
+{ #category : #'as yet unclassified' }
 PirateApp class >> validateState [
 	PirateTorrent validateAll.
 	PirateEpisode validateAll.

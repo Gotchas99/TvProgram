@@ -90,21 +90,26 @@ PirateEpisode >> getPirateTorrents [
 ]
 
 { #category : #torrents }
+PirateEpisode >> getRarbgTorrents [
+	^ TorrentApi new getShow: self season show imdb season: self season id episode: self id
+]
+
+{ #category : #torrents }
 PirateEpisode >> getTorrents [
-	| t tpb sem kickass err extra |
+	| t tpb sem  err extra rarbg |
 	t := OrderedCollection new.
 	err := OrderedCollection new.
 	sem := Semaphore new.
-	self season show kat
+	self season show imdb
 		ifNotNil: [ 
 			[ 
-			[ kickass := self getKickassTorrents ]
+			[ rarbg := self getRarbgTorrents ]
 				on: Error
 				do: [ :ex | err add: ex ].
 			sem signal ] fork ]
 		ifNil: [ 
 			[ 
-			[ kickass := KickassRobot new getShow: self tpbString ]
+			[ rarbg := TorrentApi new getShow: self tpbString ]
 				on: Error
 				do: [ :ex | err add: ex ].
 			sem signal ] fork ].
@@ -126,10 +131,37 @@ PirateEpisode >> getTorrents [
 			Transcript crShow: 'Error on getTorrents: ' , err printString ].
 	tpb ifNotNil: [ t addAll: tpb ].
 	extra ifNotNil: [ t addAll: extra ].
-	kickass ifNotNil: [ t addAll: kickass ].
+	rarbg ifNotNil: [ t addAll: rarbg ].
 	#('1080p' 'French' 'spanish' 'subtitulado' 'x265' 'vostfr')
 		do: [ :word | t := t reject: [ :each | each first includesSubstring: word caseSensitive: false ] ].
 	^ t
+]
+
+{ #category : #torrents }
+PirateEpisode >> getTorrents_leftovers [
+	| t tpb sem kickass err  |
+	t := OrderedCollection new.
+	err := OrderedCollection new.
+	sem := Semaphore new.
+	"------------------------------------------Kickass torrent. Dead in July 2016"
+	self season show kat
+		ifNotNil: [ 
+			[ 
+			[ kickass := self getKickassTorrents ]
+				on: Error
+				do: [ :ex | err add: ex ].
+			sem signal ] fork ]
+		ifNil: [ 
+			[ 
+			[ kickass := KickassRobot new getShow: self tpbString ]
+				on: Error
+				do: [ :ex | err add: ex ].
+			sem signal ] fork ].
+	"---------------------------------------------------------------------"
+	[ 
+	tpb := nil.	"PirateRobot new getShow: self tpbString."
+	sem signal ] fork.
+
 ]
 
 { #category : #torrents }
