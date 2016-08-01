@@ -8,7 +8,8 @@ Class {
 		'viewed',
 		'torrents',
 		'videoFile',
-		'prevPosition'
+		'prevPosition',
+		'title'
 	],
 	#category : #'CAs-Pirate'
 }

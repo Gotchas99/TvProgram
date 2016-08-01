@@ -309,8 +309,12 @@ PirateTorrent >> isInServer [
 
 { #category : #testing }
 PirateTorrent >> isSeedingComplete [
-	| times overtime |
-	times := self videoFiles collect: [ :vf | vf viewTime ].
+	| times overtime files |
+	self isInServer
+		ifFalse: [ ^ true ].
+	files := self videoFiles.
+	files ifNil: [ ^ true ].
+	times := files collect: [ :vf | vf viewTime ].
 	times := times reject: [ :t | t isNil ].
 	times isEmpty
 		ifTrue: [ overtime := false ]
@@ -322,6 +326,7 @@ PirateTorrent >> isSeedingComplete [
 PirateTorrent >> isSingleVideoFile [
 	| files |
 	files := self videoFiles.
+	files ifNil: [ ^false ].
 "	0 = files size
 		ifTrue: [ self halt ]."
 	^ 1 = files size
