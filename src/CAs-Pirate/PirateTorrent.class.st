@@ -75,20 +75,9 @@ PirateTorrent class >> atAllInstances: aHash [
 ]
 
 { #category : #'as yet unclassified' }
-PirateTorrent class >> cleanUpSeedingDone [
-	 | delay |
-	delay := Delay forSeconds: 10.
-	[[DeathRow isEmpty not]	
-		whileTrue: [
-			DeathRow copy do: [:i | i removeIfSeedComplete].
-			delay wait].
-		Reaper:=nil]
-]
-
-{ #category : #'as yet unclassified' }
 PirateTorrent class >> cleanUpSeedingDoneOnce [
 	| done |
-	done := self DeathRow select: [ :i | i isSeedingComplete ].
+	done := self DeathRow select: [ :i | i isInServer not or: [ i isSeedingComplete ] ].
 	done
 		do: [ :i | 
 			i removeTorrentAndData.
