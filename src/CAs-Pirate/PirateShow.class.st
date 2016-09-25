@@ -391,6 +391,11 @@ PirateShow >> printOn: aStream [
 	aStream nextPutAll: (self name contractTo: 45)
 ]
 
+{ #category : #'as yet unclassified' }
+PirateShow >> removeSeason: aSeason [
+	seasons remove: aSeason.
+]
+
 { #category : #special }
 PirateShow >> resetUplinks [
 	^ seasons
