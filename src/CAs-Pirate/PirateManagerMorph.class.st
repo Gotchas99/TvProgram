@@ -59,6 +59,7 @@ PirateManagerMorph >> addControls [
 	lst2 extent: listboxWidth @ 150.
 	r2 addMorphBack: lst2.
 	r2c2 addMorphBack: (self newButton: 'Add Season...' do: #addSeason).
+	r2c2 addMorphBack: (self newButton: 'Remove Season...' do: #removeSeason).
 	r2 addMorphBack: r2c2.
 	lst3 := PluggableMultiColumnListMorph
 		on: self
@@ -488,6 +489,20 @@ PirateManagerMorph >> removeEpisode [
 			ep delete.
 			self changed: #list3.
 			self listIndex3: 0 ]
+]
+
+{ #category : #'event handling' }
+PirateManagerMorph >> removeSeason [
+	| season |
+	listIndex2 = 0
+		ifTrue: [ ^ self ].
+	season := model2 seasons at: listIndex2.
+	(self confirm: 'Vill du verkligen ta bort säsongen', String crlfcrlf, season name, season id)
+		ifTrue: [ 
+			season delete.
+			self changed: #list2.
+			self listIndex2: 0	.
+			self changed: #list3. ]
 ]
 
 { #category : #'event handling' }
