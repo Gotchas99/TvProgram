@@ -1,8 +1,8 @@
 Class {
 	#name : #TorrentApi,
 	#superclass : #Object,
-	#instVars : [
-		'token'
+	#classInstVars : [
+		'Token'
 	],
 	#category : #'CAs-Pirate'
 }
@@ -69,6 +69,16 @@ All parameters can be mixed together.
 ]
 
 { #category : #'as yet unclassified' }
+TorrentApi class >> Token [
+	^ Token ifNil: [ Token := 'qwerty' ]
+]
+
+{ #category : #'as yet unclassified' }
+TorrentApi class >> Token: aString [
+	^ Token := aString
+]
+
+{ #category : #'as yet unclassified' }
 TorrentApi >> baseUrl [
 	^ 'http://torrentapi.org/pubapi_v2.php' asZnUrl
 	"Original from doc:'https://torrentapi.org/pubapi_v2.php' "
@@ -118,13 +128,13 @@ TorrentApi >> getToken [
 		get;
 		yourself.
 	resp := NeoJSONReader fromString: request contents readStream.
-	^token := resp at: #token ifAbsent: 'dummyToken'
+	^self class Token: (resp at: #token ifAbsent: 'dummyToken')
 ]
 
 { #category : #'as yet unclassified' }
 TorrentApi >> initialize [
 	super initialize.
-	token := 'dummyToken'
+
 ]
 
 { #category : #'as yet unclassified' }
@@ -133,7 +143,7 @@ TorrentApi >> newRequest [
 	url := self baseUrl.
 	url
 		queryAt: #mode put: #search;
-		queryAt: #token put: token;
+		queryAt: #token put: self token;
 		queryAt: #category put: #tv;
 		queryAt: #limit put: '100';
 		queryAt: #sort put: #seeders;
@@ -155,15 +165,20 @@ TorrentApi >> sendRequest: aZnClient [
 	resp := NeoJSONReader fromString: aZnClient contents readStream.
 	error_code := resp at: #error_code ifAbsent: 0.
 	error_code > 0
-		ifTrue: [ Transcript logCr: 'TorrentApi: ' , (resp at: #error) ].
-	(#(3 4) includes: error_code)
+		ifTrue: [ Transcript logCr: 'TorrentApi: ' , (resp at: #error_code)printString ].
+	(#(2 3 4) includes: error_code)
 		ifTrue: [ 
 			self getToken.
-			aZnClient queryAt: #token put: token.
+			aZnClient queryAt: #token put: self token.
 			^ self sendRequest: aZnClient ].	"invalid token"
 	error_code = 10
 		ifTrue: [ ^ #() ].	"Cant find imdb in database. Are you sure this imdb exists?"
 	error_code = 20
 		ifTrue: [ ^ #() ].	"Nothing found"
 	^ resp at: #torrent_results ifAbsent: #()
+]
+
+{ #category : #'as yet unclassified' }
+TorrentApi >> token [
+	^ self class Token
 ]
