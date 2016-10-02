@@ -194,8 +194,10 @@ PirateVideo >> lookForIt [
 
 { #category : #torrents }
 PirateVideo >> lookForItIfNotFound [
-	self needsTorrent 
-		ifTrue: [ self lookForIt ].
+	self needsTorrent
+		ifTrue: [ 
+			self lookForIt.
+			(Delay forSeconds: 2) wait ]
 ]
 
 { #category : #torrents }
