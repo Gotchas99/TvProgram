@@ -2,6 +2,7 @@ Class {
 	#name : #PirateApp,
 	#superclass : #Object,
 	#classVars : [
+		'Checked',
 		'TheMaid'
 	],
 	#category : #'CAs-Pirate'
@@ -44,6 +45,60 @@ PirateApp class >> initializeStartupShutdown [
 ]
 
 { #category : #files }
+PirateApp class >> lookForTimeStamps [
+	Checked := Set new.
+	self lookForTimeStampsIn: PirateTorrent DeathRow.
+	self lookForTimeStampsIn: PirateTorrent allTorrents.
+	self lookForTimeStampsIn: PirateShow shows.
+	Checked := nil
+]
+
+{ #category : #files }
+PirateApp class >> lookForTimeStampsIn: obj [
+	| ivar dt |
+	obj ifNil: [ ^ self ].
+	(obj isKindOf: String)
+		ifTrue: [ ^ self ].
+	(obj isKindOf: Number)
+		ifTrue: [ ^ self ].
+	(obj isKindOf: Boolean)
+		ifTrue: [ ^ self ].
+	(Checked includes: obj)
+		ifTrue: [ ^ self ].
+	Checked add: obj.
+	(obj isKindOf: Collection)
+		ifTrue: [ obj do: [ :each | self lookForTimeStampsIn: each ] ]
+		ifFalse: [ 
+			1 to: obj class instSize do: [ :i | 
+				ivar := obj instVarAt: i.
+				ivar class name = #TimeStamp
+					ifTrue: [ 
+						dt := DateAndTime fromSeconds: ivar asSeconds.
+						obj instVarAt: i put: dt ]
+					ifFalse: [ self lookForTimeStampsIn: ivar ] ] ]
+]
+
+{ #category : #files }
+PirateApp class >> lookForTimeStampsIn_old: aColl [
+	| tmp ivar |
+	(aColl isKindOf: String)
+		ifTrue: [ ^ self ].
+	(aColl isKindOf: Dictionary)
+		ifTrue: [ tmp := aColl keys , aColl values ]
+		ifFalse: [ tmp := aColl ].
+	tmp
+		do: [ :each | 
+			1 to: each class instSize do: [ :i | 
+				ivar := each instVarAt: i.
+				(ivar isKindOf: Collection)
+					ifTrue: [ self lookForTimeStampsIn: ivar ]
+					ifFalse: [ 
+						ivar class = TimeStamp
+							ifTrue: [ each inspect ] ] ] ].
+	self traceCr: 'looked for timestamps'
+]
+
+{ #category : #files }
 PirateApp class >> readFromNewFile [
 	| stuff |
 	stuff := FLMaterializer materializeFromFileNamed: PirateShow fileName , '_new.fuel'.
@@ -51,6 +106,18 @@ PirateApp class >> readFromNewFile [
 	PirateTorrent allTorrents: (stuff at: #allTorrents).
 	PirateTorrent DeathRow: (stuff at: #deathRow).
 	Transcript crShow: 'File read'
+]
+
+{ #category : #'as yet unclassified' }
+PirateApp class >> readFromNewFileSTON [
+	| stuff |
+	(PirateShow fileName , '_new.ston') asFileReference readStreamDo: [ :stream | stuff := STON fromStream: stream ].
+	PirateShow shows: (stuff at: #shows).
+	PirateTorrent allTorrents: (stuff at: #allTorrents).
+	PirateTorrent DeathRow: (stuff at: #deathRow).
+	Transcript
+		show: 'File read from STON';
+		cr
 ]
 
 { #category : #'as yet unclassified' }
@@ -104,4 +171,19 @@ PirateApp class >> writeToNewFile [
 		show: 'File written';
 		cr.
 	GrowlMorph openWithLabel: 'File written' contents: ''
+]
+
+{ #category : #files }
+PirateApp class >> writeToNewFileSTON [
+	| stuff |
+	stuff := Dictionary
+		newFrom:
+			{(#shows -> PirateShow shows).
+			(#allTorrents -> PirateTorrent allTorrents).
+			(#deathRow -> PirateTorrent DeathRow)}.
+	(PirateShow fileName , '_new.ston') asFileReference writeStreamDo: [ :stream | STON put: stuff onStream: stream ].
+	Transcript
+		show: 'File written to STON';
+		cr.
+	GrowlMorph openWithLabel: 'File written' contents: 'to STON'
 ]

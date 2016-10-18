@@ -1,7 +1,7 @@
 Class {
 	#name : #KickassRobot,
 	#superclass : #WRHttpRobot,
-	#category : #'CAs-Pirate'
+	#category : #'CAs-Pirate-Old'
 }
 
 { #category : #'as yet unclassified' }

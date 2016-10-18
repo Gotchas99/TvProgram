@@ -2,7 +2,8 @@ Class {
 	#name : #PirateEpisode,
 	#superclass : #PirateVideo,
 	#instVars : [
-		'season'
+		'season',
+		'fullId'
 	],
 	#category : #'CAs-Pirate'
 }
@@ -66,7 +67,7 @@ PirateEpisode >> episodeId [
 
 { #category : #'as yet unclassified' }
 PirateEpisode >> fullId [
-	^ season fullId , 'E',self id
+	^ fullId 
 ]
 
 { #category : #torrents }
@@ -165,6 +166,12 @@ PirateEpisode >> getTorrents_leftovers [
 ]
 
 { #category : #torrents }
+PirateEpisode >> id: aString [
+	id := aString.
+	self setFullId
+]
+
+{ #category : #torrents }
 PirateEpisode >> needsTorrent [
 	self season show archived
 		ifTrue: [ ^ false ].
@@ -192,7 +199,13 @@ PirateEpisode >> season [
 
 { #category : #'as yet unclassified' }
 PirateEpisode >> season: aSeason [
-	season := aSeason
+	season := aSeason.
+	self setFullId
+]
+
+{ #category : #torrents }
+PirateEpisode >> setFullId [
+	fullId := season fullId , 'E' , self id
 ]
 
 { #category : #subtitles }

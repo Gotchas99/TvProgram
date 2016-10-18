@@ -1,10 +1,14 @@
 Class {
 	#name : #TorrentApi,
 	#superclass : #Object,
+	#classVars : [
+		'ApiMutex'
+	],
 	#classInstVars : [
+		'LastReqTime',
 		'Token'
 	],
-	#category : #'CAs-Pirate'
+	#category : #'CAs-Pirate-Services'
 }
 
 { #category : #'as yet unclassified' }
@@ -69,13 +73,34 @@ All parameters can be mixed together.
 ]
 
 { #category : #'as yet unclassified' }
+TorrentApi class >> LastReqTime [
+	^ LastReqTime ifNil: [ LastReqTime := Time now ]
+]
+
+{ #category : #'as yet unclassified' }
 TorrentApi class >> Token [
-	^ Token ifNil: [ Token := 'qwerty' ]
+	^ Token ifNil: [ Token := 'DummyToken' ]
 ]
 
 { #category : #'as yet unclassified' }
 TorrentApi class >> Token: aString [
 	^ Token := aString
+]
+
+{ #category : #'as yet unclassified' }
+TorrentApi class >> UpdateLastReqTime [
+	^ LastReqTime := Time now
+]
+
+{ #category : #'as yet unclassified' }
+TorrentApi class >> apiMutex [
+	^ ApiMutex
+]
+
+{ #category : #'as yet unclassified' }
+TorrentApi class >> initialize [
+	super initialize.
+	ApiMutex := Mutex new
 ]
 
 { #category : #'as yet unclassified' }
@@ -128,13 +153,12 @@ TorrentApi >> getToken [
 		get;
 		yourself.
 	resp := NeoJSONReader fromString: request contents readStream.
-	^self class Token: (resp at: #token ifAbsent: 'dummyToken')
+	^ self class Token: (resp at: #token ifAbsent: 'dummyToken')
 ]
 
 { #category : #'as yet unclassified' }
 TorrentApi >> initialize [
-	super initialize.
-
+	super initialize
 ]
 
 { #category : #'as yet unclassified' }
@@ -161,15 +185,18 @@ TorrentApi >> newRequest [
 { #category : #'as yet unclassified' }
 TorrentApi >> sendRequest: aZnClient [
 	| resp error_code |
-	aZnClient get.
-	resp := NeoJSONReader fromString: aZnClient contents readStream.
+	self class apiMutex
+		critical: [ 
+			self waitForMinTime.
+			aZnClient get.
+			resp := NeoJSONReader fromString: aZnClient contents readStream.
+			self class UpdateLastReqTime ].
 	error_code := resp at: #error_code ifAbsent: 0.
 	error_code > 0
-		ifTrue: [ Transcript logCr: 'TorrentApi: ' , (resp at: #error_code)printString ].
+		ifTrue: [ Transcript logCr: 'TorrentApi: ' , (resp at: #error) ].
 	(#(2 3 4) includes: error_code)
 		ifTrue: [ 
-			self getToken.
-			aZnClient queryAt: #token put: self token.
+			aZnClient queryAt: #token put: self getToken.
 			^ self sendRequest: aZnClient ].	"invalid token"
 	error_code = 10
 		ifTrue: [ ^ #() ].	"Cant find imdb in database. Are you sure this imdb exists?"
@@ -181,4 +208,12 @@ TorrentApi >> sendRequest: aZnClient [
 { #category : #'as yet unclassified' }
 TorrentApi >> token [
 	^ self class Token
+]
+
+{ #category : #'as yet unclassified' }
+TorrentApi >> waitForMinTime [
+	| nextTime delay |
+	delay := Delay forMilliseconds: 300.
+	nextTime := self class LastReqTime addSeconds: 2.
+	[ nextTime > DateAndTime now ] whileTrue: [ delay wait ]
 ]
