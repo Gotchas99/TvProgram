@@ -48,14 +48,13 @@ PirateSeason >> addEpisodes: newMax [
 { #category : #'as yet unclassified' }
 PirateSeason >> delete [
 	| ep |
-	"episodes do: [:e| e delete]."
-	[ episodes size > 0 ] whileTrue: [ 
-		ep := episodes at: 1. 
-		ep delete.
-	 ].
-	
+	"episodes do: [:e| e delete]. Doesn't work to change the collection you iterate over"
+	[ episodes size > 0 ]
+		whileTrue: [ 
+			ep := episodes at: 1.
+			ep delete ].
 	show removeSeason: self.
-	show := nil.
+	show := nil	
 "	super delete."
 ]
 

@@ -1,7 +1,7 @@
 Class {
 	#name : #PirateRobot,
 	#superclass : #WRHttpRobot,
-	#category : #'CAs-Pirate'
+	#category : #'CAs-Pirate-Services'
 }
 
 { #category : #'test code' }

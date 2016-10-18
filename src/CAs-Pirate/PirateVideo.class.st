@@ -72,14 +72,17 @@ PirateVideo >> convertTorrent [
 { #category : #'initialize-release' }
 PirateVideo >> delete [
 	self deleteSubtitles.
-	torrent ifNotNil: [ torrent delete.torrent:=nil ].
+	torrent
+		ifNotNil: [ 
+			torrent delete.
+			torrent := nil ].
 	torrents := nil.
 	falseTorrents := nil.
 	videoFile
 		ifNotNil: [ 
 			videoFile reset.
 			videoFile := nil ].
-	viewed:=false.
+	viewed := false
 ]
 
 { #category : #subtitles }
@@ -194,10 +197,8 @@ PirateVideo >> lookForIt [
 
 { #category : #torrents }
 PirateVideo >> lookForItIfNotFound [
-	self needsTorrent
-		ifTrue: [ 
-			self lookForIt.
-			(Delay forSeconds: 2) wait ]
+	self needsTorrent 
+		ifTrue: [ self lookForIt ].
 ]
 
 { #category : #torrents }

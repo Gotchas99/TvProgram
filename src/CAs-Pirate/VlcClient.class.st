@@ -9,7 +9,7 @@ Class {
 	#classVars : [
 		'Current'
 	],
-	#category : #'CAs-Pirate'
+	#category : #'CAs-Pirate-Services'
 }
 
 { #category : #'as yet unclassified' }

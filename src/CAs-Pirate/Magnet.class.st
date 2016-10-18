@@ -21,7 +21,7 @@ Magnet class >> from: anUri [
 
 { #category : #'as yet unclassified' }
 Magnet >> = aMagnet [
-	^ self infoHash = aMagnet infoHash
+	^ self species == aMagnet species and: [ self infoHash = aMagnet infoHash ]
 ]
 
 { #category : #'as yet unclassified' }
@@ -30,7 +30,8 @@ Magnet >> from: anUri [
 ]
 
 { #category : #'as yet unclassified' }
-Magnet >> hash [
+Magnet >> hashX [
+self halt.
 	^ self infoHash
 ]
 

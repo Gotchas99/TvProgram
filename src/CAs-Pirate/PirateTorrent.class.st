@@ -168,8 +168,7 @@ PirateTorrent class >> validateAll [
 
 { #category : #accessing }
 PirateTorrent >> = aTorrent [
-	aTorrent ifNil: [ ^ false ].
-	^ self magnet infoHash = (PirateTorrent asTorrent: aTorrent) magnet infoHash
+	^ self species == aTorrent species and: [ self magnet = (PirateTorrent asTorrent: aTorrent) magnet ]
 ]
 
 { #category : #testing }

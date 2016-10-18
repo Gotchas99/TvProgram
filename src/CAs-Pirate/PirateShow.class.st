@@ -129,6 +129,11 @@ PirateShow class >> resetUplinks [
 	myShows do: [ 	:sh | sh resetUplinks]
 ]
 
+{ #category : #temporary }
+PirateShow class >> setFullId [
+	PirateShow allEpisodes do: [ :each | each setFullId ]
+]
+
 { #category : #'as yet unclassified' }
 PirateShow class >> shows [
 	Shows isNil ifTrue: [Shows := SortedCollection new].

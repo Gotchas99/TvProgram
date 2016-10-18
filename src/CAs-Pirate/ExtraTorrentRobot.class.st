@@ -1,7 +1,7 @@
 Class {
 	#name : #ExtraTorrentRobot,
 	#superclass : #WRHttpRobot,
-	#category : #'CAs-Pirate'
+	#category : #'CAs-Pirate-Services'
 }
 
 { #category : #'as yet unclassified' }
