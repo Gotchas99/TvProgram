@@ -43,9 +43,9 @@ Magnet >> infoHash [
 			(uri includesSubstring: '?')
 				ifFalse: [ hash := uri ]
 				ifTrue: [ 
-					parts := (uri subStrings: '?') second subStrings: '&'.
+					parts := (uri substrings: '?') second substrings: '&'.
 					xt := parts select: [ :i | i beginsWith: 'xt=urn:btih:' ].
-					hash := (xt first subStrings: ':') third ].
+					hash := (xt first substrings: ':') third ].
 			hash size = 32
 				ifTrue: [ hash := (Base32MimeConverter mimeDecodeToChars: hash readStream) contents asByteArray hex ].
 			infoHash := hash asLowercase ]
@@ -59,9 +59,9 @@ Magnet >> name [
 			(uri includesSubstring: '?')
 				ifFalse: [ name := '<Unknown>' ]
 				ifTrue: [ 
-					parts := (uri subStrings: '?') second subStrings: '&'.
+					parts := (uri substrings: '?') second substrings: '&'.
 					xt := parts select: [ :i | i beginsWith: 'dn=' ].
-					name := (xt first subStrings: '=') second ] ]
+					name := (xt first substrings: '=') second ] ]
 ]
 
 { #category : #'as yet unclassified' }
