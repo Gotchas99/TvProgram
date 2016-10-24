@@ -97,7 +97,7 @@ PirateEpisode >> getRarbgTorrents [
 
 { #category : #torrents }
 PirateEpisode >> getTorrents [
-	| t tpb sem  err extra rarbg |
+	| t tpb sem kat err extra rarbg |
 	t := OrderedCollection new.
 	err := OrderedCollection new.
 	sem := Semaphore new.
@@ -122,7 +122,15 @@ PirateEpisode >> getTorrents [
 	[ 
 	tpb := nil.	"PirateRobot new getShow: self tpbString."
 	sem signal ] fork.
+	self season show kat 
+		ifNotNil: [ 
+				[kat := self getKickassTorrents.
+				sem signal ] fork]
+		ifNil: [
+			 [kat := nil.
+			 sem signal ] fork].
 	sem
+		wait;
 		wait;
 		wait;
 		wait.
@@ -133,6 +141,7 @@ PirateEpisode >> getTorrents [
 	tpb ifNotNil: [ t addAll: tpb ].
 	extra ifNotNil: [ t addAll: extra ].
 	rarbg ifNotNil: [ t addAll: rarbg ].
+	kat ifNotNil: [ t addAll: kat ].
 	#('1080p' 'French' 'spanish' 'subtitulado' 'x265' 'vostfr')
 		do: [ :word | t := t reject: [ :each | each first includesSubstring: word caseSensitive: false ] ].
 	^ t

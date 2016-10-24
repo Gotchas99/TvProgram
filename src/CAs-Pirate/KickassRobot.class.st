@@ -13,8 +13,8 @@ KickassRobot >> getShow: aString [
 KickassRobot >> getShow: aKatString season: aSeasonId episode: anEpisodeId [
 	| rows baseUrl searchRows table url rs a s eps seasons ep epId epRoot |
 	url := aKatString.
-	baseUrl := 'https://kat.cr/'.
-	(aKatString includesSubstring: 'kat.cr')
+	baseUrl := 'https://kickasstorrents2.com/'.
+	(aKatString includesSubstring: 'kickasstorrents2.com')
 		ifFalse: [ url := baseUrl , url ].
 	url := url asZnUrl closePath.
 	[ self newGet: url ]
@@ -55,6 +55,7 @@ KickassRobot >> getShow: aKatString season: aSeasonId episode: anEpisodeId [
 	epRoot ifNil: [ ^ #() ].
 	rows := self parseRows: epRoot children allButFirst.
 	rows := rows reject: [ :each | each isNil ].
+	Transcript crShow: 'Kickass find: ' , rows length.
 	^ rows
 ]
 
@@ -63,7 +64,7 @@ KickassRobot >> getTorrents: aString category: categoryString [
 	| main rows baseUrl suffix searchRows |
 	"sample search string
 	https://kickass.to/usearch/Arrow%20category:tv%20verified:1%20season:13%20episode:20/"
-	baseUrl := 'https://kat.cr/usearch/'.
+	baseUrl := 'https://kickasstorrents2.com/usearch/'.
 	suffix := '%20category:' , categoryString , '%20verified:1/'.
 	[ self newGet: baseUrl , aString , suffix ]
 		on: Exception
