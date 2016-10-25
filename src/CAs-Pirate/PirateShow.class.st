@@ -131,6 +131,7 @@ PirateShow class >> resetUplinks [
 
 { #category : #temporary }
 PirateShow class >> setFullId [
+	PirateShow shows do: [ :show | show seasons do: [ :seas | seas setFullId ] ].
 	PirateShow allEpisodes do: [ :each | each setFullId ]
 ]
 
