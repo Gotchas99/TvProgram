@@ -4,7 +4,8 @@ Class {
 	#instVars : [
 		'show',
 		'episodes',
-		'id'
+		'id',
+		'fullId'
 	],
 	#category : #'CAs-Pirate'
 }
@@ -80,7 +81,7 @@ PirateSeason >> found [
 
 { #category : #accessing }
 PirateSeason >> fullId [
-	^ show name , ' S' , self id
+	^ fullId 
 ]
 
 { #category : #accessing }
@@ -92,7 +93,8 @@ PirateSeason >> id [
 
 { #category : #accessing }
 PirateSeason >> id: aString [
-	id := aString
+	id := aString.
+	self setFullId
 ]
 
 { #category : #'as yet unclassified' }
@@ -166,11 +168,17 @@ PirateSeason >> seasonId [
 ]
 
 { #category : #accessing }
+PirateSeason >> setFullId [
+	fullId := show name , ' S' , self id
+]
+
+{ #category : #accessing }
 PirateSeason >> show [
 	^show
 ]
 
 { #category : #accessing }
 PirateSeason >> show: aShow [
-	^show := aShow
+	show := aShow.
+	self setFullId
 ]
