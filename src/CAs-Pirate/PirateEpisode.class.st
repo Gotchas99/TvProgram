@@ -214,7 +214,8 @@ PirateEpisode >> season: aSeason [
 
 { #category : #torrents }
 PirateEpisode >> setFullId [
-	fullId := season fullId , 'E' , self id
+	(season isNotNil and: [ id isNotNil ])
+		ifTrue: [ fullId := season fullId , 'E' , self id ]
 ]
 
 { #category : #subtitles }

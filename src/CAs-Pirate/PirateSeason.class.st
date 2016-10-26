@@ -169,7 +169,8 @@ PirateSeason >> seasonId [
 
 { #category : #accessing }
 PirateSeason >> setFullId [
-	fullId := show name , ' S' , self id
+	(show isNotNil and: [ id isNotNil ])
+		ifTrue: [ fullId := show name , ' S' , self id ]
 ]
 
 { #category : #accessing }
