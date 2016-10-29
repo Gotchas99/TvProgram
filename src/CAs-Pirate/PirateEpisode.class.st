@@ -49,7 +49,9 @@ PirateEpisode class >> validateAllVideoFiles [
 
 { #category : #'as yet unclassified' }
 PirateEpisode >> <= aPirateEpisode [
-	^(self fullId) caseInsensitiveLessOrEqual: (aPirateEpisode fullId).
+	self species == aPirateEpisode species
+		ifTrue: [ ^ self fullId caseInsensitiveLessOrEqual: aPirateEpisode fullId ]
+		ifFalse: [ ^ false ]
 ]
 
 { #category : #'as yet unclassified' }

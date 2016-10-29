@@ -23,7 +23,21 @@ TheMovieDb >> baseUrl [
 
 { #category : #'as yet unclassified' }
 TheMovieDb >> getEpisodes: aTmdbId [
-	| url request resp dict season episode |
+	| resp dict season episode |
+	resp := self getShowInfo: aTmdbId.
+	dict := Dictionary new.
+	(resp at: 'seasons')
+		do: [ :each | 
+			season := each at: #season_number.
+			episode := each at: #episode_count.
+			dict at: season put: episode ].
+	dict removeKey: 0 ifAbsent: [ nil ].
+	^ dict
+]
+
+{ #category : #'as yet unclassified' }
+TheMovieDb >> getShowInfo: aTmdbId [
+	| url request resp    |
 	url := self baseUrl / #tv / aTmdbId.
 	url queryAt: #api_key add: self apiKey.
 	request := ZnClient new
@@ -35,14 +49,7 @@ TheMovieDb >> getEpisodes: aTmdbId [
 		get;
 		yourself.
 	resp := NeoJSONReader fromString: request contents readStream.
-	dict := Dictionary new.
-	(resp at: 'seasons')
-		do: [ :each | 
-			season := each at: #season_number.
-			episode := each at: #episode_count.
-			dict at: season put: episode ].
-	dict removeKey: 0 ifAbsent: [ nil ].
-	^ dict
+	^ resp
 ]
 
 { #category : #'as yet unclassified' }
