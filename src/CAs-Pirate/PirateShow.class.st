@@ -6,6 +6,7 @@ Class {
 		'seasons',
 		'currentSeason',
 		'archived',
+		'in_production',
 		'tags',
 		'eztv',
 		'imdb',
@@ -181,8 +182,10 @@ PirateShow class >> writeToFileSTON [
 ]
 
 { #category : #comparing }
-PirateShow >> <= aPirateShow [ 
-	^(self name) caseInsensitiveLessOrEqual: (aPirateShow name).
+PirateShow >> <= aPirateShow [
+	self species == aPirateShow species
+		ifTrue: [ ^ self name caseInsensitiveLessOrEqual: aPirateShow name ]
+		ifFalse: [ ^ false ]
 ]
 
 { #category : #'as yet unclassified' }
@@ -266,6 +269,11 @@ PirateShow >> imdb: anObject [
 	 imdb :=anObject isEmptyOrNil
 		ifTrue: [ nil ]
 		ifFalse: [ anObject ]
+]
+
+{ #category : #accessing }
+PirateShow >> in_production [
+	^ in_production ifNil: [ ^ true ]
 ]
 
 { #category : #'initialize-release' }

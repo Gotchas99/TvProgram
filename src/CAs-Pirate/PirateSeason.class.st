@@ -12,7 +12,9 @@ Class {
 
 { #category : #'as yet unclassified' }
 PirateSeason >> <= aPirateSeason [
-	^(self fullId) caseInsensitiveLessOrEqual: (aPirateSeason fullId).
+	self species == aPirateSeason species
+		ifTrue: [ ^ self fullId caseInsensitiveLessOrEqual: aPirateSeason fullId ]
+		ifFalse: [ ^ false ]
 ]
 
 { #category : #'as yet unclassified' }

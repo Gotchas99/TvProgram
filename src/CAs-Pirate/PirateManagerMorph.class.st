@@ -308,26 +308,24 @@ PirateManagerMorph >> editInfo [
 
 { #category : #'model access' }
 PirateManagerMorph >> getEpisodeText: anEpisode [
-"self halt."
+	"self halt."
 
-	^ {(anEpisode id).
-	(anEpisode found
+	^ {(anEpisode id).	"	(anEpisode found
 		ifTrue: [ 'found' ]
-		ifFalse: [ ' - ' ]).
-	(anEpisode newFound
+		ifFalse: [ ' - ' ])."	"	(anEpisode newFound
 		ifTrue: [ 'new' ]
-		ifFalse: [ ' - ' ]).	"(anEpisode isDownloaded)ifTrue:['downloaded']ifFalse:[
+		ifFalse: [ ' - ' ])."	"(anEpisode isDownloaded)ifTrue:['downloaded']ifFalse:[
 		anEpisode torrent isNil ifTrue: [' - '] ifFalse: ['started']]."
 	(anEpisode status).
-	(anEpisode statusCode printString).
-	(anEpisode isViewable 
-		ifTrue: [ 'viewable' ]
-		ifFalse: [ ' - ' ]).
-	(anEpisode hasSubtitle
-		ifTrue: [ 'subs' ]
-		ifFalse: [ ' - ' ]).
+	"(anEpisode statusCode printString)."
 	(anEpisode isViewed
 		ifTrue: [ 'seen' ]
+		ifFalse: [ 
+			anEpisode isViewable
+				ifTrue: [ 'viewable' ]
+				ifFalse: [ ' - ' ] ]).
+	(anEpisode hasSubtitle
+		ifTrue: [ 'subs' ]
 		ifFalse: [ ' - ' ])}
 ]
 
