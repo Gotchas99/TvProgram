@@ -75,7 +75,11 @@ PirateShow class >> new [
 { #category : #temporary }
 PirateShow class >> reSort [
 	self shows reSort.
-	^self
+	self shows
+		do: [ :sh | 
+			sh seasons reSort.
+			sh seasons do: [ :seas | seas episodes reSort ] ].
+	^ self
 ]
 
 { #category : #files }

@@ -115,6 +115,7 @@ PirateApp class >> readFromNewFileSTON [
 	PirateShow shows: (stuff at: #shows).
 	PirateTorrent allTorrents: (stuff at: #allTorrents).
 	PirateTorrent DeathRow: (stuff at: #deathRow).
+	PirateShow reSort.
 	Transcript
 		show: 'File read from STON';
 		cr
