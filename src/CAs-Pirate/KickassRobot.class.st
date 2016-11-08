@@ -11,10 +11,11 @@ KickassRobot >> getShow: aString [
 
 { #category : #'as yet unclassified' }
 KickassRobot >> getShow: aKatString season: aSeasonId episode: anEpisodeId [
-	| rows baseUrl searchRows table url rs a s eps seasons ep epId epRoot |
+	| rows baseUrl searchRows table url domain rs a s eps seasons ep epId epRoot |
 	url := aKatString.
-	baseUrl := 'https://kickasstorrents2.com/'.
-	(aKatString includesSubstring: 'kickasstorrents2.com')
+	domain := 'kickass.cd'.
+	baseUrl := 'https://',domain,'/'.
+	(aKatString includesSubstring: domain)
 		ifFalse: [ url := baseUrl , url ].
 	url := url asZnUrl closePath.
 	[ self newGet: url ]
