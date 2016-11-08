@@ -124,18 +124,27 @@ PirateEpisode >> getTorrents [
 	[ 
 	tpb := nil.	"PirateRobot new getShow: self tpbString."
 	sem signal ] fork.
-	self season show kat 
+	[ kat := nil.
+	sem signal ] fork.
+	"self season show kat 
 		ifNotNil: [ 
-				[kat := self getKickassTorrents.
+				[[kat := self getKickassTorrents.]
+				on: Error
+				do: [ :ex | err add: ex ].
+				Transcript crShow: kat.
 				sem signal ] fork]
 		ifNil: [
 			 [kat := nil.
-			 sem signal ] fork].
+			 sem signal ] fork]."
 	sem
-		wait;
-		wait;
-		wait;
+		wait
+		wait
+		wait
 		wait.
+"	Transcript crShow: tpb.
+	Transcript crShow: extra.
+	Transcript crShow: kat.
+	Transcript crShow: rarbg."
 	err
 		ifNotEmpty: [ 
 			Error signal: err first printString.

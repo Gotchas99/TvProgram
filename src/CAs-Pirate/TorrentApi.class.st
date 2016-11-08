@@ -215,5 +215,5 @@ TorrentApi >> waitForMinTime [
 	| nextTime delay |
 	delay := Delay forMilliseconds: 300.
 	nextTime := self class LastReqTime addSeconds: 2.
-	[ nextTime > DateAndTime now ] whileTrue: [ delay wait ]
+	[ nextTime > Time now ] whileTrue: [  delay wait ]
 ]
