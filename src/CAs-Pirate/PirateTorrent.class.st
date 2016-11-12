@@ -123,6 +123,11 @@ PirateTorrent class >> new [
 ]
 
 { #category : #'as yet unclassified' }
+PirateTorrent class >> resetFolder [
+	self allTorrents do: #resetFolder.
+]
+
+{ #category : #'as yet unclassified' }
 PirateTorrent class >> setUpAllTorrents [
 	| t hasTorrent all inServer |
 	all := Set new.
@@ -403,6 +408,11 @@ PirateTorrent >> removeTorrentAndData [
 	h isEmptyOrNil
 		ifFalse: [ TransmissionClient current removeTorrent: h ].
 	self class allTorrents remove: self ifAbsent: [  ]
+]
+
+{ #category : #converting }
+PirateTorrent >> resetFolder [
+	videoFiles ifNotNil: [ :vfs | vfs do: [ :vf | vf folder: self folder ] ]
 ]
 
 { #category : #accessing }
