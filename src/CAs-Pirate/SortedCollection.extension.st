@@ -5,6 +5,6 @@ SortedCollection class >> fromSton: stonReader [
 	| collection |
 	collection := self new.
 	stonReader parseListDo: [ :each |
-		collection add: each ].
+		collection addLast: each ].
 	^ collection
 ]
