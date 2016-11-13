@@ -21,7 +21,7 @@ TheMovieDb >> baseUrl [
 	^ 'https://api.themoviedb.org/3' asZnUrl
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #api }
 TheMovieDb >> getEpisodes: aTmdbId [
 	| resp dict season episode |
 	resp := self getShowInfo: aTmdbId.
@@ -52,7 +52,7 @@ TheMovieDb >> getShowInfo: aTmdbId [
 	^ resp
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #api }
 TheMovieDb >> getTmdbFromImdb: anImdb [
 	| url request resp id |
 	url := self baseUrl / #find / anImdb.
@@ -69,4 +69,11 @@ TheMovieDb >> getTmdbFromImdb: anImdb [
 	resp := NeoJSONReader fromString: request contents readStream.
 	id := ((resp at: 'tv_results') first at: #id) printString.
 	^ id
+]
+
+{ #category : #api }
+TheMovieDb >> isInProduction: aTmdbId [
+	| resp |
+	resp := self getShowInfo: aTmdbId.
+	^ resp at: 'in_production'
 ]

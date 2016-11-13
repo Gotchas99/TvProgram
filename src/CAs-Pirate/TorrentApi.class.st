@@ -74,7 +74,8 @@ All parameters can be mixed together.
 
 { #category : #'as yet unclassified' }
 TorrentApi class >> LastReqTime [
-	^ LastReqTime ifNil: [ LastReqTime := Time now ]
+	LastReqTime ifNil: [ LastReqTime := DateAndTime now ].
+	^ LastReqTime asDateAndTime
 ]
 
 { #category : #'as yet unclassified' }
@@ -89,7 +90,7 @@ TorrentApi class >> Token: aString [
 
 { #category : #'as yet unclassified' }
 TorrentApi class >> UpdateLastReqTime [
-	^ LastReqTime := Time now
+	^ LastReqTime := DateAndTime now
 ]
 
 { #category : #'as yet unclassified' }
@@ -214,6 +215,6 @@ TorrentApi >> token [
 TorrentApi >> waitForMinTime [
 	| nextTime delay |
 	delay := Delay forMilliseconds: 300.
-	nextTime := self class LastReqTime addSeconds: 2.
-	[ nextTime > Time now ] whileTrue: [  delay wait ]
+	nextTime := self class LastReqTime + 2.
+	[ nextTime > DateAndTime now ] whileTrue: [ delay wait ]
 ]

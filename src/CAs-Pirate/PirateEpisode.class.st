@@ -74,7 +74,8 @@ PirateEpisode >> fullId [
 
 { #category : #torrents }
 PirateEpisode >> getExtraTorrents [
-	^ ExtraTorrentRobot new getTorrents: self fullId
+	"^ ExtraTorrentRobot new getTorrents: self fullId"
+	^nil
 ]
 
 { #category : #deprecated }
@@ -84,7 +85,11 @@ PirateEpisode >> getEztvTorrents [
 
 { #category : #torrents }
 PirateEpisode >> getKickassTorrents [
-	^ KickassRobot new getShow: self season show kat season: self season id episode: self id
+	"self season show kat
+		ifNotNil: [ kat := KickassRobot new getShow: self season show kat season: self season id episode: self id ]
+		ifNil: [ kat := nil ].
+	^ kat"
+	^ nil
 ]
 
 { #category : #torrents }
@@ -94,7 +99,11 @@ PirateEpisode >> getPirateTorrents [
 
 { #category : #torrents }
 PirateEpisode >> getRarbgTorrents [
-	^ TorrentApi new getShow: self season show imdb season: self season id episode: self id
+	| rarbg |
+	self season show imdb
+		ifNotNil: [ rarbg := TorrentApi new getShow: self season show imdb season: self season id episode: self id ]
+		ifNil: [ rarbg := TorrentApi new getShow: self tpbString ].
+	^ rarbg
 ]
 
 { #category : #torrents }
@@ -103,45 +112,25 @@ PirateEpisode >> getTorrents [
 	t := OrderedCollection new.
 	err := OrderedCollection new.
 	sem := Semaphore new.
-	self season show imdb
-		ifNotNil: [ 
-			[ 
-			[ rarbg := self getRarbgTorrents ]
-				on: Error
-				do: [ :ex | err add: ex ].
-			sem signal ] fork ]
-		ifNil: [ 
-			[ 
-			[ rarbg := TorrentApi new getShow: self tpbString ]
-				on: Error
-				do: [ :ex | err add: ex ].
-			sem signal ] fork ].
-	[extra:= nil. 
-	"[ extra := self getExtraTorrents ]
+	[ 
+	[ rarbg := self getRarbgTorrents ]
 		on: Error
-		do: [ :ex | err add: ex ]."
+		do: [ :ex | err add: ex ].
+	sem signal ] fork.
+	[ 
+	[ extra := self getExtraTorrents ]
+		on: Error
+		do: [ :ex | err add: ex ].
 	sem signal ] fork.
 	[ 
 	tpb := nil.	"PirateRobot new getShow: self tpbString."
 	sem signal ] fork.
-	[ kat := nil.
+	[ 
+	[ kat := self getKickassTorrents ]
+		on: Error
+		do: [ :ex | err add: ex ].
 	sem signal ] fork.
-	"self season show kat 
-		ifNotNil: [ 
-				[[kat := self getKickassTorrents.]
-				on: Error
-				do: [ :ex | err add: ex ].
-				Transcript crShow: kat.
-				sem signal ] fork]
-		ifNil: [
-			 [kat := nil.
-			 sem signal ] fork]."
-	sem
-		wait
-		wait
-		wait
-		wait.
-"	Transcript crShow: tpb.
+	sem wait wait wait wait.	"	Transcript crShow: tpb.
 	Transcript crShow: extra.
 	Transcript crShow: kat.
 	Transcript crShow: rarbg."

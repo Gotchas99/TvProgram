@@ -20,6 +20,8 @@ PirateApp class >> initMaid [
 	PirateTorrent updateStatuses.
 	PirateEpisode getVideoFiles.
 	PirateVideo getAllSubtitles.
+	PirateShow checkInProduction.
+	PirateShow setEpisodesFromTmdb.
 	delay wait ] repeat ] newProcess.
 	TheMaid
 		priority: Processor userBackgroundPriority;
