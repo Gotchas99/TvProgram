@@ -158,7 +158,7 @@ PirateShow class >> setFullId [
 ]
 
 { #category : #temporary }
-PirateShow class >> setSortedEpisodes [
+PirateShow class >> setSortedCollections [
 	PirateShow shows do: [ :show | show seasons do: [ :seas | seas setSortedCollection ] ]
 ]
 
