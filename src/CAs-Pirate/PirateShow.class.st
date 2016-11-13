@@ -302,10 +302,19 @@ PirateShow >> imdb [
 ]
 
 { #category : #accessing }
-PirateShow >> imdb: anObject [
-	 imdb :=anObject isEmptyOrNil
-		ifTrue: [ nil ]
-		ifFalse: [ anObject ]
+PirateShow >> imdb: aString [
+	"can accept a full url, an id like tt2741602, 
+	or just the numeric part like 2741602 in the previous example"
+
+	aString isEmptyOrNil
+		ifTrue: [ ^ imdb := nil ]
+		ifFalse: [ 
+			(aString beginsWith: 'http')
+				ifTrue: [ ^ imdb := aString asUrl segments at: 2 ].
+			(aString beginsWith: 'tt')
+				ifTrue: [ ^ imdb := aString ].
+			aString isAllDigits
+				ifTrue: [ ^ imdb := 'tt' , aString ] ]
 ]
 
 { #category : #accessing }
