@@ -356,8 +356,14 @@ PirateShow >> lastSeen [
 
 { #category : #'as yet unclassified' }
 PirateShow >> lookForAll [
-	^ seasons
-		do: [:i | i lookForAll]
+	"^ seasons
+		do: [:i | i lookForAll]"
+
+	| unseen first episodesToDownload |
+	episodesToDownload := 10.
+	unseen := self allEpisodes reject: [ :e | e isViewed ].
+	first := unseen first: episodesToDownload.
+	first do: [ :e | e lookForItIfNotFound ]
 ]
 
 { #category : #accessing }
