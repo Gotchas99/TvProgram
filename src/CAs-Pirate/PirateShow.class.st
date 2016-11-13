@@ -362,7 +362,7 @@ PirateShow >> lookForAll [
 	| unseen first episodesToDownload |
 	episodesToDownload := 10.
 	unseen := self allEpisodes reject: [ :e | e isViewed ].
-	first := unseen first: episodesToDownload.
+	first := unseen first: (episodesToDownload min: unseen size).
 	first do: [ :e | e lookForItIfNotFound ]
 ]
 
