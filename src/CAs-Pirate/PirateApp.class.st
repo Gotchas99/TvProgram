@@ -13,15 +13,13 @@ PirateApp class >> initMaid [
 	| delay plist |
 	plist := Process allInstances reject: [ :p | p isTerminated ].
 	(plist anySatisfy: [ :p | p name = #theMaid ])
-		ifTrue: [ ^ self ].
+		ifTrue: [ 
+			Transcript crShow: 'TheMaid is already running'.
+			^ self ].
 	delay := Delay forSeconds: 60 * 60.	"60 minutes"
 	TheMaid := [ 
 	[ 
-	PirateTorrent updateStatuses.
-	PirateEpisode getVideoFiles.
-	PirateVideo getAllSubtitles.
-	PirateShow checkInProduction.
-	PirateShow setEpisodesFromTmdb.
+	self runMaidTasks.
 	delay wait ] repeat ] newProcess.
 	TheMaid
 		priority: Processor userBackgroundPriority;
@@ -128,6 +126,15 @@ PirateApp class >> readFromNewFileSTON [
 	Transcript
 		show: 'File read from STON';
 		cr
+]
+
+{ #category : #'as yet unclassified' }
+PirateApp class >> runMaidTasks [
+	PirateTorrent updateStatuses.
+	PirateEpisode getVideoFiles.
+	PirateVideo getAllSubtitles.
+	PirateShow checkInProduction.
+	PirateShow setEpisodesFromTmdb
 ]
 
 { #category : #'as yet unclassified' }
