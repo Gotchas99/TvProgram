@@ -336,14 +336,17 @@ PirateManagerMorph >> getSeasonText: aSeason [
 
 { #category : #'model access' }
 PirateManagerMorph >> getShowText: aShow [
-	^{
-		aShow name.
-"		(aShow newEpisodeCount) > 0 ifTrue:['new'] ifFalse:['-']."
-		(aShow imdb) isNil not ifTrue:['imdb'] ifFalse:['-'].
-"		(aShow tmdb) isNil not ifTrue:['tmdb'] ifFalse:['-'].
+	^ {(aShow name).	"		(aShow newEpisodeCount) > 0 ifTrue:['new'] ifFalse:['-']."
+	(aShow imdb isNil not
+		ifTrue: [ 'imdb' ]
+		ifFalse: [ '-' ]).	"		(aShow tmdb) isNil not ifTrue:['tmdb'] ifFalse:['-'].
 		(aShow kat) isNil not ifTrue:['kat'] ifFalse:['-']."
-		(aShow notSeenCount) > 0 ifTrue:['viewable'] ifFalse:['-'].
-	}
+	(aShow notSeenCount > 0
+		ifTrue: [ 'viewable' ]
+		ifFalse: [ '-' ]).
+	(aShow in_production
+		ifTrue: [ '-' ]
+		ifFalse: [ 'Ended' ])}
 ]
 
 { #category : #'initialize-release' }

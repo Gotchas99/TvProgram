@@ -159,7 +159,7 @@ PirateShow class >> setFullId [
 
 { #category : #temporary }
 PirateShow class >> setSortedCollections [
-	PirateShow shows do: [ :show | show seasons do: [ :seas | seas setSortedCollection ] ]
+	PirateShow shows do: [ :show | show setSortedCollection ]
 ]
 
 { #category : #'as yet unclassified' }
@@ -500,6 +500,12 @@ PirateShow >> setEpisodesFromTmdb [
 			s := seasons select: [ :each | each id = s_no ].
 			season := s at: 1 ifAbsent: [ self addSeasonNo: key ].
 			season addEpisodes: (dict at: key) ]
+]
+
+{ #category : #special }
+PirateShow >> setSortedCollection [
+	seasons := seasons asSortedCollection.
+	^ seasons do: [ :i | i setSortedCollection ]
 ]
 
 { #category : #accessing }
