@@ -38,12 +38,19 @@ PirateApp class >> initialize [
 
 { #category : #'as yet unclassified' }
 PirateApp class >> initializeStartupShutdown [
+	self environment
+		at: #SessionManager
+		ifPresent: [ :manager | manager default registerUserClassNamed: self name ]
+		ifAbsent: [ 
+			Smalltalk
+				addToStartUpList: self;
+				addToShutDownList: self ].
 	Smalltalk addToStartUpList: self.
 	Smalltalk addToShutDownList: self.
-	"Remove startup from PirateShow where it used top be"
-	Smalltalk removeFromStartUpList: PirateShow .
-	Smalltalk removeFromShutDownList: PirateShow .
-
+	self environment
+		at: #SessionManager
+		ifPresent: [ :manager | manager default unregisterClassNamed: PirateShow ]
+		ifAbsent: [ Smalltalk removeFromShutDownList: PirateShow ]
 ]
 
 { #category : #files }
