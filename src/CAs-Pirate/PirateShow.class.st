@@ -21,17 +21,16 @@ Class {
 
 { #category : #files }
 PirateShow class >> allEpisodes [
-	| ep |
-	ep := self shows collect: [ :s | s allEpisodes ].
+	| ep sh |
+	sh := self shows reject: [ :s | s archived ].
+	ep := sh collect: [ :s | s allEpisodes ].
 	^ ep flattened
 ]
 
 { #category : #files }
 PirateShow class >> allViewableEpisodes [
-	| ep sh |
-	sh := self shows reject: [ :s | s archived ].
-	ep := sh collect: [ :s | s allEpisodes ].
-	ep := ep flattened select: [ :e | e isViewable ].
+	| ep |
+	ep := self allEpisodes select: [ :e | e isViewable ].
 	^ ep
 ]
 
@@ -42,13 +41,10 @@ PirateShow class >> at: aTitle [
 
 { #category : #'as yet unclassified' }
 PirateShow class >> checkInProduction [
-	| s tmdb i |
+	| s tmdb |
+	self setTmdbId.
 	tmdb := TheMovieDb new.
-	s := PirateShow shows select: [ :sh | sh in_production ].
-	i := s select: [ :sh | sh imdb isNotNil ].
-	i := i select: [ :sh | sh tmdb isNil ].
-	i do: [ :sh | sh tmdb: (tmdb getTmdbFromImdb: sh imdb) ].
-	s := s select: [ :sh | sh tmdb isNotNil ].
+	s := PirateShow shows select: [ :sh | sh tmdb isNotNil ].
 	s do: [ :sh | sh in_production: (tmdb isInProduction: sh tmdb) ]
 ]
 
@@ -148,13 +144,10 @@ PirateShow class >> resetUplinks [
 
 { #category : #'as yet unclassified' }
 PirateShow class >> setEpisodesFromTmdb [
-	| s tmdb i |
+	| s tmdb |
+	self setTmdbId.
 	tmdb := TheMovieDb new.
-	s := PirateShow shows select: [ :sh | sh in_production ].
-	i := s select: [ :sh | sh imdb isNotNil ].
-	i := i select: [ :sh | sh tmdb isNil ].
-	i do: [ :sh | sh tmdb: (tmdb getTmdbFromImdb: sh imdb) ].
-	s := s select: [ :sh | sh tmdb isNotNil ].
+	s := PirateShow shows select: [ :sh | sh tmdb isNotNil ].
 	s do: [ :sh | sh setEpisodesFromTmdb ]
 ]
 
@@ -162,6 +155,22 @@ PirateShow class >> setEpisodesFromTmdb [
 PirateShow class >> setFullId [
 	PirateShow shows do: [ :show | show seasons do: [ :seas | seas setFullId ] ].
 	PirateShow allEpisodes do: [ :each | each setFullId ]
+]
+
+{ #category : #temporary }
+PirateShow class >> setSortedEpisodes [
+	PirateShow shows do: [ :show | show seasons do: [ :seas | seas setSortedCollection ] ]
+]
+
+{ #category : #'as yet unclassified' }
+PirateShow class >> setTmdbId [
+	| s tmdb i |
+	tmdb := TheMovieDb new.
+	s := PirateShow shows select: [ :sh | sh in_production ].
+	i := s select: [ :sh | sh imdb isNotNil ].
+	i := i select: [ :sh | sh tmdb isNil ].
+	i do: [ :sh | sh tmdb: (tmdb getTmdbFromImdb: sh imdb) ].
+	
 ]
 
 { #category : #'as yet unclassified' }

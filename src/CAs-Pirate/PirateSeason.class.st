@@ -10,14 +10,14 @@ Class {
 	#category : #'CAs-Pirate'
 }
 
-{ #category : #'as yet unclassified' }
+{ #category : #comparing }
 PirateSeason >> <= aPirateSeason [
 	self species == aPirateSeason species
 		ifTrue: [ ^ self fullId caseInsensitiveLessOrEqual: aPirateSeason fullId ]
 		ifFalse: [ ^ false ]
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #adding }
 PirateSeason >> addEpisode [
 	| newEpisode |
 	newEpisode := PirateEpisode new.
@@ -26,7 +26,7 @@ PirateSeason >> addEpisode [
 	^newEpisode
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #adding }
 PirateSeason >> addEpisode: anEpisode [
 	anEpisode season: self.
 	(episodes isKindOf: SortedCollection)
@@ -34,7 +34,7 @@ PirateSeason >> addEpisode: anEpisode [
 	episodes add: anEpisode
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #adding }
 PirateSeason >> addEpisodeNo: anInteger [
 	| newEpisode |
 	newEpisode := PirateEpisode new.
@@ -43,12 +43,12 @@ PirateSeason >> addEpisodeNo: anInteger [
 	^newEpisode
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #adding }
 PirateSeason >> addEpisodes: newMax [
 	[ self maxEpisode < newMax ] whileTrue: [ self addEpisode ]
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #actions }
 PirateSeason >> delete [
 	| ep |
 	"episodes do: [:e| e delete]. Doesn't work to change the collection you iterate over"
@@ -61,7 +61,7 @@ PirateSeason >> delete [
 "	super delete."
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #testing }
 PirateSeason >> downloaded [
 	"Is the entire season download, i.e. viewed or viewable"
 
@@ -75,7 +75,7 @@ PirateSeason >> episodes [
 	^episodes 
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 PirateSeason >> found [
 	^ episodes
 		select: [ :i  | i found]
@@ -99,20 +99,20 @@ PirateSeason >> id: aString [
 	self setFullId
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #initialization }
 PirateSeason >> initialize [
 	super initialize.
 	episodes := SortedCollection new.
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #testing }
 PirateSeason >> isViewed [
 	^ episodes isEmptyOrNil
 		ifTrue: [ ^ true ]
 		ifFalse: [ episodes last isViewed ]
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #actions }
 PirateSeason >> lookForAll [
 	self isViewed
 		ifFalse: [ episodes do: [ :i | i lookForItIfNotFound ] ]
@@ -133,38 +133,38 @@ PirateSeason >> name [
 	^show name
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 PirateSeason >> newFound [
 	^ episodes
 		select: [:i | i newFound]
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 PirateSeason >> notSeen [
 	^ episodes
 		select: [:i | i isViewable]
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #printing }
 PirateSeason >> printOn: aStream [ 
 	aStream
 		nextPutAll:  self seasonId
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #actions }
 PirateSeason >> removeEpisode: anEpisode [
 	episodes remove: anEpisode.
 
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #temporaries }
 PirateSeason >> resetUplinks: up [
 	show := up.
 	^ episodes
 		do: [:i | i resetUplinks: self]
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 PirateSeason >> seasonId [
 	^ 'S' , self id
 ]
@@ -173,6 +173,11 @@ PirateSeason >> seasonId [
 PirateSeason >> setFullId [
 	(show isNotNil and: [ id isNotNil ])
 		ifTrue: [ fullId := show name , ' S' , self id ]
+]
+
+{ #category : #temporaries }
+PirateSeason >> setSortedCollection [
+	episodes := episodes asSortedCollection
 ]
 
 { #category : #accessing }
