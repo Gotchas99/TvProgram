@@ -101,7 +101,13 @@ PirateEpisode >> getPirateTorrents [
 PirateEpisode >> getRarbgTorrents [
 	| rarbg |
 	self season show imdb
-		ifNotNil: [ rarbg := TorrentApi new getShow: self season show imdb season: self season id episode: self id ]
+		ifNotNil: [ 
+			"rarbg := TorrentApi new getShow: self season show imdb season: self season id episode: self id ."
+			rarbg := TorrentApi new
+				getShow: self season show imdb
+				season: self season id
+				episode: self id
+				searchString: self show name ]
 		ifNil: [ rarbg := TorrentApi new getShow: self tpbString ].
 	^ rarbg
 ]

@@ -101,7 +101,8 @@ TorrentApi class >> apiMutex [
 { #category : #'as yet unclassified' }
 TorrentApi class >> initialize [
 	super initialize.
-	ApiMutex := Mutex new
+	ApiMutex := Mutex new.
+	self UpdateLastReqTime
 ]
 
 { #category : #'as yet unclassified' }
@@ -113,31 +114,36 @@ TorrentApi >> baseUrl [
 { #category : #'as yet unclassified' }
 TorrentApi >> getShow: aString [
 	Transcript crShow: 'TorrentApi not good for free search: ' , aString.
-	^ #()	"request := self newRequest.
-	request queryAt: #search_string put: aString.
-	^ self sendRequest: request"
+	^ #()
 ]
 
 { #category : #'as yet unclassified' }
 TorrentApi >> getShow: anImdbId season: aSeasonId episode: anEpisodeId [
-	| request resp ret info season epnum |
+	| request season epnum |
 	season := aSeasonId asInteger printString.
 	epnum := anEpisodeId asInteger printString.
 	request := self newRequest.
 	request queryAt: #search_imdb put: anImdbId.
-	resp := self sendRequest: request.
-	ret := resp
-		select: [ :ep | 
-			info := ep at: #episode_info.
-			(info at: 'seasonnum' ifAbsent: '0') = season and: [ (info at: 'epnum') = epnum ] ].
-	ret := ret
-		collect: [ :ep | 
-			Array
-				with: (ep at: #title)
-				with: (ep at: #download)
-				with: (ep at: #seeders)
-				with: (ep at: #leechers) ].
-	^ ret
+	^ self
+		processRequest: request
+		imdb: anImdbId
+		season: season
+		episode: epnum
+]
+
+{ #category : #'as yet unclassified' }
+TorrentApi >> getShow: anImdbId season: aSeasonId episode: anEpisodeId searchString: aString [
+	| request season epnum search |
+	season := aSeasonId asInteger printString.
+	epnum := anEpisodeId asInteger printString.
+	search := aString , ' S' , aSeasonId , 'E' , anEpisodeId.
+	request := self newRequest.
+	request queryAt: #search_string put: search.
+	^ self
+		processRequest: request
+		imdb: anImdbId
+		season: season
+		episode: epnum
 ]
 
 { #category : #'as yet unclassified' }
@@ -181,6 +187,28 @@ TorrentApi >> newRequest [
 		url: url;
 		yourself.
 	^ request
+]
+
+{ #category : #'as yet unclassified' }
+TorrentApi >> processRequest: aRequest imdb: anImdbId season: aSeasonId episode: anEpisodeId [
+	| resp ret info |
+	resp := self sendRequest: aRequest.
+	ret := resp
+		select: [ :ep | 
+			info := ep at: #episode_info.
+			(info at: 'imdb' ifAbsent: '') = anImdbId ].
+	ret := ret
+		select: [ :ep | 
+			info := ep at: #episode_info.
+			(info at: 'seasonnum' ifAbsent: '0') = aSeasonId and: [ (info at: 'epnum') = anEpisodeId ] ].
+	ret := ret
+		collect: [ :ep | 
+			Array
+				with: (ep at: #title)
+				with: (ep at: #download)
+				with: (ep at: #seeders)
+				with: (ep at: #leechers) ].
+	^ ret
 ]
 
 { #category : #'as yet unclassified' }
