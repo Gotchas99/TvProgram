@@ -60,6 +60,7 @@ PirateManagerMorph >> addControls [
 	r2 addMorphBack: lst2.
 	r2c2 addMorphBack: (self newButton: 'Add Season...' do: #addSeason).
 	r2c2 addMorphBack: (self newButton: 'Remove Season...' do: #removeSeason).
+	r2c2 addMorphBack: (self newButton: 'Seen Season...' do: #seenSeason).
 	r2 addMorphBack: r2c2.
 	lst3 := PluggableMultiColumnListMorph
 		on: self
@@ -528,6 +529,18 @@ PirateManagerMorph >> seenEpisode [
 			self changed: #list1.
 			self changed: #list3			
 		]
+]
+
+{ #category : #'event handling' }
+PirateManagerMorph >> seenSeason [
+	| s |
+	listIndex2 > 0
+		ifTrue: [ 
+			s := model2 seasons at: listIndex2.
+			s viewed.
+			self changed: #list1.
+			self changed: #list3	
+			 ]
 ]
 
 { #category : #'event handling' }
