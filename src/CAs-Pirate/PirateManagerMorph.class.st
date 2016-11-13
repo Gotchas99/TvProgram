@@ -338,10 +338,10 @@ PirateManagerMorph >> getSeasonText: aSeason [
 PirateManagerMorph >> getShowText: aShow [
 	^{
 		aShow name.
-		(aShow newEpisodeCount) > 0 ifTrue:['new'] ifFalse:['-'].
+"		(aShow newEpisodeCount) > 0 ifTrue:['new'] ifFalse:['-']."
 		(aShow imdb) isNil not ifTrue:['imdb'] ifFalse:['-'].
-		(aShow tmdb) isNil not ifTrue:['tmdb'] ifFalse:['-'].
-		(aShow kat) isNil not ifTrue:['kat'] ifFalse:['-'].
+"		(aShow tmdb) isNil not ifTrue:['tmdb'] ifFalse:['-'].
+		(aShow kat) isNil not ifTrue:['kat'] ifFalse:['-']."
 		(aShow notSeenCount) > 0 ifTrue:['viewable'] ifFalse:['-'].
 	}
 ]

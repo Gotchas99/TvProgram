@@ -40,6 +40,18 @@ PirateShow class >> at: aTitle [
 	^self shows detect: [ :s | s name = aTitle ]
 ]
 
+{ #category : #'as yet unclassified' }
+PirateShow class >> checkInProduction [
+	| s tmdb i |
+	tmdb := TheMovieDb new.
+	s := PirateShow shows select: [ :sh | sh in_production ].
+	i := s select: [ :sh | sh imdb isNotNil ].
+	i := i select: [ :sh | sh tmdb isNil ].
+	i do: [ :sh | sh tmdb: (tmdb getTmdbFromImdb: sh imdb) ].
+	s := s select: [ :sh | sh tmdb isNotNil ].
+	s do: [ :sh | sh in_production: (tmdb isInProduction: sh tmdb) ]
+]
+
 { #category : #files }
 PirateShow class >> fileName [
 	| folder fileName |
@@ -132,6 +144,18 @@ PirateShow class >> resetUplinks [
 	|  myShows |
 	myShows := self shows.
 	myShows do: [ 	:sh | sh resetUplinks]
+]
+
+{ #category : #'as yet unclassified' }
+PirateShow class >> setEpisodesFromTmdb [
+	| s tmdb i |
+	tmdb := TheMovieDb new.
+	s := PirateShow shows select: [ :sh | sh in_production ].
+	i := s select: [ :sh | sh imdb isNotNil ].
+	i := i select: [ :sh | sh tmdb isNil ].
+	i do: [ :sh | sh tmdb: (tmdb getTmdbFromImdb: sh imdb) ].
+	s := s select: [ :sh | sh tmdb isNotNil ].
+	s do: [ :sh | sh setEpisodesFromTmdb ]
 ]
 
 { #category : #temporary }
@@ -278,6 +302,11 @@ PirateShow >> imdb: anObject [
 { #category : #accessing }
 PirateShow >> in_production [
 	^ in_production ifNil: [ ^ true ]
+]
+
+{ #category : #accessing }
+PirateShow >> in_production: aBoolean [
+	in_production := aBoolean
 ]
 
 { #category : #'initialize-release' }
