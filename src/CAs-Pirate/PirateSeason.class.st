@@ -190,3 +190,8 @@ PirateSeason >> show: aShow [
 	show := aShow.
 	self setFullId
 ]
+
+{ #category : #testing }
+PirateSeason >> viewed [
+	episodes do: [ :e | e viewed ].
+]
