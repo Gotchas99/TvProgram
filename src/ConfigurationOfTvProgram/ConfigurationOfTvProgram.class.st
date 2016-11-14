@@ -124,7 +124,7 @@ ConfigurationOfTvProgram >> baseline01: spec [
 			project: 'NeoJSON' with: [
 				spec
 					className: #ConfigurationOfNeoJSON;
-					versionString: '9';
+					versionString: '13';
 					repository: 'http://mc.stfx.eu/Neo' ];
 			project: 'INIFile' with: [
 				spec
