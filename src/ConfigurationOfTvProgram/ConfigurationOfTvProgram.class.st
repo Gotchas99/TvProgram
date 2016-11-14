@@ -119,7 +119,7 @@ ConfigurationOfTvProgram >> baseline01: spec [
 			project: 'XMLParser' with: [
 				spec
 					className: #ConfigurationOfXMLParser;
-					versionString: '2.4.9';
+					versionString: '2.5.9';
 					repository: 'http://smalltalkhub.com/mc/PharoExtras/XMLParser/main/' ];
 			project: 'NeoJSON' with: [
 				spec
