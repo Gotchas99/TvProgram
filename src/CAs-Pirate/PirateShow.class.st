@@ -41,11 +41,15 @@ PirateShow class >> at: aTitle [
 
 { #category : #'as yet unclassified' }
 PirateShow class >> checkInProduction [
-	| s tmdb |
+	| s tmdb delay |
+	delay := Delay forSeconds: 5.
 	self setTmdbId.
 	tmdb := TheMovieDb new.
 	s := PirateShow shows select: [ :sh | sh tmdb isNotNil ].
-	s do: [ :sh | sh in_production: (tmdb isInProduction: sh tmdb) ]
+	s
+		do: [ :sh | 
+			sh in_production: (tmdb isInProduction: sh tmdb).
+			delay wait ]
 ]
 
 { #category : #files }
@@ -144,11 +148,15 @@ PirateShow class >> resetUplinks [
 
 { #category : #'as yet unclassified' }
 PirateShow class >> setEpisodesFromTmdb [
-	| s tmdb |
+	| s tmdb delay |
+	delay := Delay forSeconds: 5.
 	self setTmdbId.
 	tmdb := TheMovieDb new.
 	s := PirateShow shows select: [ :sh | sh tmdb isNotNil ].
-	s do: [ :sh | sh setEpisodesFromTmdb ]
+	s
+		do: [ :sh | 
+			sh setEpisodesFromTmdb.
+			delay wait ]
 ]
 
 { #category : #temporary }
@@ -164,13 +172,16 @@ PirateShow class >> setSortedCollections [
 
 { #category : #'as yet unclassified' }
 PirateShow class >> setTmdbId [
-	| s tmdb i |
+	| s tmdb i delay |
+	delay := Delay forSeconds: 5.
 	tmdb := TheMovieDb new.
 	s := PirateShow shows select: [ :sh | sh in_production ].
 	i := s select: [ :sh | sh imdb isNotNil ].
 	i := i select: [ :sh | sh tmdb isNil ].
-	i do: [ :sh | sh tmdb: (tmdb getTmdbFromImdb: sh imdb) ].
-	
+	i
+		do: [ :sh | 
+			sh tmdb: (tmdb getTmdbFromImdb: sh imdb).
+			delay wait ]
 ]
 
 { #category : #'as yet unclassified' }
