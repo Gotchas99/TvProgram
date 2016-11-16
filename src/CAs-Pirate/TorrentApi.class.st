@@ -196,8 +196,7 @@ TorrentApi >> processRequest: aRequest imdb: anImdbId season: aSeasonId episode:
 	ret := resp
 		select: [ :ep | 
 			info := ep at: #episode_info.
-			info ifNil: [ false ].
-			(info at: 'imdb' ifAbsent: '') = anImdbId ].
+			info isNotNil and: [ (info at: 'imdb' ifAbsent: '') = anImdbId ] ].
 	ret := ret
 		select: [ :ep | 
 			info := ep at: #episode_info.

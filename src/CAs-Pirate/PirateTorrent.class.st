@@ -205,7 +205,7 @@ PirateTorrent >> createVideoFiles [
 	self containsRarFile
 		ifTrue: [ 
 			self inform: self name , ' is a RAR-file'.
-			self log: self name , ' is a RAR-file'.
+			self crTrace: self name , ' is a RAR-file'.
 			^ nil ].
 	vf := OrderedCollection new.
 	self videoFilenames
@@ -394,7 +394,7 @@ self halt. "kolla alla videofiler först"
 	ifTrue: [
 		self removeTorrentAndData.
 		DeathRow remove: self ifAbsent: [].
-		Transcript show:'deleting torrent:',name;cr] 
+		Transcript crShow:'deleting torrent:',name] 
 ]
 
 { #category : #'as yet unclassified' }

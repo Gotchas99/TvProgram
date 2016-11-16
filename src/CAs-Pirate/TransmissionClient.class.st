@@ -289,7 +289,8 @@ TransmissionClient >> newRequest: aString [
 	request := ZnClient new
 		timeout: 10;
 		numberOfRetries: 3;
-		retryDelay: 2.
+		retryDelay: 2;
+		beOneShot .
 	request url: anURL.
 	request contents: aString.
 	request headerAt: 'x-transmission-session-id' put: xSessionId asString.
