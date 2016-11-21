@@ -254,7 +254,7 @@ TransmissionClient >> isHashInServer: aMagnet [
 { #category : #testing }
 TransmissionClient >> isSeedingComplete: aTorrentId [
 	| args req resp t torrents maxSeedTime |
-	maxSeedTime := 90*24*60*60.
+	maxSeedTime := 90 * 24 * 60 * 60.
 	args := Dictionary new.
 	args at: 'ids' put: aTorrentId.	"		put: 'recently-active'."
 	args
@@ -277,6 +277,8 @@ TransmissionClient >> isSeedingComplete: aTorrentId [
 	t := torrents first.
 	(t at: #totalSize) = 0
 		ifTrue: [ ^ false ].
+	(t at: #isFinished)
+		ifTrue: [ ^ true ].
 	(t at: #secondsSeeding) > maxSeedTime
 		ifTrue: [ ^ true ].
 	^ 0 = (t at: #status)
