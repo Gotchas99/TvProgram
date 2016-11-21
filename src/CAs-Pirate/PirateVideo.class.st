@@ -17,11 +17,11 @@ Class {
 { #category : #'as yet unclassified' }
 PirateVideo class >> getAllSubtitles [
 	| needsSubs delay viewables |
-	delay := Delay forSeconds: 5.	"self halt."
+	delay := Delay forSeconds: 5.
 	viewables := PirateShow allViewableEpisodes.
-	needsSubs := viewables reject: [ :ep | ep hasSubtitle ].
-	needsSubs := needsSubs reject: [ :ep | ep videoFile isNil ].
+	needsSubs := viewables reject: [ :ep | ep videoFile isNil ].
 	needsSubs := needsSubs select: [ :ep | ep videoFile isValid ].
+	needsSubs := needsSubs select: [ :ep | ep needsSubtitle ].
 	needsSubs
 		do: [ :ep | 
 			ep topSubtitles.
