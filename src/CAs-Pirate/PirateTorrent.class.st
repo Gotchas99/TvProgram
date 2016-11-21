@@ -90,11 +90,9 @@ PirateTorrent class >> cleanUpSeedingDoneOnce [
 
 { #category : #'as yet unclassified' }
 PirateTorrent class >> folder [
-	| folder  |
-	"OSPlatform isUnix ifTrue: [ folder := '/media/cm1store/Torrent/' ].
-	OSPlatform isWin32 ifTrue: [ folder := 'O:\Torrent\' ]."
+	| folder |
 	folder := Config current torrentFolder.
-	^folder
+	^ folder
 ]
 
 { #category : #'as yet unclassified' }
@@ -246,19 +244,22 @@ PirateTorrent >> download [
 { #category : #accessing }
 PirateTorrent >> folder [
 	| tmp |
-	"^ folder
-		ifNil: [" 
-			tmp := TransmissionClient current getDir: self torrentHash.
+	tmp := TransmissionClient current getDir: self torrentHash.
+	tmp isEmptyOrNil
+		ifTrue: [ ^ nil ].
+	tmp := tmp asPath.
+	tmp := tmp relativeToPath: self serverRoot asPath.
+	tmp := PirateTorrent folder asPath resolve: tmp.
+	tmp := tmp asFileReference pathString.	"tmp := TransmissionClient current getDir: self torrentHash.
 			tmp isEmptyOrNil ifTrue:[^nil].
 			tmp := tmp copyReplaceAll: self serverRoot with: self localFolder.
 			tmp := tmp copyReplaceAll: self serverRoot2 with: self localFolder.
 			tmp := tmp copyReplaceAll: '\' with: '/'.
 			tmp := tmp copyReplaceAll: '//' with: '/'.
 			(tmp endsWith: '/') ifFalse: [ tmp := tmp ,'/' ].
-			Smalltalk os isWin32 ifTrue: [ tmp := tmp copyReplaceAll: '/' with: '\'. ].
-			folder := tmp.
-			 "]"
-		^folder
+			Smalltalk os isWin32 ifTrue: [ tmp := tmp copyReplaceAll: '/' with: '\'. ]."
+	folder := tmp.
+	^ folder
 ]
 
 { #category : #testing }
