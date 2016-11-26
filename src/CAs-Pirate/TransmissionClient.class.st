@@ -67,9 +67,14 @@ TransmissionClient >> callMethod: aMethod for: aTorrentId with: aListOfFields [
 
 { #category : #access }
 TransmissionClient >> folder [
-	| folder transFolder  |
+	| folder transFolder store fs  path |
 	transFolder := self getDownloadDir.
-	folder := transFolder asFileReference / '_TvProgram'.
+	path := transFolder asPath / '_TvProgram'.
+	self isLinuxServer
+		ifTrue: [ store:= UnixStore new ]
+		ifFalse: [store:= WindowsStore new].
+		fs:= FileSystem store:store.
+	folder:=(fs referenceTo: path) .
 	^ folder
 ]
 
@@ -249,6 +254,13 @@ TransmissionClient >> isHashInServer: aMagnet [
 	resp:=self sendReq: req .
 	torrents := (resp at: #arguments) at: #torrents.
 	^torrents isEmpty not.
+]
+
+{ #category : #private }
+TransmissionClient >> isLinuxServer [
+	| folder |
+	folder:= self getDownloadDir .
+	^folder beginsWith: '/'
 ]
 
 { #category : #testing }
