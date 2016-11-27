@@ -177,6 +177,16 @@ PirateShow class >> shutDown: quitting [
 	self deprecated: 'Moved to PirateApp'
 ]
 
+{ #category : #temporary }
+PirateShow class >> sort [
+	self shows sort.
+	self shows
+		do: [ :sh | 
+			sh seasons sort.
+			sh seasons do: [ :seas | seas episodes sort ] ].
+	^ self
+]
+
 { #category : #'as yet unclassified' }
 PirateShow class >> startUp: resuming [
 	self deprecated: 'Moved to PirateApp'
@@ -202,7 +212,7 @@ PirateShow >> addSeason: aSeason [
 	(seasons isKindOf: SortedCollection)
 		ifFalse: [ seasons := seasons asSortedCollection ].
 	seasons add: aSeason.
-	seasons reSort
+	seasons sort
 ]
 
 { #category : #'as yet unclassified' }
@@ -350,7 +360,7 @@ PirateShow >> name [
 { #category : #accessing }
 PirateShow >> name: aByteString [ 
 	name := aByteString.
-	self class reSort.
+	self class sort.
 ]
 
 { #category : #'as yet unclassified' }
