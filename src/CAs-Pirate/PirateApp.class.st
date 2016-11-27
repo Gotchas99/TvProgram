@@ -8,6 +8,13 @@ Class {
 	#category : #'CAs-Pirate'
 }
 
+{ #category : #files }
+PirateApp class >> fileName [
+	| fileName |
+	fileName := Config current torrentFolder asFileReference / 'TVshows'.
+	^ fileName
+]
+
 { #category : #'as yet unclassified' }
 PirateApp class >> initMaid [
 	| delay plist |
@@ -51,7 +58,7 @@ PirateApp class >> initializeStartupShutdown [
 		ifAbsent: [ Smalltalk removeFromShutDownList: PirateShow ]
 ]
 
-{ #category : #files }
+{ #category : #'as yet unclassified' }
 PirateApp class >> lookForTimeStamps [
 	Checked := Set new.
 	self lookForTimeStampsIn: PirateTorrent DeathRow.
@@ -60,7 +67,7 @@ PirateApp class >> lookForTimeStamps [
 	Checked := nil
 ]
 
-{ #category : #files }
+{ #category : #'as yet unclassified' }
 PirateApp class >> lookForTimeStampsIn: obj [
 	| ivar dt |
 	obj ifNil: [ ^ self ].
@@ -85,7 +92,7 @@ PirateApp class >> lookForTimeStampsIn: obj [
 					ifFalse: [ self lookForTimeStampsIn: ivar ] ] ]
 ]
 
-{ #category : #files }
+{ #category : #'as yet unclassified' }
 PirateApp class >> lookForTimeStampsIn_old: aColl [
 	| tmp ivar |
 	(aColl isKindOf: String)
@@ -108,7 +115,7 @@ PirateApp class >> lookForTimeStampsIn_old: aColl [
 { #category : #files }
 PirateApp class >> readFromNewFile [
 	| stuff fname |
-	fname := self fileName withExtension: 'fuel'.
+	fname := (self fileName withExtension: 'fuel') pathString.
 	stuff := FLMaterializer materializeFromFileNamed: fname.
 	PirateShow shows: (stuff at: #shows).
 	PirateTorrent allTorrents: (stuff at: #allTorrents).
@@ -116,11 +123,11 @@ PirateApp class >> readFromNewFile [
 	Transcript crShow: 'File read'
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #files }
 PirateApp class >> readFromNewFileSTON [
 	| stuff fname |
-	fname := self fileName withExtension: 'ston'.
-	fname asFileReference readStreamDo: [ :stream | stuff := STON fromStream: stream ].
+	fname := (self fileName withExtension: 'ston') asFileReference.
+	fname readStreamDo: [ :stream | stuff := STON fromStream: stream ].
 	PirateShow shows: (stuff at: #shows).
 	PirateTorrent allTorrents: (stuff at: #allTorrents).
 	PirateTorrent DeathRow: (stuff at: #deathRow).	"	PirateShow reSort."
@@ -180,7 +187,7 @@ PirateApp class >> validateState [
 { #category : #files }
 PirateApp class >> writeToNewFile [
 	| stuff fname |
-	fname := self fileName withExtension: 'fuel'.
+	fname := (self fileName withExtension: 'fuel') pathString.
 	stuff := Dictionary
 		newFrom:
 			{(#shows -> PirateShow shows).
@@ -196,7 +203,7 @@ PirateApp class >> writeToNewFile [
 { #category : #files }
 PirateApp class >> writeToNewFileSTON [
 	| stuff fname |
-	fname := self fileName withExtension: 'ston'.
+	fname := (self fileName withExtension: 'ston') asFileReference.
 	stuff := Dictionary
 		newFrom:
 			{(#shows -> PirateShow shows).

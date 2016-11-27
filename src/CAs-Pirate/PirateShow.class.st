@@ -52,13 +52,6 @@ PirateShow class >> checkInProduction [
 			delay wait ]
 ]
 
-{ #category : #files }
-PirateShow class >> fileName [
-	| fileName |
-	fileName := Config current torrentFolder asFileReference / 'TVshows'.
-	^ fileName
-]
-
 { #category : #'initialize-release' }
 PirateShow class >> initialize [ 
 	super initialize .
