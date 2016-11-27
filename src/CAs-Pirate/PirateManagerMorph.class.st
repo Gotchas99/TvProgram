@@ -425,8 +425,8 @@ PirateManagerMorph >> listIndex: anInteger [
 { #category : #'event handling' }
 PirateManagerMorph >> lookForNew [
 	[ 
-	PirateShow shows do: [ :sh | sh lookForAll ].
-	PirateShow writeToFile.
+	PirateShow lookForAll.
+	PirateApp writeToNewFile.
 	Transcript
 		show: '-------------';
 		cr.
