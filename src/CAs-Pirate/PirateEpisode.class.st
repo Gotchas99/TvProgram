@@ -185,6 +185,15 @@ PirateEpisode >> id: aString [
 	self setFullId
 ]
 
+{ #category : #'as yet unclassified' }
+PirateEpisode >> needsSubtitle [
+	self season show archived
+		ifTrue: [ ^ false ].
+	super hasSubtitle
+		ifTrue: [ ^ false ]
+		ifFalse: [ ^ true ].
+]
+
 { #category : #torrents }
 PirateEpisode >> needsTorrent [
 	self season show archived
