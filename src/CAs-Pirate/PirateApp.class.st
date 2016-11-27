@@ -107,8 +107,9 @@ PirateApp class >> lookForTimeStampsIn_old: aColl [
 
 { #category : #files }
 PirateApp class >> readFromNewFile [
-	| stuff |
-	stuff := FLMaterializer materializeFromFileNamed: PirateShow fileName , '_new.fuel'.
+	| stuff fname |
+	fname := self fileName withExtension: 'fuel'.
+	stuff := FLMaterializer materializeFromFileNamed: fname.
 	PirateShow shows: (stuff at: #shows).
 	PirateTorrent allTorrents: (stuff at: #allTorrents).
 	PirateTorrent DeathRow: (stuff at: #deathRow).
@@ -117,12 +118,12 @@ PirateApp class >> readFromNewFile [
 
 { #category : #'as yet unclassified' }
 PirateApp class >> readFromNewFileSTON [
-	| stuff |
-	(PirateShow fileName , '_new.ston') asFileReference readStreamDo: [ :stream | stuff := STON fromStream: stream ].
+	| stuff fname |
+	fname := self fileName withExtension: 'ston'.
+	fname asFileReference readStreamDo: [ :stream | stuff := STON fromStream: stream ].
 	PirateShow shows: (stuff at: #shows).
 	PirateTorrent allTorrents: (stuff at: #allTorrents).
-	PirateTorrent DeathRow: (stuff at: #deathRow).
-"	PirateShow reSort."
+	PirateTorrent DeathRow: (stuff at: #deathRow).	"	PirateShow reSort."
 	Transcript
 		show: 'File read from STON';
 		cr
@@ -152,6 +153,7 @@ PirateApp class >> startUp: resuming [
 	resuming
 		ifTrue: [ 
 			Config current initializeFromFile.
+			[ PirateShow allEpisodes select: [ :e | e isViewed ] thenDo: [ :e | e viewed ] ] fork.
 			self initMaid.
 			Gofer new
 				smalltalkhubUser: 'Gotchas' project: 'TvProgram';
@@ -177,28 +179,30 @@ PirateApp class >> validateState [
 
 { #category : #files }
 PirateApp class >> writeToNewFile [
-	| stuff |
+	| stuff fname |
+	fname := self fileName withExtension: 'fuel'.
 	stuff := Dictionary
 		newFrom:
 			{(#shows -> PirateShow shows).
 			(#allTorrents -> PirateTorrent allTorrents).
 			(#deathRow -> PirateTorrent DeathRow)}.
-	FLSerializer serialize: stuff toFileNamed: PirateShow fileName , '_new.fuel'.
+	FLSerializer serialize: stuff toFileNamed: fname.
 	Transcript
-		show: 'File written';
+		crShow: 'File written';
 		cr.
 	GrowlMorph openWithLabel: 'File written' contents: ''
 ]
 
 { #category : #files }
 PirateApp class >> writeToNewFileSTON [
-	| stuff |
+	| stuff fname |
+	fname := self fileName withExtension: 'ston'.
 	stuff := Dictionary
 		newFrom:
 			{(#shows -> PirateShow shows).
 			(#allTorrents -> PirateTorrent allTorrents).
 			(#deathRow -> PirateTorrent DeathRow)}.
-	(PirateShow fileName , '_new.ston') asFileReference writeStreamDo: [ :stream | STON put: stuff onStream: stream ].
+	fname writeStreamDo: [ :stream | STON put: stuff onStream: stream ].
 	Transcript
 		show: 'File written to STON';
 		cr.

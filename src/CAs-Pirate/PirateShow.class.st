@@ -54,12 +54,9 @@ PirateShow class >> checkInProduction [
 
 { #category : #files }
 PirateShow class >> fileName [
-	| folder fileName |
-	"OSPlatform isUnix ifTrue: [ folder := '/media/cm1store/' ].
-	OSPlatform isWin32 ifTrue: [ folder := 'O:\' ]."
-	folder := Config current torrentFolder.
-	fileName := folder, 	'/TVshows'.
-	^fileName
+	| fileName |
+	fileName := Config current torrentFolder asFileReference / 'TVshows'.
+	^ fileName
 ]
 
 { #category : #'initialize-release' }
@@ -74,6 +71,11 @@ PirateShow class >> initializeStartupShutdown [
 	Smalltalk addToStartUpList: self.
 	Smalltalk addToShutDownList: self."
 
+]
+
+{ #category : #files }
+PirateShow class >> lookForAll [
+	PirateShow shows reject: [ :sh | sh archived ] thenDo: [ :sh | sh lookForAll ]
 ]
 
 { #category : #'as yet unclassified' }
@@ -92,24 +94,6 @@ PirateShow class >> reSort [
 			sh seasons reSort.
 			sh seasons do: [ :seas | seas episodes reSort ] ].
 	^ self
-]
-
-{ #category : #files }
-PirateShow class >> readFromFile [
-	Shows := FLMaterializer materializeFromFileNamed: (self fileName,'.fuel').
-	Transcript show: 'File read'; cr.
-
-]
-
-{ #category : #files }
-PirateShow class >> readFromFileSTON [
-	"	Shows := FLMaterializer materializeFromFileNamed: self fileName."
-
-	(self fileName , '.ston') asFileReference
-		readStreamDo: [ :stream | Shows := STON fromStream: stream ].
-	Transcript
-		show: 'File read from STON';
-		cr
 ]
 
 { #category : #'as yet unclassified' }
@@ -203,30 +187,6 @@ PirateShow class >> shutDown: quitting [
 { #category : #'as yet unclassified' }
 PirateShow class >> startUp: resuming [
 	self deprecated: 'Moved to PirateApp'
-]
-
-{ #category : #files }
-PirateShow class >> writeToFile [
-	FLSerializer serialize: self shows toFileNamed: self fileName,'.fuel'.
-	Transcript show: 'File written'; cr.
-	GrowlMorph openWithLabel: 'File written' contents: ''.
-]
-
-{ #category : #files }
-PirateShow class >> writeToFileBG [
-	[self writeToFile ] forkAt: Processor userBackgroundPriority .
-
-]
-
-{ #category : #files }
-PirateShow class >> writeToFileSTON [
-	"FLSerializer serialize: self shows toFileNamed: self fileName."
-	(self fileName , '.ston') asFileReference writeStreamDo: 
-		[ :stream | STON put: self shows onStream: stream ].
-	Transcript
-		show: 'File written to STON';
-		cr.
-	GrowlMorph openWithLabel: 'File written' contents: 'to STON'
 ]
 
 { #category : #comparing }

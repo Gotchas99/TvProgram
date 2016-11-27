@@ -221,8 +221,6 @@ TorrentApi >> sendRequest: aZnClient [
 			resp := NeoJSONReader fromString: aZnClient contents readStream.
 			self class UpdateLastReqTime ].
 	error_code := resp at: #error_code ifAbsent: 0.
-	error_code > 0
-		ifTrue: [ Transcript logCr: 'TorrentApi: ' , (resp at: #error) ].
 	(#(2 3 4) includes: error_code)
 		ifTrue: [ 
 			aZnClient queryAt: #token put: self getToken.
@@ -231,6 +229,8 @@ TorrentApi >> sendRequest: aZnClient [
 		ifTrue: [ ^ #() ].	"Cant find imdb in database. Are you sure this imdb exists?"
 	error_code = 20
 		ifTrue: [ ^ #() ].	"Nothing found"
+	error_code > 0
+		ifTrue: [ Transcript logCr: 'TorrentApi: ' , error_code printString , ', ' , (resp at: #error) ].
 	^ resp at: #torrent_results ifAbsent: #()
 ]
 

@@ -76,16 +76,18 @@ PirateTorrent class >> atAllInstances: aHash [
 
 { #category : #'as yet unclassified' }
 PirateTorrent class >> cleanUpSeedingDoneOnce [
-	| done |
-	done := self DeathRow select: [ :i | i isInServer not or: [ i isSeedingComplete ] ].
+	| done gone |
+	done := self DeathRow select: [ :i | i isSeedingComplete ].
+	gone := Set new.
 	done
 		do: [ :i | 
 			i removeTorrentAndData.
-			DeathRow remove: i ifAbsent: [  ].
+			gone add: i.
 			Transcript
 				show: 'deleting torrent:' , i name;
 				cr.
-			GrowlMorph openWithLabel: 'Torrent deleted' contents: i name ]
+			GrowlMorph openWithLabel: 'Torrent deleted' contents: i name ].
+	DeathRow removeAllFoundIn: gone
 ]
 
 { #category : #'as yet unclassified' }
@@ -167,6 +169,13 @@ PirateTorrent class >> validateAll [
 		do: [ :t | 
 			Transcript crShow: 'Removing torrent (not in server): ' , t name.
 			t removeTorrentAndData ]
+]
+
+{ #category : #accessing }
+PirateTorrent >> <= aTorrent [
+	self species == aTorrent species
+		ifTrue: [ ^ self name caseInsensitiveLessOrEqual: aTorrent name ]
+		ifFalse: [ ^ false ]
 ]
 
 { #category : #accessing }
@@ -407,7 +416,7 @@ PirateTorrent >> removeTorrentAndData [
 			videoFiles := nil ].
 	h := self torrentHash.
 	h isEmptyOrNil
-		ifFalse: [ TransmissionClient current removeTorrent: h ].
+		ifFalse: [ [ TransmissionClient current removeTorrent: h ] fork ].
 	self class allTorrents remove: self ifAbsent: [  ]
 ]
 
