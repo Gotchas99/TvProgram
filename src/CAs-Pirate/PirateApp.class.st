@@ -157,10 +157,14 @@ PirateApp class >> shutDown: quitting [
 
 { #category : #'as yet unclassified' }
 PirateApp class >> startUp: resuming [
+	| seen t |
 	resuming
 		ifTrue: [ 
 			Config current initializeFromFile.
-			[ PirateShow allEpisodes select: [ :e | e isViewed ] thenDo: [ :e | e viewed ] ] fork.
+			[ 
+			seen := PirateShow allEpisodes select: [ :e | e isViewed ].
+			t := seen reject: [ :e | e torrent isNil ] thenCollect: [ :e | e torrent ].
+			t do: [ :torr | torr doneWithThis ] ] fork.
 			self initMaid.
 			Gofer new
 				smalltalkhubUser: 'Gotchas' project: 'TvProgram';

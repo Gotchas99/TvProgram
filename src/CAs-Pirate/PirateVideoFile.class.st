@@ -92,7 +92,7 @@ PirateVideoFile >> fullVideoFilename [
 	| fname |
 	self folder ifNil: [ ^ nil ].
 	self videoFilename ifNil: [ ^ nil ].
-	fname := self folder / videoFilename.
+	fname := self folder resolveString: videoFilename.
 	^ fname
 ]
 
@@ -154,8 +154,7 @@ PirateVideoFile >> initialize [
 
 { #category : #testing }
 PirateVideoFile >> isSeen [
-	^ viewTime isNil not
-		"	video ifNil: [ ^ false ] ifNotNil: [ ^ video isViewed ]" 
+	^ viewTime isNotNil or: [ self isValid not ]
 ]
 
 { #category : #testing }
