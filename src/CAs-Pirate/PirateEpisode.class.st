@@ -189,9 +189,7 @@ PirateEpisode >> id: aString [
 PirateEpisode >> needsSubtitle [
 	self season show archived
 		ifTrue: [ ^ false ].
-	super hasSubtitle
-		ifTrue: [ ^ false ]
-		ifFalse: [ ^ true ].
+	^ super hasSubtitle not
 ]
 
 { #category : #torrents }

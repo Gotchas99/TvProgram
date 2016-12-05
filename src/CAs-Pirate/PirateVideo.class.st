@@ -15,13 +15,30 @@ Class {
 }
 
 { #category : #'as yet unclassified' }
+PirateVideo class >> checkTorrentStatus [
+	| t eps |
+	eps := PirateShow allEpisodes.
+	t := eps select: [ :e | e torrent isNotNil ].
+	t isEmptyOrNil
+		ifTrue: [ ^ nil ].
+	t := t
+		do: [ :e | 
+			WorldState
+				addDeferredUIMessage: [ 
+					Transcript
+						show: 'checkStatus: ' , e fullId;
+						cr ].
+			e torrent checkStatus ]
+]
+
+{ #category : #'as yet unclassified' }
 PirateVideo class >> getAllSubtitles [
 	| needsSubs delay viewables |
 	delay := Delay forSeconds: 5.
 	viewables := PirateShow allViewableEpisodes.
 	needsSubs := viewables reject: [ :ep | ep videoFile isNil ].
 	needsSubs := needsSubs select: [ :ep | ep videoFile isValid ].
-	needsSubs := needsSubs select: [ :ep | ep needsSubtitle ].
+	needsSubs := needsSubs select: [ :ep | ep videoFile needsSubtitle ].
 	needsSubs
 		do: [ :ep | 
 			ep topSubtitles.
@@ -388,22 +405,23 @@ PirateVideo >> validateTorrent [
 	self isViewed
 		ifTrue: [ 
 			videoFile ifNotNil: [ videoFile doneWithThis ].
-			torrent doneWithThis ].
-	torrent isInServer
+			torrent doneWithThis ]
 		ifFalse: [ 
-			self download.
-			Transcript crShow: 'Adding torrent to Transmission: ' , self printString ]
-		ifTrue: [ 
-			t := PirateTorrent at: torrent torrentHash.
-			t
-				ifNil: [ 
-					PirateTorrent allTorrents add: torrent.
-					Transcript crShow: 'Adding torrent from: ' , self printString ]
-				ifNotNil: [ 
-					t = torrent
-						ifFalse: [ 
-							self torrent: t.
-							Transcript crShow: 'Replacing torrent from: ' , self printString ] ] ]
+			torrent isInServer
+				ifFalse: [ 
+					self download.
+					Transcript crShow: 'Adding torrent to Transmission: ' , self printString ]
+				ifTrue: [ 
+					t := PirateTorrent at: torrent torrentHash.
+					t
+						ifNil: [ 
+							PirateTorrent allTorrents add: torrent.
+							Transcript crShow: 'Adding torrent from: ' , self printString ]
+						ifNotNil: [ 
+							t = torrent
+								ifFalse: [ 
+									self torrent: t.
+									Transcript crShow: 'Replacing torrent from: ' , self printString ] ] ] ]
 ]
 
 { #category : #validation }
