@@ -175,16 +175,19 @@ PirateManagerMorph >> addSeason [
 { #category : #'event handling' }
 PirateManagerMorph >> addShow [
 	| name sh |
-	name := UIManager default request: 'Name of new show'.
-	name isEmpty
+	name := UIManager default request: 'Name or IMDB of new show'.
+	name isEmptyOrNil
+		ifTrue: [ ^ self ].
+		sh := PirateShow new.
+	(self isImdbId: name)
+		ifTrue: [ sh imdb: name ]
 		ifFalse: [ 
-			sh := PirateShow new.
-			sh name: name.
-			self changed: #list.
-			self selectShow: name.
-			self listIndex2: 0.
-			model3 := nil.
-			self changed: #list3 ]
+			sh name: name ].
+	self changed: #list.
+	self selectShow: name.
+	self listIndex2: 0.
+	model3 := nil.
+	self changed: #list3
 ]
 
 { #category : #'event handling' }
@@ -337,7 +340,7 @@ PirateManagerMorph >> getSeasonText: aSeason [
 
 { #category : #'model access' }
 PirateManagerMorph >> getShowText: aShow [
-	^ {(aShow name).	"		(aShow newEpisodeCount) > 0 ifTrue:['new'] ifFalse:['-']."
+	^ {aShow displayName.	"		(aShow newEpisodeCount) > 0 ifTrue:['new'] ifFalse:['-']."
 	(aShow imdb isNil not
 		ifTrue: [ 'imdb' ]
 		ifFalse: [ '-' ]).	"		(aShow tmdb) isNil not ifTrue:['tmdb'] ifFalse:['-'].
@@ -364,6 +367,19 @@ PirateManagerMorph >> inspectEpisode [
 		ifTrue: [ ^ self ].
 	ep := model3 episodes at: listIndex3.
 	ep inspect
+]
+
+{ #category : #testing }
+PirateManagerMorph >> isImdbId: aString [
+aString isEmptyOrNil
+		ifTrue: [ ^ false ].
+	(aString beginsWith: 'http')
+		ifTrue: [ ^true].
+	(aString beginsWith: 'tt')
+		ifTrue: [ ^true ].
+	aString isAllDigits
+		ifTrue: [ ^true ].
+	^ false
 ]
 
 { #category : #'model access' }
@@ -462,11 +478,16 @@ PirateManagerMorph >> play [
 { #category : #'event handling' }
 PirateManagerMorph >> playStopped [
 	(self confirm: 'Did you see the entire show?')
-		ifTrue: [ 
-			playingEp viewed.
+		ifTrue: [ playingEp viewed.
+			[ playingEp show lookForAll ] fork .
 			self changed: #list1.
 			self changed: #list3 ].
 	playingEp removeActionsWithReceiver: self	"(self confirm: 'Subtitles OK?') ifTrue: [ep viewed.]."
+		
+	
+
+
+
 ]
 
 { #category : #'event handling' }

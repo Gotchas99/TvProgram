@@ -138,10 +138,15 @@ PirateApp class >> readFromNewFileSTON [
 
 { #category : #'as yet unclassified' }
 PirateApp class >> runMaidTasks [
+	Transcript crShow: 'Starting to update statuses'.
 	PirateTorrent updateStatuses.
+	Transcript crShow: 'Starting to get videofiles'.
 	PirateEpisode getVideoFiles.
+	Transcript crShow: 'Starting to get subtitles'.
 	PirateVideo getAllSubtitles.
+	Transcript crShow: 'Starting to check if show is inproduction'.
 	PirateShow checkInProduction.
+	Transcript crShow: 'Starting to get episode count from TMDB'.
 	PirateShow setEpisodesFromTmdb
 ]
 

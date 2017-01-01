@@ -160,14 +160,10 @@ VlcClient >> startAskingPos [
 { #category : #'process creation' }
 VlcClient >> startListener [
 	| line |
-	[ 
-	[ 
-	[ 
-	line := stream nextLine.
+	[ [ [ line := stream nextLine.
 	self processLine: line ] repeat ]
 		on: ConnectionClosed
-		do: [ 
-			self crLog: 'socket closed'.
+		do: [ "self crLog: 'socket closed'."
 			self closeStream.
 			self triggerEvent: #stoppedAt: with: pos ] ] forkAt: Processor userBackgroundPriority
 ]
