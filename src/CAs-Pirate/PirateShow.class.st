@@ -195,7 +195,7 @@ PirateShow class >> startUp: resuming [
 { #category : #comparing }
 PirateShow >> <= aPirateShow [
 	self species == aPirateShow species
-		ifTrue: [ ^ self name caseInsensitiveLessOrEqual: aPirateShow name ]
+		ifTrue: [ ^ self sortName caseInsensitiveLessOrEqual: aPirateShow sortName ]
 		ifFalse: [ ^ false ]
 ]
 
@@ -230,7 +230,7 @@ PirateShow >> addTag: aString [
 	self tags addIfNotPresent: aString 
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 PirateShow >> allEpisodes [
 	| ep |
 	ep := seasons collect: [ :s | s episodes ].
@@ -260,6 +260,13 @@ PirateShow >> delete [
 	seasons do: [:s| s delete].
 ]
 
+{ #category : #accessing }
+PirateShow >> displayName [
+	"Name adapted for displaying in a list"
+
+	^ self sortName
+]
+
 { #category : #deprecated }
 PirateShow >> eztv [
 	^ eztv
@@ -281,14 +288,14 @@ PirateShow >> imdb: aString [
 	or just the numeric part like 2741602 in the previous example"
 
 	aString isEmptyOrNil
-		ifTrue: [ ^ imdb := nil ]
-		ifFalse: [ 
-			(aString beginsWith: 'http')
-				ifTrue: [ ^ imdb := aString asUrl segments at: 2 ].
-			(aString beginsWith: 'tt')
-				ifTrue: [ ^ imdb := aString ].
-			aString isAllDigits
-				ifTrue: [ ^ imdb := 'tt' , aString ] ]
+		ifTrue: [ ^ imdb := nil ].
+	(aString beginsWith: 'http')
+		ifTrue: [ imdb := aString asUrl segments at: 2 ].
+	(aString beginsWith: 'tt')
+		ifTrue: [ imdb := aString ].
+	aString isAllDigits
+		ifTrue: [ imdb := 'tt' , aString ].
+		[ self setNameFromTmdb .self setEpisodesFromTmdb .self setTagsFromTmdb  ]fork.
 ]
 
 { #category : #accessing }
@@ -307,12 +314,12 @@ PirateShow >> initialize [
 	seasons := SortedCollection new.
 ]
 
-{ #category : #accessing }
+{ #category : #deprecated }
 PirateShow >> kat [
 	^ kat
 ]
 
-{ #category : #accessing }
+{ #category : #deprecated }
 PirateShow >> kat: anObject [
 	kat := anObject isEmptyOrNil
 		ifTrue: [ nil ]
@@ -330,11 +337,10 @@ PirateShow >> lastSeen [
 
 { #category : #'as yet unclassified' }
 PirateShow >> lookForAll [
-	"^ seasons
-		do: [:i | i lookForAll]"
+
 
 	| unseen first episodesToDownload |
-	episodesToDownload := 10.
+	episodesToDownload := Config current episodesAhead.
 	unseen := self allEpisodes reject: [ :e | e isViewed ].
 	first := unseen first: (episodesToDownload min: unseen size).
 	first do: [ :e | e lookForItIfNotFound ]
@@ -353,8 +359,9 @@ PirateShow >> maxSeason [
 
 { #category : #accessing }
 PirateShow >> name [
-	name isNil ifTrue: [^'undefined'].
-	^name
+	name isNil
+		ifTrue: [ ^ '<undefined>' ].
+	^ name
 ]
 
 { #category : #accessing }
@@ -482,10 +489,48 @@ PirateShow >> setEpisodesFromTmdb [
 			season addEpisodes: (dict at: key) ]
 ]
 
+{ #category : #'as yet unclassified' }
+PirateShow >> setNameFromTmdb [
+	|tmp |
+	self halt.
+	self tmdb
+		ifNil: [ self imdb ifNil: [ ^ self ].
+			self tmdb: (TheMovieDb new getTmdbFromImdb: self imdb) ].
+	tmp := TheMovieDb new getName: self tmdb.
+	self name: tmp
+	
+]
+
 { #category : #special }
 PirateShow >> setSortedCollection [
 	seasons := seasons asSortedCollection.
 	^ seasons do: [ :i | i setSortedCollection ]
+]
+
+{ #category : #'as yet unclassified' }
+PirateShow >> setTagsFromTmdb [
+	| dict s s_no season |
+	self tmdb
+		ifNil: [ self imdb ifNil: [ ^ self ].
+			self tmdb: (TheMovieDb new getTmdbFromImdb: self imdb) ].
+	tags := TheMovieDb new getTags: self tmdb.
+
+]
+
+{ #category : #comparing }
+PirateShow >> sortName [
+	"Name adapted for sorting"
+
+	| prefix words tmp first |
+	prefix := #('A' 'An' 'The').
+	tmp := self name.
+	words := tmp findBetweenSubstrings: ' '.
+	first := words first.
+	prefix
+		do: [ :p | 
+			(p sameAs: first)
+				ifTrue: [ tmp := (words allButFirst joinUsing: ' ') , ', ' , p ] ].
+	^ tmp
 ]
 
 { #category : #accessing }

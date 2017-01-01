@@ -72,9 +72,9 @@ PirateViewableMorph >> getEpisodeText: anEpisode [
 	^ {(anEpisode isPaused
 		ifTrue: [ '*' ]
 		ifFalse: [ '' ]).
-	(anEpisode season show name).
-	(anEpisode season id).
-	(anEpisode id).
+	anEpisode season show displayName.
+	anEpisode season id.
+	anEpisode id.
 	(anEpisode hasSubtitle
 		ifTrue: [ 'subs' ]
 		ifFalse: [ ' - ' ]).
@@ -136,7 +136,8 @@ PirateViewableMorph >> play [
 { #category : #'as yet unclassified' }
 PirateViewableMorph >> playStopped [
 	(self confirm: 'Did you see the entire show?')
-		ifTrue: [ playingEp viewed ].
+		ifTrue: [ playingEp viewed .
+			[playingEp show lookForAll ]fork].
 	playingEp removeActionsWithReceiver: self.
 	self refresh.
 	self changed: #list	"(self confirm: 'Subtitles OK?') ifTrue: [  ]."

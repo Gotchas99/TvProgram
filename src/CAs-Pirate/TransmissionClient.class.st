@@ -80,15 +80,17 @@ TransmissionClient >> folder [
 
 { #category : #access }
 TransmissionClient >> getAll [
-	| args req resp t torrents |
+	| args req resp |
 	args := Dictionary new.
-	args at: 'fields' put: {'id'. 'name'. 'totalSize'. 'files'. 'percentDone'. 'hashString'. 'status'} .
+	args
+		at: 'fields'
+		put: {'id' . 'name' . 'totalSize' . 'files' . 'percentDone' . 'hashString' . 'status'}.
 	req := Dictionary new.
 	req at: 'method' put: 'torrent-get'.
 	req at: 'arguments' put: args.
-	"^" 
-	resp:=self sendReq: req .
-	^torrents := (resp at: #arguments) at: #torrents
+	"^"
+	resp := self sendReq: req.
+	^ (resp at: #arguments) at: #torrents
 ]
 
 { #category : #access }
@@ -222,19 +224,14 @@ TransmissionClient >> initialize [
 { #category : #testing }
 TransmissionClient >> isDownloadComplete: aTorrentId [
 	| t torrents fields |
-	fields := {'id'.
-	'totalSize'.
-	'leftUntilDone'.
-	'isFinished'.
-	'percentDone'.
-	'status'}.
+	fields := {'id' . 'totalSize' . 'leftUntilDone' . 'isFinished'.
+	'percentDone' . 'status'}.
 	torrents := self callMethod: 'torrent-get' for: aTorrentId with: fields.
 	torrents isEmpty
 		ifTrue: [ ^ false ].
 	t := torrents first.
 	(t at: #totalSize) = 0
 		ifTrue: [ ^ false ].
-	Transcript show: (t at: #status).
 	^ 0 = (t at: #leftUntilDone)
 ]
 
@@ -268,16 +265,11 @@ TransmissionClient >> isSeedingComplete: aTorrentId [
 	| args req resp t torrents maxSeedTime |
 	maxSeedTime := 90 * 24 * 60 * 60.
 	args := Dictionary new.
-	args at: 'ids' put: aTorrentId.	"		put: 'recently-active'."
+	args at: 'ids' put: aTorrentId.
 	args
 		at: 'fields'
 		put:
-			{'id'.
-			'totalSize'.
-			'leftUntilDone'.
-			'isFinished'.
-			'percentDone'.
-			'secondsSeeding'.
+			{'id' . 'totalSize' . 'leftUntilDone' . 'isFinished' . 'percentDone' . 'secondsSeeding'.
 			'status'}.
 	req := Dictionary new.
 	req at: 'method' put: 'torrent-get'.

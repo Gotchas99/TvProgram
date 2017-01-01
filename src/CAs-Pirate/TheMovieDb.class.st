@@ -35,6 +35,14 @@ TheMovieDb >> getEpisodes: aTmdbId [
 	^ dict
 ]
 
+{ #category : #api }
+TheMovieDb >> getName: aTmdbId [
+	| resp    |
+	resp := self getShowInfo: aTmdbId.
+
+	^ resp at: 'name'
+]
+
 { #category : #'as yet unclassified' }
 TheMovieDb >> getShowInfo: aTmdbId [
 	| url request resp    |
@@ -50,6 +58,18 @@ TheMovieDb >> getShowInfo: aTmdbId [
 		yourself.
 	resp := NeoJSONReader fromString: request contents readStream.
 	^ resp
+]
+
+{ #category : #api }
+TheMovieDb >> getTags: aTmdbId [
+	| resp genres |
+	resp := self getShowInfo: aTmdbId.
+
+	genres :=(resp at: 'genres')
+		collect: [ :each | 
+			 (each at: #name).
+			 ].
+	^ genres sorted
 ]
 
 { #category : #api }

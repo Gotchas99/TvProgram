@@ -13,6 +13,7 @@ Class {
 		'folder'
 	],
 	#classVars : [
+		'AllStatus',
 		'AllTorrents',
 		'DeathRow',
 		'Reaper'
@@ -148,15 +149,27 @@ PirateTorrent class >> setUpAllTorrents [
 
 { #category : #'as yet unclassified' }
 PirateTorrent class >> updateStatuses [
-	| allStats notInServer |
+	| allStats  |
 	allStats := TransmissionClient current getAll.
-	allStats
+	AllStatus := Dictionary new.
+	allStats do: [ :s | AllStatus at: (s at: 'hashString') put: (s at: 'status') ].
+	PirateShow allEpisodes
+		reject: [ :e | e torrent isNil ]
+		thenDo: [ :e | e torrent status: (AllStatus at: e torrent torrentHash ifAbsent: [ -1 ]) ]
+	
+]
+
+{ #category : #'as yet unclassified' }
+PirateTorrent class >> updateStatuses_old [
+	|  notInServer |
+	AllStatus := TransmissionClient current getAll.
+	AllStatus
 		do: [ :s | 
 			| t |
 			t := self at: (s at: #hashString).
-			t ifNotNilDo: [ :i | i status: (s at: #status) ] ].
+			t ifNotNil: [ :i | i status: (s at: #status) ] ].
 	notInServer := self allTorrents
-		reject: [ :t | allStats anySatisfy: [ :each | (each at: #hashString) = t torrentHash ] ].
+		reject: [ :t | AllStatus anySatisfy: [ :each | (each at: #hashString) = t torrentHash ] ].
 	notInServer do: [ :t | t status: -1 ]
 ]
 
