@@ -138,7 +138,7 @@ PirateApp class >> readFromNewFileSTON [
 
 { #category : #'as yet unclassified' }
 PirateApp class >> runMaidTasks [
-	Transcript crShow: 'Starting to update statuses'.
+	[ Transcript crShow: 'Starting to update statuses'.
 	PirateTorrent updateStatuses.
 	Transcript crShow: 'Starting to get videofiles'.
 	PirateEpisode getVideoFiles.
@@ -147,7 +147,9 @@ PirateApp class >> runMaidTasks [
 	Transcript crShow: 'Starting to check if show is inproduction'.
 	PirateShow checkInProduction.
 	Transcript crShow: 'Starting to get episode count from TMDB'.
-	PirateShow setEpisodesFromTmdb
+	PirateShow setEpisodesFromTmdb ]
+		on: Error
+		do: [ :exception | Transcript crShow: 'Exception on MaidTask:';crShow: exception description ]
 ]
 
 { #category : #'as yet unclassified' }

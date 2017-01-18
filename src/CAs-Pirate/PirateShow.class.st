@@ -492,7 +492,7 @@ PirateShow >> setEpisodesFromTmdb [
 { #category : #'as yet unclassified' }
 PirateShow >> setNameFromTmdb [
 	|tmp |
-	self halt.
+"	self halt."
 	self tmdb
 		ifNil: [ self imdb ifNil: [ ^ self ].
 			self tmdb: (TheMovieDb new getTmdbFromImdb: self imdb) ].
@@ -524,7 +524,7 @@ PirateShow >> sortName [
 	| prefix words tmp first |
 	prefix := #('A' 'An' 'The').
 	tmp := self name.
-	words := tmp findBetweenSubstrings: ' '.
+	words := tmp findBetweenSubstrings:  ' '.
 	first := words first.
 	prefix
 		do: [ :p | 
