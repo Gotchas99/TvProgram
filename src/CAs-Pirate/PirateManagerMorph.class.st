@@ -178,16 +178,15 @@ PirateManagerMorph >> addShow [
 	name := UIManager default request: 'Name or IMDB of new show'.
 	name isEmptyOrNil
 		ifTrue: [ ^ self ].
-		sh := PirateShow new.
+	sh := PirateShow new.
 	(self isImdbId: name)
 		ifTrue: [ sh imdb: name ]
-		ifFalse: [ 
-			sh name: name ].
+		ifFalse: [ sh name: name ].
 	self changed: #list.
-	self selectShow: name.
-	self listIndex2: 0.
+	self selectShow: sh name
+	"self listIndex2: 0.
 	model3 := nil.
-	self changed: #list3
+	self changed: #list3"
 ]
 
 { #category : #'event handling' }
@@ -478,16 +477,13 @@ PirateManagerMorph >> play [
 { #category : #'event handling' }
 PirateManagerMorph >> playStopped [
 	(self confirm: 'Did you see the entire show?')
-		ifTrue: [ playingEp viewed.
-			[ playingEp show lookForAll ] fork .
+		ifTrue: [ playingEp viewed.		self changed: #list1.
+			self changed: #list3 .
+			[ playingEp show lookForAll.
 			self changed: #list1.
-			self changed: #list3 ].
+			self changed: #list3 ] fork.
+	].
 	playingEp removeActionsWithReceiver: self	"(self confirm: 'Subtitles OK?') ifTrue: [ep viewed.]."
-		
-	
-
-
-
 ]
 
 { #category : #'event handling' }
