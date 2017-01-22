@@ -477,12 +477,12 @@ PirateManagerMorph >> play [
 { #category : #'event handling' }
 PirateManagerMorph >> playStopped [
 	(self confirm: 'Did you see the entire show?')
-		ifTrue: [ playingEp viewed.		self changed: #list1.
-			self changed: #list3 .
-			[ playingEp show lookForAll.
+		ifTrue: [ playingEp viewed.
 			self changed: #list1.
-			self changed: #list3 ] fork.
-	].
+			self changed: #list3.
+			[ playingEp season show lookForAll.
+			self changed: #list1.
+			self changed: #list3 ] fork ].
 	playingEp removeActionsWithReceiver: self	"(self confirm: 'Subtitles OK?') ifTrue: [ep viewed.]."
 ]
 

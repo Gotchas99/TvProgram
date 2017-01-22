@@ -492,7 +492,6 @@ PirateShow >> setEpisodesFromTmdb [
 { #category : #'as yet unclassified' }
 PirateShow >> setNameFromTmdb [
 	|tmp |
-"	self halt."
 	self tmdb
 		ifNil: [ self imdb ifNil: [ ^ self ].
 			self tmdb: (TheMovieDb new getTmdbFromImdb: self imdb) ].
