@@ -137,7 +137,7 @@ PirateViewableMorph >> play [
 PirateViewableMorph >> playStopped [
 	(self confirm: 'Did you see the entire show?')
 		ifTrue: [ playingEp viewed .
-			[playingEp show lookForAll ]fork].
+			[playingEp season show lookForAll ]fork].
 	playingEp removeActionsWithReceiver: self.
 	self refresh.
 	self changed: #list	"(self confirm: 'Subtitles OK?') ifTrue: [  ]."
