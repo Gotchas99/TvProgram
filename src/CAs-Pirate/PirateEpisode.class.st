@@ -10,16 +10,15 @@ Class {
 
 { #category : #'as yet unclassified' }
 PirateEpisode class >> getVideoFiles [
-	| ep vfs |
+	| ep  |
 	ep := PirateShow allViewableEpisodes.
 	ep := ep select: [ :e | e videoFile isNil ].
 	ep := ep select: [ :e | e torrent isNotNil ].
-	ep := ep reject: [ :e | e torrent containsRarFile ].
+"	ep := ep reject: [ :e | e torrent containsRarFile ]."
 	ep
 		do: [ :e | 
-			vfs := e torrent videoFiles.
-			vfs size = 1
-				ifTrue: [ e videoFile: vfs first ] ]
+			e videoFile: e torrent videoFile.
+]
 ]
 
 { #category : #temporaries }

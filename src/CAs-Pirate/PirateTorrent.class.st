@@ -222,19 +222,19 @@ PirateTorrent >> createVideoFiles [
 	| f vf |
 	self isDownloadComplete
 		ifFalse: [ ^ nil ].
-	self containsRarFile
+"	self containsRarFile
 		ifTrue: [ 
 			self inform: self name , ' is a RAR-file'.
 			self crTrace: self name , ' is a RAR-file'.
-			^ nil ].
-	vf := OrderedCollection new.
+			^ nil ]."
+	vf :=
 	self videoFilenames
-		do: [ :fname | 
+		collect: [ :fname | 
 			f := PirateVideoFile new.
 			f
 				videoFilename: fname;
 				folder: self folder.
-			vf add: f ].
+			 f ].
 	^ videoFiles := vf
 ]
 
