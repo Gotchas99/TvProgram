@@ -79,12 +79,14 @@ VlcClient >> play: aFilename [
 VlcClient >> play: aFilename atPos: aPosition [
 	| player args proc |
 	player := Config current vlcFolder.
-	args := ' --fullscreen --extraintf rc -I qt --rc-host 127.0.0.1:9092 --play-and-exit "' , aFilename , '" '.
+	args := ' --fullscreen --extraintf rc -I qt --rc-host 127.0.0.1:9092 --play-and-exit "'
+		, aFilename , '" '.
 	proc := OSProcess command: player , args.
 	proc ifNil: [ ^ self ].
 	state := 'Play'.
 	self openStream.
-	self sendCommand: 'seek ' , aPosition printString.
+	(aPosition >0)ifTrue: [
+	self sendCommand: 'seek ' , aPosition printString].
 	self startListener.
 	self startAskingPos.
 	^ proc

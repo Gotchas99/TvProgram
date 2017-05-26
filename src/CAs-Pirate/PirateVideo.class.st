@@ -429,14 +429,12 @@ PirateVideo >> validateVideofile [
 	videoFile ifNil: [ ^ self ].
 	self isViewed
 		ifTrue: [ ^ self ].
-	videoFile class = PirateVideoFile
-		ifFalse: [ 
-			self videoFile: nil.
+(	videoFile isKindOf:  PirateVideoFile)
+		ifFalse: [ self videoFile: nil.
 			Transcript crShow: 'Removing videoFile (wrong class) from: ' , self printString.
 			^ self ].
 	videoFile isValid
-		ifFalse: [ 
-			self videoFile: nil.
+		ifFalse: [ self videoFile: nil.
 			Transcript crShow: 'Removing videoFile (invalid state) from: ' , self printString ]
 ]
 
