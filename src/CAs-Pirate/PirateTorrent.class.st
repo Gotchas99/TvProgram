@@ -84,9 +84,7 @@ PirateTorrent class >> cleanUpSeedingDoneOnce [
 		do: [ :i | 
 			i removeTorrentAndData.
 			gone add: i.
-			Transcript
-				show: 'deleting torrent:' , i name;
-				cr.
+			Transcript crShow: 'deleting torrent:' , i name.
 			GrowlMorph openWithLabel: 'Torrent deleted' contents: i name ].
 	DeathRow removeAllFoundIn: gone
 ]

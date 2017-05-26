@@ -172,7 +172,7 @@ PirateShow class >> shows: aShowList [
 	Shows := aShowList
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #temporary }
 PirateShow class >> shutDown: quitting [
 	self deprecated: 'Moved to PirateApp'
 ]
@@ -187,9 +187,14 @@ PirateShow class >> sort [
 	^ self
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #temporary }
 PirateShow class >> startUp: resuming [
-	self deprecated: 'Moved to PirateApp'
+	"This is only here to deal with migration from older versions 
+	that wanted to receive startup notifcations."
+	self environment
+		at: #SessionManager
+		ifPresent: [ :manager | manager default unregisterClassNamed: self name ]
+		ifAbsent: [ Smalltalk removeFromShutDownList: self name ]
 ]
 
 { #category : #comparing }
@@ -337,11 +342,9 @@ PirateShow >> lastSeen [
 
 { #category : #'as yet unclassified' }
 PirateShow >> lookForAll [
-
-
 	| unseen first episodesToDownload |
 	episodesToDownload := Config current episodesAhead.
-	unseen := self allEpisodes reject: [ :e | e isViewed ].
+	unseen := self allEpisodes reject: [ :e | e isViewed ]. 
 	first := unseen first: (episodesToDownload min: unseen size).
 	first do: [ :e | e lookForItIfNotFound ]
 ]
@@ -523,7 +526,7 @@ PirateShow >> sortName [
 	| prefix words tmp first |
 	prefix := #('A' 'An' 'The').
 	tmp := self name.
-	words := tmp findBetweenSubstrings:  ' '.
+	words := tmp findBetweenSubstrings: ' '.
 	first := words first.
 	prefix
 		do: [ :p | 

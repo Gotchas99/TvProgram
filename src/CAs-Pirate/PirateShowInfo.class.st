@@ -16,50 +16,45 @@ Class {
 
 { #category : #'as yet unclassified' }
 PirateShowInfo class >> defaultSpec [
-    ^ SpecLayout composed
-        "Adding Main column"
-        newColumn: [ :mainColumn |
-             
-            mainColumn
-                newRow: [ :rowName | 
-                    rowName
-                        add: #labelName;
-                        add: #textName ].
-            mainColumn
-                newRow: [ :row | 
-                    row
-                        add: #lblImdb;
-                        add: #txtImdb ].
-            mainColumn
-                newRow: [ :row | 
-                    row
-                        add: #lblKat;
-                        add: #txtKat ].
-                            
-    "        mainColumn
-              "  "Adding Title row""
+	^ SpecLayout composed
+		newColumn: [ :mainColumn | 
+			mainColumn
+				newRow: [ :rowName | 
+					rowName
+						add: #labelName;
+						add: #textName ].
+			mainColumn
+				newRow: [ :row | 
+					row
+						add: #lblImdb;
+						add: #txtImdb ].
+"			mainColumn
+				newRow: [ :row | 
+					row
+						add: #lblKat;
+						add: #txtKat ]."
+
+			"        mainColumn
+              "	"Adding Title row"	"
                 newRow: [ :rowTitle | 
                     rowTitle
                         add: #labelTitle;
-                   "     "Adding Title Radio row""
+                   "	"Adding Title Radio row"	"
                         newRow: [ :rowTitleRadio | 
                             rowTitleRadio
                                 add: #radioMr;
                                 add: #radioMrs;
                                 add: #radioMs ] ]."
-                                        
-            mainColumn
-                "Adding Button row" 
-                newRow: [ :rowButton | 
-                    rowButton 
-                        add: #buttonOK ].
-                            
-         "   mainColumn 
-               " "Adding Greeting row""
+			mainColumn newRow: [ :rowButton | rowButton add: #buttonOK ]
+			"Adding Button row"
+
+			"   mainColumn 
+               "	"Adding Greeting row"	"
                 newRow: [ :rowGreeting |
                     rowGreeting 
                         add: #labelGreeting ]" ];
-        yourself    
+		yourself
+	"Adding Main column"
 ]
 
 { #category : #accessing }

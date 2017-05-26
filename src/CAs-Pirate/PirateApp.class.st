@@ -8,6 +8,14 @@ Class {
 	#category : #'CAs-Pirate'
 }
 
+{ #category : #repair }
+PirateApp class >> cleanupTorrents [
+	| seen t  |
+	seen := PirateShow allEpisodes select: [ :e | e isViewed ].
+			t := seen reject: [ :e | e torrent isNil ] thenCollect: [ :e | e torrent ].
+			t do: [ :torr | torr doneWithThis ] 
+]
+
 { #category : #files }
 PirateApp class >> fileName [
 	| fileName |
@@ -15,7 +23,7 @@ PirateApp class >> fileName [
 	^ fileName
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'startup - shutdown' }
 PirateApp class >> initMaid [
 	| delay plist |
 	plist := Process allInstances reject: [ :p | p isTerminated ].
@@ -35,30 +43,43 @@ PirateApp class >> initMaid [
 	Transcript crShow: 'Started TheMaid'
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #initialize }
 PirateApp class >> initialize [ 
 	super initialize .
 	self initializeStartupShutdown.
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #initialize }
 PirateApp class >> initializeStartupShutdown [
 	self environment
 		at: #SessionManager
 		ifPresent: [ :manager | manager default registerUserClassNamed: self name ]
-		ifAbsent: [ 
-			Smalltalk
+		ifAbsent: [ Smalltalk
 				addToStartUpList: self;
 				addToShutDownList: self ].
-	Smalltalk addToStartUpList: self.
-	Smalltalk addToShutDownList: self.
-	self environment
-		at: #SessionManager
-		ifPresent: [ :manager | manager default unregisterClassNamed: PirateShow ]
-		ifAbsent: [ Smalltalk removeFromShutDownList: PirateShow ]
+
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #installation }
+PirateApp class >> install_notes [
+"
+Monticello -> Smalltalkhub repo: 
+MCSmalltalkhubRepository
+	owner: 'Gotchas'
+	project: 'TvProgram'
+	user: 'Gotchas'
+	password: 'Gotchas987'
+---
+ConfigurationOfTvProgram loadDevelopment.
+Config current initializeFromFile .
+PirateManagerMorph new openInWorld .
+PirateApp readFromNewFile.
+eller
+PirateApp readFromNewFileSTON.
+"
+]
+
+{ #category : #upgrading }
 PirateApp class >> lookForTimeStamps [
 	Checked := Set new.
 	self lookForTimeStampsIn: PirateTorrent DeathRow.
@@ -67,7 +88,7 @@ PirateApp class >> lookForTimeStamps [
 	Checked := nil
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #upgrading }
 PirateApp class >> lookForTimeStampsIn: obj [
 	| ivar dt |
 	obj ifNil: [ ^ self ].
@@ -92,24 +113,15 @@ PirateApp class >> lookForTimeStampsIn: obj [
 					ifFalse: [ self lookForTimeStampsIn: ivar ] ] ]
 ]
 
-{ #category : #'as yet unclassified' }
-PirateApp class >> lookForTimeStampsIn_old: aColl [
-	| tmp ivar |
-	(aColl isKindOf: String)
-		ifTrue: [ ^ self ].
-	(aColl isKindOf: Dictionary)
-		ifTrue: [ tmp := aColl keys , aColl values ]
-		ifFalse: [ tmp := aColl ].
-	tmp
-		do: [ :each | 
-			1 to: each class instSize do: [ :i | 
-				ivar := each instVarAt: i.
-				(ivar isKindOf: Collection)
-					ifTrue: [ self lookForTimeStampsIn: ivar ]
-					ifFalse: [ 
-						ivar class = TimeStamp
-							ifTrue: [ each inspect ] ] ] ].
-	self traceCr: 'looked for timestamps'
+{ #category : #'startup - shutdown' }
+PirateApp class >> lookForUpdates [
+	[ Gofer new
+		smalltalkhubUser: 'Gotchas' project: 'TvProgram';
+		package: 'ConfigurationOfTvProgram';
+		update ]
+		on: HTTPProgress
+		do: [ :progress | progress isEmpty
+						ifFalse: [Transcript crShow:  progress percentage printString  ].progress resume ]
 ]
 
 { #category : #files }
@@ -136,10 +148,13 @@ PirateApp class >> readFromNewFileSTON [
 		cr
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'startup - shutdown' }
 PirateApp class >> runMaidTasks [
 	[ Transcript crShow: 'Starting to update statuses'.
 	PirateTorrent updateStatuses.
+	Transcript crShow: 'Starting validate videofiles'.
+		
+	PirateEpisode validateAllVideoFiles .
 	Transcript crShow: 'Starting to get videofiles'.
 	PirateEpisode getVideoFiles.
 	Transcript crShow: 'Starting to get subtitles'.
@@ -147,12 +162,15 @@ PirateApp class >> runMaidTasks [
 	Transcript crShow: 'Starting to check if show is inproduction'.
 	PirateShow checkInProduction.
 	Transcript crShow: 'Starting to get episode count from TMDB'.
-	PirateShow setEpisodesFromTmdb ]
+	PirateShow setEpisodesFromTmdb.]
 		on: Error
-		do: [ :exception | Transcript crShow: 'Exception on MaidTask:';crShow: exception description ]
+		do: [ :exception | 
+			Transcript
+				crShow: 'Exception on MaidTask:';
+				crShow: exception description ]
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'startup - shutdown' }
 PirateApp class >> shutDown: quitting [
 	quitting
 		ifTrue: [ 
@@ -162,33 +180,31 @@ PirateApp class >> shutDown: quitting [
 					TheMaid := nil ] ]
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'startup - shutdown' }
 PirateApp class >> startUp: resuming [
-	| seen t |
 	resuming
-		ifTrue: [ 
-			Config current initializeFromFile.
-			[ 
-			seen := PirateShow allEpisodes select: [ :e | e isViewed ].
-			t := seen reject: [ :e | e torrent isNil ] thenCollect: [ :e | e torrent ].
-			t do: [ :torr | torr doneWithThis ] ] fork.
-			self initMaid.
-			Gofer new
-				smalltalkhubUser: 'Gotchas' project: 'TvProgram';
-				package: 'ConfigurationOfTvProgram';
-				update ]
+		ifFalse: [ ^ self ].
+	Socket initializeNetwork.
+	Config current initializeFromFile.
+	[ self cleanupTorrents ] fork.
+	self initMaid.
+self lookForUpdates 
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #upgrading }
 PirateApp class >> updateScript [
 	"
+		Gofer new
+		smalltalkhubUser: 'Gotchas' project: 'TvProgram';
+		package: 'ConfigurationOfTvProgram';
+		update.
 ConfigurationOfTvProgram project development load.
 "
 
 	
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #repair }
 PirateApp class >> validateState [
 	PirateTorrent validateAll.
 	PirateEpisode validateAll.
@@ -198,6 +214,8 @@ PirateApp class >> validateState [
 { #category : #files }
 PirateApp class >> writeToNewFile [
 	| stuff fname |
+	Transcript
+		crShow: 'Writing file'.
 	fname := (self fileName withExtension: 'fuel') pathString.
 	stuff := Dictionary
 		newFrom:
