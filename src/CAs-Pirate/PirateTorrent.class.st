@@ -252,7 +252,7 @@ PirateTorrent >> doneWithThis [
 		ifTrue: [ self delete ]
 		ifFalse: [ 
 			self class DeathRow add: self.
-			self startReaper ]
+			"Not needed anymore: self startReaper" ]
 ]
 
 { #category : #'as yet unclassified' }
@@ -408,7 +408,7 @@ PirateTorrent >> printOn: aStream [
 	aStream nextPutAll:  self name
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #OBSOLETE }
 PirateTorrent >> removeIfSeedComplete [
 self halt. "kolla alla videofiler först"
 	(self isSeedingComplete or: [ self isInServer not ])
@@ -446,12 +446,12 @@ PirateTorrent >> serverRoot [
 	^TransmissionClient current getDownloadDir
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #OBSOLETE }
 PirateTorrent >> serverRoot2 [
 	^'/media/store2tb/Torrent'
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #OBSOLETE }
 PirateTorrent >> startReaper [
 	| delay |
 	Reaper isNil
@@ -497,7 +497,7 @@ PirateTorrent >> status: anInt [
 	^ status
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #OBSOLETE }
 PirateTorrent >> stopReaper [
 	Reaper isNil ifTrue: [^self].
 	Reaper terminate.
