@@ -155,7 +155,8 @@ PirateApp class >> runMaidTasks [
 	Transcript crShow: 'Starting validate videofiles'.
 	PirateEpisode validateAllVideoFiles.
 	Transcript crShow: 'Starting to get videofiles'.
-	PirateEpisode getVideoFiles.Transcript crShow: 'Removing old torrents'.
+	PirateEpisode getVideoFiles.
+	Transcript crShow: 'Removing old torrents'.
 	PirateTorrent cleanUpSeedingDoneOnce.
 	Transcript crShow: 'Starting to get subtitles'.
 	PirateVideo getAllSubtitles.
@@ -164,10 +165,10 @@ PirateApp class >> runMaidTasks [
 	Transcript crShow: 'Starting to get episode count from TMDB'.
 	PirateShow setEpisodesFromTmdb ]
 		on: Error
-		do: [ :exception | 
-			Transcript
+		do: [ :exception | WorldState
+	addDeferredUIMessage: [ 		Transcript
 				crShow: 'Exception on MaidTask:';
-				crShow: exception description ]
+				crShow: exception description ]]
 ]
 
 { #category : #'startup - shutdown' }
