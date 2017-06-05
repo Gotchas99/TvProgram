@@ -23,7 +23,7 @@ PirateApp class >> fileName [
 	^ fileName
 ]
 
-{ #category : #'startup - shutdown' }
+{ #category : #background }
 PirateApp class >> initMaid [
 	| delay plist |
 	plist := Process allInstances reject: [ :p | p isTerminated ].
@@ -79,7 +79,7 @@ PirateApp readFromNewFileSTON.
 "
 ]
 
-{ #category : #upgrading }
+{ #category : #'upgrading to v5' }
 PirateApp class >> lookForTimeStamps [
 	Checked := Set new.
 	self lookForTimeStampsIn: PirateTorrent DeathRow.
@@ -88,7 +88,7 @@ PirateApp class >> lookForTimeStamps [
 	Checked := nil
 ]
 
-{ #category : #upgrading }
+{ #category : #'upgrading to v5' }
 PirateApp class >> lookForTimeStampsIn: obj [
 	| ivar dt |
 	obj ifNil: [ ^ self ].
@@ -113,7 +113,7 @@ PirateApp class >> lookForTimeStampsIn: obj [
 					ifFalse: [ self lookForTimeStampsIn: ivar ] ] ]
 ]
 
-{ #category : #'startup - shutdown' }
+{ #category : #background }
 PirateApp class >> lookForUpdates [
 	[ Gofer new
 		smalltalkhubUser: 'Gotchas' project: 'TvProgram';
@@ -148,21 +148,21 @@ PirateApp class >> readFromNewFileSTON [
 		cr
 ]
 
-{ #category : #'startup - shutdown' }
+{ #category : #background }
 PirateApp class >> runMaidTasks [
 	[ Transcript crShow: 'Starting to update statuses'.
 	PirateTorrent updateStatuses.
 	Transcript crShow: 'Starting validate videofiles'.
-		
-	PirateEpisode validateAllVideoFiles .
+	PirateEpisode validateAllVideoFiles.
 	Transcript crShow: 'Starting to get videofiles'.
-	PirateEpisode getVideoFiles.
+	PirateEpisode getVideoFiles.Transcript crShow: 'Removing old torrents'.
+	PirateTorrent cleanUpSeedingDoneOnce.
 	Transcript crShow: 'Starting to get subtitles'.
 	PirateVideo getAllSubtitles.
 	Transcript crShow: 'Starting to check if show is inproduction'.
 	PirateShow checkInProduction.
 	Transcript crShow: 'Starting to get episode count from TMDB'.
-	PirateShow setEpisodesFromTmdb.]
+	PirateShow setEpisodesFromTmdb ]
 		on: Error
 		do: [ :exception | 
 			Transcript
@@ -191,7 +191,7 @@ PirateApp class >> startUp: resuming [
 self lookForUpdates 
 ]
 
-{ #category : #upgrading }
+{ #category : #'upgrading to v5' }
 PirateApp class >> updateScript [
 	"
 		Gofer new
