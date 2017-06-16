@@ -202,8 +202,8 @@ PirateVideoFile >> setSub: aText [
 
 { #category : #subtitles }
 PirateVideoFile >> srtFileName [
-	^ self fullVideoFilename 
-		ifNotNilDo: [ :fname | fname withExtension: 'srt' ] 
+	^ self fullVideoFilename
+		ifNotNil: [ :fname | fname withExtension: 'srt' ]
 		ifNil: [ ^ nil ]
 ]
 

@@ -61,7 +61,7 @@ Config >> initializeFromFile [
 		section: #Global
 		at: #TorrentFolder
 		ifAbsent: [ 'F:\Zetum\Downloads\Torrent\tv_program\' ].
-	Transcript crShow: self name , ' initializedFromFile'
+	Transcript crShow: self asString , ' initializedFromFile'
 ]
 
 { #category : #accessing }
