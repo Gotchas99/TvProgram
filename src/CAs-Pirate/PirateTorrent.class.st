@@ -376,12 +376,12 @@ PirateTorrent >> localFolder [
 { #category : #accessing }
 PirateTorrent >> magnet [
 	magnet
-		ifNotNilDo: [ :i| 
+		ifNotNil: [ :i | 
 			magnet class = Magnet
 				ifFalse: [ magnet := Magnet from: magnet ] ]
-		ifNil: [ 
-			self torrentHash ifNil: [ self halt ].
-			magnet := Magnet from: (TransmissionClient current getMagnet: self torrentHash) ].
+		ifNil: [ self torrentHash ifNil: [ self halt ].
+			magnet := Magnet
+				from: (TransmissionClient current getMagnet: self torrentHash) ].
 	^ magnet
 ]
 
