@@ -10,14 +10,14 @@ Class {
 
 { #category : #'as yet unclassified' }
 PirateEpisode class >> getVideoFiles [
-	| ep  |
+	| ep  t |
 	ep := PirateShow allViewableEpisodes.
 	ep := ep select: [ :e | e videoFile isNil ].
 	ep := ep select: [ :e | e torrent isNotNil ].
 "	ep := ep reject: [ :e | e torrent containsRarFile ]."
 	ep
-		do: [ :e | 
-			e videoFile: e torrent videoFile.
+		do: [ :e | t:=e torrent. t validate.
+			e videoFile: t videoFile.
 ]
 ]
 
@@ -28,6 +28,12 @@ PirateEpisode class >> setupAllVideoFiles [
 	eps := eps flattened.
 	eps := eps reject: [ :each | each torrent isNil ].
 	eps := eps select: [ :each | each videoFile isNil ]
+]
+
+{ #category : #'as yet unclassified' }
+PirateEpisode class >> validateAll [
+	self validateAllTorrents.
+	self validateAllVideoFiles
 ]
 
 { #category : #'as yet unclassified' }

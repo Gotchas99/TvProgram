@@ -56,13 +56,21 @@ PirateVideoFile >> deleteSubtitles [
 { #category : #'initialize-release' }
 PirateVideoFile >> disconnect [
 	self video ifNotNil: [ video videoFile: nil ].
-	self reset
+	"self reset"
 ]
 
 { #category : #'as yet unclassified' }
 PirateVideoFile >> doneWithThis [
-	viewTime := DateAndTime now.
+	viewTime ifNil: [ viewTime := DateAndTime now ]
+]
 
+{ #category : #testing }
+PirateVideoFile >> exists [
+	| ref |
+	self folder ifNil: [ ^ false ].
+	videoFilename ifNil: [ ^ false ].
+	ref := self fullVideoFilename.
+	^ ref exists
 ]
 
 { #category : #accessing }
@@ -159,11 +167,10 @@ PirateVideoFile >> isSeen [
 
 { #category : #testing }
 PirateVideoFile >> isValid [
-	| ref |
+
 	self folder ifNil: [ ^ false ].
 	videoFilename ifNil: [ ^ false ].
-	ref := self fullVideoFilename .
-	^ ref exists
+	^ true
 ]
 
 { #category : #subtitles }

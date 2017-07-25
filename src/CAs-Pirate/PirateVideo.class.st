@@ -59,12 +59,6 @@ PirateVideo class >> havingTorrentHash: aHash [
 	^ ep
 ]
 
-{ #category : #'as yet unclassified' }
-PirateVideo class >> validateAll [
-	self validateAllTorrents.
-	self validateAllVideoFiles
-]
-
 { #category : #torrents }
 PirateVideo >> addFalseTorrent: aTorrentArray [
 	self falseTorrents add: aTorrentArray.
@@ -97,7 +91,7 @@ PirateVideo >> delete [
 	falseTorrents := nil.
 	videoFile
 		ifNotNil: [ 
-			videoFile reset.
+			videoFile disconnect.
 			videoFile := nil ].
 	viewed := false
 ]
@@ -428,8 +422,8 @@ PirateVideo >> validateTorrent [
 PirateVideo >> validateVideofile [
 	videoFile ifNil: [ ^ self ].
 	self isViewed
-		ifTrue: [ ^ self ].
-(	videoFile isKindOf:  PirateVideoFile)
+		ifTrue: [ videoFile doneWithThis .^ self ].
+	(videoFile isKindOf: PirateVideoFile)
 		ifFalse: [ self videoFile: nil.
 			Transcript crShow: 'Removing videoFile (wrong class) from: ' , self printString.
 			^ self ].
@@ -456,7 +450,7 @@ PirateVideo >> videoFile: aVideoFile [
 	videoFile
 		ifNotNil: [ 
 			videoFile class = PirateVideoFile
-				ifTrue: [ videoFile reset ] ].
+				ifTrue: [ videoFile disconnect ] ].
 	videoFile := aVideoFile
 ]
 

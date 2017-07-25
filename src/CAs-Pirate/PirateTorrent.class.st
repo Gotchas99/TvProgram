@@ -173,10 +173,11 @@ PirateTorrent class >> updateStatuses_old [
 
 { #category : #'as yet unclassified' }
 PirateTorrent class >> validateAll [
-	|  inValids |
+	| inValids |
 	Transcript crShow: 'Validating torrents.'.
+	self allTorrents do: [ :t | t validate ].
 	inValids := self allTorrents reject: [ :t | t isValid ].
-	inValids 
+	inValids
 		do: [ :t | 
 			Transcript crShow: 'Removing torrent (not in server): ' , t name.
 			t removeTorrentAndData ]
@@ -348,18 +349,9 @@ PirateTorrent >> isSingleVideoFile [
 
 { #category : #testing }
 PirateTorrent >> isValid [
-	| invalidVf |
+	
 	self isInServer
 		ifFalse: [ ^ false ].
-	videoFiles
-		ifNotNil: [ 
-			invalidVf := videoFiles reject: [ :f | f isValid ].
-			invalidVf
-				do: [ :f | 
-					videoFiles remove: f.
-					f disconnect ].
-			videoFiles isEmpty
-				ifTrue: [ videoFiles := nil ] ].
 	^ true
 ]
 
@@ -521,6 +513,19 @@ PirateTorrent >> torrentHash [
 PirateTorrent >> torrentHash: aHash [
 	torrentHash := aHash asLowercase.
 
+]
+
+{ #category : #validation }
+PirateTorrent >> validate [
+	| invalidVf |
+	self isInServer
+		ifFalse: [ ^ self ].
+	videoFiles ifNil: [ ^ self ].
+ invalidVf := videoFiles reject: [ :f | f isValid ].
+			invalidVf do: [ :f | f disconnect ].
+			videoFiles := videoFiles select: [ :f | f isValid ].
+			videoFiles isEmpty
+				ifTrue: [ videoFiles := nil ] 
 ]
 
 { #category : #accessing }
