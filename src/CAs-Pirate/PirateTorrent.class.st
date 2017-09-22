@@ -414,13 +414,12 @@ self halt. "kolla alla videofiler först"
 PirateTorrent >> removeTorrentAndData [
 	| h |
 	videoFiles
-		ifNotNil: [ 
-			videoFiles do: [ :vf | vf disconnect ].
+		ifNotNil: [ videoFiles do: [ :vf | vf disconnect ].
 			videoFiles := nil ].
 	h := self torrentHash.
 	h isEmptyOrNil
-		ifFalse: [ [ TransmissionClient current removeTorrent: h ] fork ].
-	self class allTorrents remove: self ifAbsent: [  ]
+		ifFalse: [ [ TransmissionClient current removeTorrent: h .self class allTorrents remove: self ifAbsent: [  ]] fork ].
+	
 ]
 
 { #category : #converting }

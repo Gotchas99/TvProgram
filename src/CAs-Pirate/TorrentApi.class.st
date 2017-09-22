@@ -105,19 +105,19 @@ TorrentApi class >> initialize [
 	self UpdateLastReqTime
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 TorrentApi >> baseUrl [
 	^ 'http://torrentapi.org/pubapi_v2.php' asZnUrl
 	"Original from doc:'https://torrentapi.org/pubapi_v2.php' "
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #api }
 TorrentApi >> getShow: aString [
 	Transcript crShow: 'TorrentApi not good for free search: ' , aString.
 	^ #()
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #api }
 TorrentApi >> getShow: anImdbId season: aSeasonId episode: anEpisodeId [
 	| request season epnum |
 	season := aSeasonId asInteger printString.
@@ -131,7 +131,7 @@ TorrentApi >> getShow: anImdbId season: aSeasonId episode: anEpisodeId [
 		episode: epnum
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #api }
 TorrentApi >> getShow: anImdbId season: aSeasonId episode: anEpisodeId searchString: aString [
 	| request season epnum search |
 	season := aSeasonId asInteger printString.
@@ -146,7 +146,7 @@ TorrentApi >> getShow: anImdbId season: aSeasonId episode: anEpisodeId searchStr
 		episode: epnum
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'request handling' }
 TorrentApi >> getToken [
 	| url request resp |
 	url := self baseUrl.
@@ -163,12 +163,12 @@ TorrentApi >> getToken [
 	^ self class Token: (resp at: #token ifAbsent: 'dummyToken')
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #initialization }
 TorrentApi >> initialize [
 	super initialize
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'request handling' }
 TorrentApi >> newRequest [
 	| url request |
 	url := self baseUrl.
@@ -189,7 +189,7 @@ TorrentApi >> newRequest [
 	^ request
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'request handling' }
 TorrentApi >> processRequest: aRequest imdb: anImdbId season: aSeasonId episode: anEpisodeId [
 	| resp ret info |
 	resp := self sendRequest: aRequest.
@@ -211,7 +211,7 @@ TorrentApi >> processRequest: aRequest imdb: anImdbId season: aSeasonId episode:
 	^ ret
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'request handling' }
 TorrentApi >> sendRequest: aZnClient [
 	| resp error_code |
 	self class apiMutex
@@ -234,12 +234,12 @@ TorrentApi >> sendRequest: aZnClient [
 	^ resp at: #torrent_results ifAbsent: #()
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 TorrentApi >> token [
 	^ self class Token
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'request handling' }
 TorrentApi >> waitForMinTime [
 	| nextTime delay |
 	delay := Delay forMilliseconds: 300.

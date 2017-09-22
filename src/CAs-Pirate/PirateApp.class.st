@@ -187,9 +187,10 @@ PirateApp class >> startUp: resuming [
 		ifFalse: [ ^ self ].
 	Socket initializeNetwork.
 	Config current initializeFromFile.
+	TorrentApi initialize.
 	[ self cleanupTorrents ] fork.
 	self initMaid.
-self lookForUpdates 
+	self lookForUpdates
 ]
 
 { #category : #'upgrading to v5' }

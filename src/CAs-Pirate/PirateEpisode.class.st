@@ -104,60 +104,68 @@ PirateEpisode >> getPirateTorrents [
 
 { #category : #torrents }
 PirateEpisode >> getRarbgTorrents [
-	| rarbg |
+	| rarbg rarbg1 rarbg2 |
 	self season show imdb
-		ifNotNil: [ 
-			rarbg := TorrentApi new
+		ifNotNil: [ rarbg1 := TorrentApi new
 				getShow: self season show imdb
 				season: self season id
 				episode: self id
-				searchString: self season name ]
+				searchString: self season name.rarbg2 := TorrentApi new
+				getShow: self season show imdb
+				season: self season id
+				episode: self id
+				searchString: self season name .rarbg:=rarbg1,rarbg2. ]
 		ifNil: [ rarbg := TorrentApi new getShow: self tpbString ].
 	^ rarbg
 ]
 
 { #category : #torrents }
 PirateEpisode >> getTorrents [
-	| t tpb sem kat err extra rarbg |
+	| t tpb sem kat err extra rarbg d reqs t2 |
+	d := 3.	"timeout for wait for searches"
+	reqs := 0.	"number of requests sent, that need to be waited for"
 	t := OrderedCollection new.
+	t2 := OrderedCollection new.
 	err := OrderedCollection new.
 	sem := Semaphore new.
-	[ 
-	[ rarbg := self getRarbgTorrents ]
+	[ [ rarbg := self getRarbgTorrents ]
 		on: Error
 		do: [ :ex | err add: ex ].
 	sem signal ] fork.
-	[ 
-	[ extra := self getExtraTorrents ]
+	reqs := reqs + 1.
+	[ [ extra := self getExtraTorrents ]
 		on: Error
 		do: [ :ex | err add: ex ].
 	sem signal ] fork.
-	[ 
-	tpb := nil.	"PirateRobot new getShow: self tpbString."
+	reqs := reqs + 1.
+	[ tpb := nil.	"PirateRobot new getShow: self tpbString."
 	sem signal ] fork.
-	[ 
-	[ kat := self getKickassTorrents ]
+	reqs := reqs + 1.
+	[ [ kat := self getKickassTorrents ]
 		on: Error
 		do: [ :ex | err add: ex ].
 	sem signal ] fork.
-	sem wait wait wait wait.	"	Transcript crShow: tpb.
-	Transcript crShow: extra.
-	Transcript crShow: kat.
-	Transcript crShow: rarbg."
+	reqs := reqs + 1.
+	1 to: reqs do: [ :i | sem waitTimeoutSeconds: d ].
 	err
-		ifNotEmpty: [ 
-			Error signal: err first printString.
+		ifNotEmpty: [ Error signal: err first printString.
 			Transcript crShow: 'Error on getTorrents: ' , err printString ].
 	tpb ifNotNil: [ t addAll: tpb ].
 	extra ifNotNil: [ t addAll: extra ].
 	rarbg ifNotNil: [ t addAll: rarbg ].
 	kat ifNotNil: [ t addAll: kat ].
 	#('1080p' 'French' 'spanish' 'subtitulado' 'x265' 'vostfr')
-		do: [ :word | t := t reject: [ :each | each first includesSubstring: word caseSensitive: false ] ].
-	^ t
+		do:
+			[ :word | t := t reject: [ :each | each first includesSubstring: word caseSensitive: false ] ].
+
+	t
+		do: [ :each | 
+			(t2 anySatisfy: [ :each2 | each second = each2 second ])
+				ifFalse: [ t2 add: each ] ].
+	^ t2
 ]
 
-{ #category : #torrents }
+{ #category : #deprecated }
 PirateEpisode >> getTorrents_leftovers [
 	| t tpb sem kickass err  |
 	t := OrderedCollection new.
@@ -190,7 +198,7 @@ PirateEpisode >> id: aString [
 	self setFullId
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #subtitles }
 PirateEpisode >> needsSubtitle [
 	self season show archived
 		ifTrue: [ ^ false ].

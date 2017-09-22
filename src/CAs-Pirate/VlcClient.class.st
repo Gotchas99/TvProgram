@@ -4,7 +4,8 @@ Class {
 	#instVars : [
 		'state',
 		'stream',
-		'pos'
+		'pos',
+		'proc'
 	],
 	#classVars : [
 		'Current'
@@ -21,8 +22,7 @@ seek X : positions to X sec"
 
 { #category : #'initialize - release' }
 VlcClient >> closeStream [
-	stream ifNotNil: [ stream destroy ].
-
+	stream ifNotNil: [ stream destroy .stream:= nil]
 ]
 
 { #category : #'initialize - release' }
@@ -56,8 +56,15 @@ VlcClient >> old [
 { #category : #'initialize - release' }
 VlcClient >> openStream [
 	self closeStream.
-	(Delay forSeconds: 1) wait.
-	stream := SocketStream openConnectionToHostNamed: 'localhost' port: 9092.
+	[ stream isNil and: [ proc isNotNil ] ]
+		whileTrue: [ (Delay forSeconds: 1) wait.
+			[ stream := SocketStream openConnectionToHost: #[127 0 0 1] port: 9092 timeout: 3 ]
+				on: Error
+				do: [  :exception | 
+			WorldState
+				addDeferredUIMessage: [ Transcript
+						crShow: 'Exception on Connect to VLC';
+						crShow: exception description ] ] ].
 	stream noTimeout
 ]
 
@@ -75,9 +82,9 @@ VlcClient >> play: aFilename [
 	^ proc
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #action }
 VlcClient >> play: aFilename atPos: aPosition [
-	| player args proc |
+	| player args  |
 	player := Config current vlcFolder.
 	args := ' --fullscreen --extraintf rc -I qt --rc-host 127.0.0.1:9092 --no-playlist-autostart --play-and-exit "'
 		, aFilename , '" '.
@@ -87,7 +94,8 @@ VlcClient >> play: aFilename atPos: aPosition [
 	self openStream.
 	self sendCommand: 'seek ' , aPosition printString.
 	self startListener.
-	self startAskingPos.   self sendCommand: 'play'.
+	self startAskingPos.
+	self sendCommand: 'play'.
 	^ proc
 ]
 
@@ -141,7 +149,7 @@ VlcClient >> processLine: aLine [
 
 { #category : #private }
 VlcClient >> sendCommand: cmd [
-	stream sendCommand: cmd
+	stream ifNotNil: [ :s|s sendCommand: cmd ]
 ]
 
 { #category : #'process creation' }
