@@ -17,20 +17,18 @@ Class {
 PirateViewable class >> defaultSpec [
 	^ SpecLayout composed
 		newColumn: [ :mainColumn | 
-			mainColumn
-				newRow: [ :rowName | 
-					rowName
-						add: #listMain].
+			mainColumn newRow: [ :rowName | rowName add: #listMain ].
 			mainColumn
 				newRow: [ :rowTitle | 
 					rowTitle
-							newRow: [ :rowTitleButtons | 
+						newRow: [ :rowTitleButtons | 
 							rowTitleButtons
 								add: #btnRefresh;
 								add: #btnPlay;
 								add: #btnSubs;
 								add: #btnTopSub;
-								add: #chkOnlyOld ] ] ];
+								add: #chkOnlyOld ] ] 
+						height: self buttonHeight];
 		"Adding Main column"
 			yourself
 ]
@@ -157,7 +155,7 @@ PirateViewable >> listMain: anObject [
 	listMain := anObject
 ]
 
-{ #category : #playing }
+{ #category : #action }
 PirateViewable >> play [
 	| ep |
 	"self listIndex = 0
@@ -180,7 +178,7 @@ PirateViewable >> playStopped [
 	self changed: #list	"(self confirm: 'Subtitles OK?') ifTrue: [  ]."
 ]
 
-{ #category : #refreshing }
+{ #category : #action }
 PirateViewable >> refresh [
 	| tmp index size |
 	index := listMain selectedIndex.
@@ -198,7 +196,7 @@ PirateViewable >> refresh [
 	listMain setSelectedIndex: index
 ]
 
-{ #category : #refreshing }
+{ #category : #action }
 PirateViewable >> subtitles [
 	| ep m |
 	"(self listIndex = 0) ifTrue: [^self]."
@@ -210,7 +208,7 @@ PirateViewable >> subtitles [
 			self changed: #list ]
 ]
 
-{ #category : #initialization }
+{ #category : #action }
 PirateViewable >> topSubtitles [
 	| ep |
 	"self listIndex = 0
