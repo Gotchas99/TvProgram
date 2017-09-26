@@ -22,7 +22,12 @@ seek X : positions to X sec"
 
 { #category : #'initialize - release' }
 VlcClient >> closeStream [
-	stream ifNotNil: [ stream destroy .stream:= nil]
+	<FIXME>
+
+	(Delay forSeconds: 1) wait.
+	stream
+		ifNotNil: [ stream destroy.
+			stream := nil ]
 ]
 
 { #category : #'initialize - release' }
@@ -34,37 +39,31 @@ VlcClient >> initialize [
 
 { #category : #testing }
 VlcClient >> isRunning [
-	^ (state = 'End' )not
+	^ (state = 'End') not
 ]
 
-{ #category : #old }
+{ #category : #'initialize - release' }
 VlcClient >> old [
-	| player fname args proc d |
-	player := Config current vlcFolder.
-	fname := self videoFilename fullName.
-	args := ' --fullscreen --extraintf rc -I qt --rc-host 127.0.0.1:9092 "' , fname , '" '.
-	proc := OSProcess command: player , args.
-	d := Delay forMilliseconds: 200.
-	proc ifNil: [ ^ self ].
-	[ proc isComplete ]
-		whileFalse: [ 
-			d wait.
-			proc update: #runState ].
-	^ proc
+	self 
+		deprecated: 'Use play: instead'
+		on: 	'25 September 2017' 
+		in: 'Pharo-6.0-60510-'.
+	^ self closeStream
 ]
 
 { #category : #'initialize - release' }
 VlcClient >> openStream [
+	<FIXME>
 	self closeStream.
 	[ stream isNil and: [ proc isNotNil ] ]
 		whileTrue: [ (Delay forSeconds: 1) wait.
 			[ stream := SocketStream openConnectionToHost: #[127 0 0 1] port: 9092 timeout: 3 ]
 				on: Error
-				do: [  :exception | 
-			WorldState
-				addDeferredUIMessage: [ Transcript
-						crShow: 'Exception on Connect to VLC';
-						crShow: exception description ] ] ].
+				do: [ :exception | 
+					WorldState
+						addDeferredUIMessage: [ Transcript
+								crShow: 'Exception on Connect to VLC';
+								crShow: exception description ] ] ].
 	stream noTimeout
 ]
 
@@ -100,30 +99,12 @@ VlcClient >> play: aFilename atPos: aPosition [
 ]
 
 { #category : #old }
-VlcClient >> playOld: aFilename [
-	| player args proc d s line |
-	player := Config current vlcFolder.
-	args := ' --fullscreen --extraintf rc -I qt --rc-host 127.0.0.1:9092 "' , aFilename , '" '.
-	proc := OSProcess command: player , args.
-	d := Delay forMilliseconds: 200.
-	proc ifNil: [ ^ self ].
-	[ 
-	s := SocketStream openConnectionToHostNamed: 'localhost' port: 9092.
-	[ 
-	[ 
-	line := s nextLine.
-	self crLog: line ] repeat ]
-		on: ConnectionClosed
-		do: [ self crLog: 'socket closed' ] ] forkAt: Processor userBackgroundPriority.	"	[ proc isComplete ]
-		whileFalse: [ 
-			d wait.
-			proc update: #runState ]."
-	d := Delay forMilliseconds: 200.
-	[ self isRunning ]
-		whileFalse: [ 
-			d wait.
-			self sendCommand: 'get_time' ].
-	^ proc
+VlcClient >> playOld: aFilename [ 
+	self 
+		deprecated: 'Use play: instead'
+		on: 	'25 September 2017' 
+		in: 'Pharo-6.0-60510-'.
+	^ self play: aFilename 
 ]
 
 { #category : #private }
@@ -154,25 +135,25 @@ VlcClient >> sendCommand: cmd [
 
 { #category : #'process creation' }
 VlcClient >> startAskingPos [
+	<FIXME>
 	| d |
 	d := Delay forSeconds: 1.
-	[ 
-	[ 
-	[ stream isConnected ]
-		whileTrue: [ 
-			self sendCommand: 'get_time'.
+	[ [ [ stream isNotNil and: stream isConnected ]
+		whileTrue: [ self sendCommand: 'get_time'.
 			d wait ] ]
 		on: ConnectionTimedOut
-		do: [ self crLog: 'ask pos. stream not connected' ] ] forkAt: Processor userBackgroundPriority
+		do: [ self crLog: 'ask pos. stream not connected' ] ]
+		forkAt: Processor userBackgroundPriority
 ]
 
 { #category : #'process creation' }
 VlcClient >> startListener [
+	<FIXME>
 	| line |
 	[ [ [ line := stream nextLine.
 	self processLine: line ] repeat ]
 		on: ConnectionClosed
-		do: [ "self crLog: 'socket closed'."
+		do: [ self crLog: 'socket closed'.
 			self closeStream.
 			self triggerEvent: #stoppedAt: with: pos ] ] forkAt: Processor userBackgroundPriority
 ]

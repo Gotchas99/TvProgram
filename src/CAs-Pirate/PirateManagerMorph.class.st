@@ -626,10 +626,12 @@ PirateManagerMorph >> testDeleteSubtitles [
 
 { #category : #'event handling' }
 PirateManagerMorph >> viewables [
-	| m ep |
-	m := PirateViewableMorph new.
-	m model: model.
-	m openInWorld.
+	| m |
+	(self confirm: 'Use legacy GUI?')
+		ifTrue: [ m := PirateViewableMorph new.
+			m model: model.
+			m openInWorld ]
+		ifFalse: [ PirateViewable new openWithSpec ]
 ]
 
 { #category : #'event handling' }
