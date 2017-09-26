@@ -94,15 +94,17 @@ PirateViewable >> chkOnlyOld: anObject [
 PirateViewable >> initializePresenter [
 	"	textName whenTextChanged: [ buttonGreet enable ]."
 
-	btnRefresh action: [ listMain items: self refresh ].
-	btnPlay action: [ self play ]
+	btnRefresh action: [ self refresh ].
+	btnPlay action: [ self play ].
+	btnSubs action: [ self subtitles ].
+	btnTopSub action: [ self topSubtitles ].
 ]
 
 { #category : #initialization }
 PirateViewable >> initializeWidgets [
 	self
 		instantiateModels:
-			#(listMain ListModel btnRefresh ButtonModel btnPlay ButtonModel btnSubs ButtonModel btnTopSub ButtonModel chkOnlyOld CheckBoxModel).
+			#(listMain MultiColumnListModel btnRefresh ButtonModel btnPlay ButtonModel btnSubs ButtonModel btnTopSub ButtonModel chkOnlyOld CheckBoxModel).
 	btnRefresh
 		label: 'Refresh';
 		enable.
@@ -111,17 +113,29 @@ PirateViewable >> initializeWidgets [
 		enable.
 	btnSubs
 		label: 'Subtitles';
-		disable.
+		enable.
 	btnTopSub
 		label: 'Top Subtitle';
-		disable.
+		enable.
 	chkOnlyOld
 		label: 'The show must go on';
 		state: true.
 	listMain
 		autoDeselect: false;
 		beSingleSelection;
-		items: self refresh
+		displayBlock: [ :x | 
+			{x isPaused ifTrue: [ '⏸ ' ] ifFalse: [ '▶' ]
+			.x season show displayName.
+			x season id .
+			x id .
+			((x needsSubtitle
+				ifFalse: [ 'yes' ]
+				ifTrue: [ 'no' ]) , ' subs').
+			(x season downloaded
+				ifFalse: [ 'episode' ]
+				ifTrue: [ 'season' ])} ];
+		items: 'loading..'.
+	self refresh
 
 	"	labelGreeting label: ''.
 	textName autoAccept: true.
@@ -168,13 +182,42 @@ PirateViewable >> playStopped [
 
 { #category : #refreshing }
 PirateViewable >> refresh [
-	| tmp |
-	tmp := (PirateShow shows) collect: [ :s | s nextToSee ].
+	| tmp index size |
+	index := listMain selectedIndex.
+	size := listMain listSize.
+	tmp := PirateShow shows collect: [ :s | s nextToSee ].
 	tmp := tmp reject: [ :i | i isNil ].
 	tmp := tmp select: [ :e | e isViewable ].
 	"self showsStarted"
-	(chkOnlyOld state)
+	chkOnlyOld state
 		ifTrue: [ tmp := tmp reject: [ :i | i id = '01' and: [ i season id = '01' ] ] ]
 		ifFalse: [ tmp := tmp select: [ :i | i id = '01' and: [ i season id = '01' ] ] ].
-	^ tmp.
+	listMain items: tmp.
+	listMain listSize = size
+		ifFalse: [ index := 0 ].
+	listMain setSelectedIndex: index
+]
+
+{ #category : #refreshing }
+PirateViewable >> subtitles [
+	| ep m |
+	"(self listIndex = 0) ifTrue: [^self]."
+	ep := listMain selectedItem.
+	ep isDownloaded
+		ifTrue: [ m := PirateSubtitleMorph new.
+			m model: ep.
+			m openInWorld.
+			self changed: #list ]
+]
+
+{ #category : #initialization }
+PirateViewable >> topSubtitles [
+	| ep |
+	"self listIndex = 0
+		ifTrue: [ ^ self ]."
+	ep := listMain selectedItem.
+	ep isDownloaded
+		ifTrue: [ 
+			ep topSubtitles.
+			self changed: #list ]
 ]
