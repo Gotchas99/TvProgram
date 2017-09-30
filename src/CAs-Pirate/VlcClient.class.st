@@ -138,7 +138,7 @@ VlcClient >> startAskingPos [
 	<FIXME>
 	| d |
 	d := Delay forSeconds: 1.
-	[ [ [ stream isNotNil and: stream isConnected ]
+	[ [ [ stream isNotNil and: [stream isConnected] ]
 		whileTrue: [ self sendCommand: 'get_time'.
 			d wait ] ]
 		on: ConnectionTimedOut
