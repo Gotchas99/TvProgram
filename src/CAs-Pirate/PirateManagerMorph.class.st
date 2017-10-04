@@ -503,7 +503,7 @@ PirateManagerMorph >> removeEpisode [
 	listIndex3 = 0
 		ifTrue: [ ^ self ].
 	ep := model3 episodes at: listIndex3.
-	(self confirm: 'Vill du verkligen ta bort episoden?' , String crlfcrlf , ep name)
+	(self confirm: 'Vill du verkligen ta bort episoden?' , String crlfcrlf , ep printString)
 		ifTrue: [ 
 			ep delete.
 			self changed: #list3.

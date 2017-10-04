@@ -31,7 +31,7 @@ PirateSeason >> addEpisode: anEpisode [
 	anEpisode season: self.
 	(episodes isKindOf: SortedCollection)
 		ifFalse: [ episodes := episodes asSortedCollection ].
-	episodes add: anEpisode
+	episodes addLast: anEpisode
 ]
 
 { #category : #adding }

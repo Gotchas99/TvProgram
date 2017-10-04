@@ -88,9 +88,13 @@ PirateViewableMorph >> icon [
 	^ nil
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 PirateViewableMorph >> initialize [
-	super initialize.
+	self 
+		deprecated: 'Use PirateViewable instead'
+		on: 	'3 October 2017' 
+		in: 'Pharo-6.0-60510-'.
+	^ super initialize.
 ]
 
 { #category : #'as yet unclassified' }
