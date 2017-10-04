@@ -38,6 +38,11 @@ PirateViewable class >> title [
 	^'Viewables'
 ]
 
+{ #category : #initialization }
+PirateViewable >> beginFilter [
+	^ [ :i | i id = '01' and: [ i season id = '01' ] ]
+]
+
 { #category : #accessing }
 PirateViewable >> btnPlay [
 	^ btnPlay
@@ -96,6 +101,10 @@ PirateViewable >> initializePresenter [
 	btnPlay action: [ self play ].
 	btnSubs action: [ self subtitles ].
 	btnTopSub action: [ self topSubtitles ].
+	chkOnlyOld
+		whenChangedDo: [ chkOnlyOld state
+				ifTrue: [ listMain filteringBlock: [ :a | a reject: self beginFilter ] ]
+				ifFalse: [ listMain filteringBlock: [ :a | a select: self beginFilter ] ] ].
 ]
 
 { #category : #initialization }
@@ -115,17 +124,16 @@ PirateViewable >> initializeWidgets [
 	btnTopSub
 		label: 'Top Subtitle';
 		enable.
-	chkOnlyOld
-		label: 'The show must go on';
-		state: true.
 	listMain
 		autoDeselect: false;
 		beSingleSelection;
 		displayBlock: [ :x | 
-			{x isPaused ifTrue: [ '⏸ ' ] ifFalse: [ '▶' ]
-			.x season show displayName.
-			x season id .
-			x id .
+			{(x isPaused
+				ifTrue: [ '⏸ ' ]
+				ifFalse: [ '▶' ]).
+			x season show displayName.
+			x season id.
+			x id.
 			((x needsSubtitle
 				ifFalse: [ 'yes' ]
 				ifTrue: [ 'no' ]) , ' subs').
@@ -133,16 +141,10 @@ PirateViewable >> initializeWidgets [
 				ifFalse: [ 'episode' ]
 				ifTrue: [ 'season' ])} ];
 		items: 'loading..'.
-	self refresh
-
-	"	labelGreeting label: ''.
-	textName autoAccept: true.
-	buttonGreet
-		label: 'Greet Me!';
-		disable.
-	self setupTitleRadioButtons.
-	labelName label: 'Your name, please?'.
-	labelTitle label: 'Your title, please?'"
+	self refresh.
+	chkOnlyOld
+		label: 'The show must go on';
+		click
 ]
 
 { #category : #accessing }
@@ -171,8 +173,8 @@ PirateViewable >> play [
 { #category : #playing }
 PirateViewable >> playStopped [
 	(self confirm: 'Did you see the entire show?')
-		ifTrue: [ playingEp viewed .
-			[playingEp season show lookForAll ]fork].
+		ifTrue: [ playingEp viewed.
+			[ playingEp season show lookForAll ] fork ].
 	playingEp removeActionsWithReceiver: self.
 	self refresh.
 	self changed: #list	"(self confirm: 'Subtitles OK?') ifTrue: [  ]."
@@ -186,10 +188,6 @@ PirateViewable >> refresh [
 	tmp := PirateShow shows collect: [ :s | s nextToSee ].
 	tmp := tmp reject: [ :i | i isNil ].
 	tmp := tmp select: [ :e | e isViewable ].
-	"self showsStarted"
-	chkOnlyOld state
-		ifTrue: [ tmp := tmp reject: [ :i | i id = '01' and: [ i season id = '01' ] ] ]
-		ifFalse: [ tmp := tmp select: [ :i | i id = '01' and: [ i season id = '01' ] ] ].
 	listMain items: tmp.
 	listMain listSize = size
 		ifFalse: [ index := 0 ].

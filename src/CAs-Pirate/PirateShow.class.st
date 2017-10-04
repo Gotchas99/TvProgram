@@ -216,7 +216,7 @@ PirateShow >> addSeason: aSeason [
 	aSeason show: self.
 	(seasons isKindOf: SortedCollection)
 		ifFalse: [ seasons := seasons asSortedCollection ].
-	seasons add: aSeason.
+	seasons addLast: aSeason.
 	seasons sort
 ]
 
