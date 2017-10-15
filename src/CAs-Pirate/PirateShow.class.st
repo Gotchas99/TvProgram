@@ -40,6 +40,11 @@ PirateShow class >> at: aTitle [
 ]
 
 { #category : #'as yet unclassified' }
+PirateShow class >> atImdb: anImdbId [
+	^ self shows detect: [ :s | s imdb  = anImdbId ]
+]
+
+{ #category : #'as yet unclassified' }
 PirateShow class >> checkInProduction [
 	| s tmdb delay |
 	delay := Delay forSeconds: 5.
@@ -272,16 +277,6 @@ PirateShow >> displayName [
 	^ self sortName
 ]
 
-{ #category : #deprecated }
-PirateShow >> eztv [
-	^ eztv
-]
-
-{ #category : #deprecated }
-PirateShow >> eztv: anIdString [
-	eztv := anIdString 
-]
-
 { #category : #accessing }
 PirateShow >> imdb [
 	^ imdb
@@ -317,18 +312,6 @@ PirateShow >> in_production: aBoolean [
 PirateShow >> initialize [
 	super initialize.
 	seasons := SortedCollection new.
-]
-
-{ #category : #deprecated }
-PirateShow >> kat [
-	^ kat
-]
-
-{ #category : #deprecated }
-PirateShow >> kat: anObject [
-	kat := anObject isEmptyOrNil
-		ifTrue: [ nil ]
-		ifFalse: [ anObject ]
 ]
 
 { #category : #'as yet unclassified' }
@@ -460,20 +443,6 @@ PirateShow >> resetUplinks [
 { #category : #accessing }
 PirateShow >> seasons [
 	^seasons
-]
-
-{ #category : #deprecated }
-PirateShow >> setEpisodesFromEztv [
-	| dict s s_no season |
-	self eztv ifNil: [ ^ self ].
-	dict := Eztv new getEpisodes: self eztv.
-	dict keys sorted
-		do: [ :key | 
-			s_no := key asTwoCharacterString.
-			s := seasons select: [ :each | each id = s_no ].
-			season:=s at:1 ifAbsent:[  self addSeason ].
-				
-			season addEpisodes: (dict at: key) ]
 ]
 
 { #category : #'as yet unclassified' }

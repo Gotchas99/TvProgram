@@ -136,7 +136,8 @@ TorrentApi >> getShow: anImdbId season: aSeasonId episode: anEpisodeId searchStr
 	| request season epnum search |
 	season := aSeasonId asInteger printString.
 	epnum := anEpisodeId asInteger printString.
-	search := aString , ' S' , aSeasonId , 'E' , anEpisodeId.
+	search := aString copyWithout: $'. "TorrentAPI doesnt like apostrophes, it appears"
+	search:= search , ' S' , aSeasonId , 'E' , anEpisodeId.
 	request := self newRequest.
 	request queryAt: #search_string put: search.
 	^ self

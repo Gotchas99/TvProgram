@@ -62,13 +62,13 @@ PirateApp class >> initializeStartupShutdown [
 
 { #category : #installation }
 PirateApp class >> install_notes [
-"
+	"
 Monticello -> Smalltalkhub repo: 
 MCSmalltalkhubRepository
 	owner: 'Gotchas'
 	project: 'TvProgram'
-	user: 'Gotchas'
-	password: 'Gotchas987'
+	user: ''
+	password: ''
 ---
 ConfigurationOfTvProgram loadDevelopment.
 Config current initializeFromFile .
@@ -77,6 +77,8 @@ PirateApp readFromNewFile.
 eller
 PirateApp readFromNewFileSTON.
 "
+
+	
 ]
 
 { #category : #'upgrading to v5' }
