@@ -147,7 +147,7 @@ PirateEpisode >> getTorrents [
 		do: [ :ex | err add: ex ].
 	sem signal ] fork.
 	reqs := reqs + 1.
-	reqs timesRepeat: [ :i | sem waitTimeoutSeconds: d ].
+	reqs timesRepeat: [ sem waitTimeoutSeconds: d ].
 	err
 		ifNotEmpty: [ Error signal: err first printString.
 			Transcript crShow: 'Error on getTorrents: ' , err printString ].
