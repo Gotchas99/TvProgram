@@ -5,10 +5,11 @@ Class {
 		'state',
 		'stream',
 		'pos',
-		'proc'
+		'proc',
+		'port'
 	],
 	#classVars : [
-		'Current'
+		'LastInc'
 	],
 	#category : #'CAs-Pirate-Services'
 }
@@ -20,11 +21,20 @@ get_time : returns position in secondscategory
 seek X : positions to X sec"
 ]
 
+{ #category : #'as yet unclassified' }
+VlcClient class >> nextPort [
+	| tmp basePort maxNoOfPlayers |
+	basePort := 9092.
+	maxNoOfPlayers:=8.
+	tmp := LastInc ifNil: [ 0 ].
+	LastInc := (tmp + 1) \\ maxNoOfPlayers.
+	^ basePort + LastInc
+]
+
 { #category : #'initialize - release' }
 VlcClient >> closeStream [
 	<FIXME>
-
-	(Delay forSeconds: 1) wait.
+"	(Delay forSeconds: 1) wait."
 	stream
 		ifNotNil: [ stream destroy.
 			stream := nil ]
@@ -34,7 +44,8 @@ VlcClient >> closeStream [
 VlcClient >> initialize [
 	super initialize.
 	state := 'Play'.
-	pos := 0
+	pos := 0.
+	port := self class nextPort .
 ]
 
 { #category : #testing }
@@ -56,8 +67,8 @@ VlcClient >> openStream [
 	<FIXME>
 	self closeStream.
 	[ stream isNil and: [ proc isNotNil ] ]
-		whileTrue: [ (Delay forSeconds: 1) wait.
-			[ stream := SocketStream openConnectionToHost: #[127 0 0 1] port: 9092 timeout: 3 ]
+		whileTrue: [ (Delay forMilliseconds: 100) wait.
+			[ stream := SocketStream openConnectionToHost: #[127 0 0 1] port: port timeout: 3 ]
 				on: Error
 				do: [ :exception | 
 					WorldState
@@ -67,65 +78,43 @@ VlcClient >> openStream [
 	stream noTimeout
 ]
 
-{ #category : #old }
+{ #category : #action }
 VlcClient >> play: aFilename [
-	| player args proc |
-	player := Config current vlcFolder.
-	args := ' --fullscreen --extraintf rc -I qt --rc-host 127.0.0.1:9092 "' , aFilename , '" '.
-	proc := OSProcess command: player , args.
-	proc ifNil: [ ^ self ].
-	state := 'Play'.
-	self openStream.
-	self startListener.
-	self startAskingPos.
-	^ proc
+^self play: aFilename atPos:0
 ]
 
 { #category : #action }
 VlcClient >> play: aFilename atPos: aPosition [
-	| player args  |
+	| player args rc |
+	
 	player := Config current vlcFolder.
-	args := ' --fullscreen --extraintf rc -I qt --rc-host 127.0.0.1:9092 --no-playlist-autostart --play-and-exit "'
-		, aFilename , '" '.
-	proc := OSProcess command: player , args.
+	args := ' --fullscreen  -I qt --no-playlist-autostart --play-and-exit '.
+	rc := ' --extraintf rc --rc-host 127.0.0.1:' , port printString , ' --rc-quiet '.
+	proc := OSProcess command: player , args , rc , ' "' , aFilename , '" '.
 	proc ifNil: [ ^ self ].
 	state := 'Play'.
 	self openStream.
-	self sendCommand: 'seek ' , aPosition printString.
 	self startListener.
 	self startAskingPos.
 	self sendCommand: 'play'.
+	self sendCommand: 'seek ' , aPosition printString.
 	^ proc
-]
-
-{ #category : #old }
-VlcClient >> playOld: aFilename [ 
-	self 
-		deprecated: 'Use play: instead'
-		on: 	'25 September 2017' 
-		in: 'Pharo-6.0-60510-'.
-	^ self play: aFilename 
 ]
 
 { #category : #private }
 VlcClient >> processLine: aLine [
 	| tok line |
-	"WorldState
-		addDeferredUIMessage: [ 
-			Transcript
-				show: 'Got line:' , aLine;
-				cr ]."
 	(aLine beginsWith: '>')
 		ifTrue: [ line := aLine allButFirst ]
 		ifFalse: [ line := aLine ].
 	line := line trimmed.
-	(line includesSubstring: 'X_state:')
-		ifTrue: [ 
-			tok := (line findTokens: ' ') last.
+	(line includesSubstring: 'state:')
+		ifTrue: [ tok := (line findTokens: ' ') last.
 			tok = ')'
-				ifFalse: [ state := tok ] ].
+				ifFalse: [ state := tok.] ].
 	line isAllDigits
-		ifTrue: [ pos := line asInteger ]
+		ifTrue: [ self isRunning
+				ifTrue: [ pos := line asInteger ] ]
 ]
 
 { #category : #private }
@@ -137,8 +126,8 @@ VlcClient >> sendCommand: cmd [
 VlcClient >> startAskingPos [
 	<FIXME>
 	| d |
-	d := Delay forSeconds: 1.
-	[ [ [ stream isNotNil and: [stream isConnected] ]
+d := Delay forSeconds: 1.
+	[ [ [ stream isNotNil and: [ stream isConnected ] ]
 		whileTrue: [ self sendCommand: 'get_time'.
 			d wait ] ]
 		on: ConnectionTimedOut

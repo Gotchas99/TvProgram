@@ -4,12 +4,10 @@ Class {
 	#instVars : [
 		'show',
 		'buttonOK',
-		'textName',
 		'labelName',
 		'lblImdb',
 		'txtImdb',
-		'lblKat',
-		'txtKat'
+		'txtName'
 	],
 	#category : #'CAs-Pirate-Gui'
 }
@@ -22,7 +20,7 @@ PirateShowInfo class >> defaultSpec [
 				newRow: [ :rowName | 
 					rowName
 						add: #labelName;
-						add: #textName ].
+						add: #txtName ].
 			mainColumn
 				newRow: [ :row | 
 					row
@@ -74,7 +72,7 @@ PirateShowInfo >> initialize [
 
 { #category : #'initailize-release' }
 PirateShowInfo >> initializePresenter [
-	textName whenTextChanged: [ buttonOK enable ].
+	txtName whenTextChanged: [ buttonOK enable ].
 	buttonOK
 		action: [ 
 			self saveData.
@@ -83,21 +81,13 @@ PirateShowInfo >> initializePresenter [
 
 { #category : #'initailize-release' }
 PirateShowInfo >> initializeWidgets [
-	self instantiateModels: #(
-		labelName	LabelModel 
-		textName TextInputFieldModel 
-		lblImdb			LabelModel 
-		txtImdb		 	TextInputFieldModel 
-		lblKat	LabelModel 
-		txtKat TextInputFieldModel 
-		buttonOK ButtonModel
-	).
+	self
+		instantiateModels:
+			#(#labelName #LabelModel #txtName #TextInputFieldModel #lblImdb #LabelModel #txtImdb #TextInputFieldModel #buttonOK #ButtonModel).
 	labelName label: 'Show title'.
-	textName autoAccept: true.
+	txtName autoAccept: true.
 	lblImdb label: 'Imdb ID'.
 	txtImdb autoAccept: true.
-	lblKat label: 'Kickass ID'.
-	txtKat autoAccept: true.
 	buttonOK
 		label: 'OK';
 		disable
@@ -123,39 +113,18 @@ PirateShowInfo >> lblImdb: anObject [
 	lblImdb := anObject
 ]
 
-{ #category : #accessing }
-PirateShowInfo >> lblKat [
-	^ lblKat
-]
-
-{ #category : #accessing }
-PirateShowInfo >> lblKat: anObject [
-	lblKat := anObject
-]
-
 { #category : #'as yet unclassified' }
 PirateShowInfo >> saveData [
-	show name: textName text.
+	show name: txtName text.
 	show imdb: txtImdb text.
-	show kat: txtKat text
+
 ]
 
 { #category : #'as yet unclassified' }
 PirateShowInfo >> show: aShow [
 	show := aShow.
-	textName text: show name.
-	txtImdb text: show imdb .
-	txtKat text: show kat
-]
-
-{ #category : #accessing }
-PirateShowInfo >> textName [
-	^ textName
-]
-
-{ #category : #accessing }
-PirateShowInfo >> textName: anObject [
-	textName := anObject
+	txtName text: show name.
+	txtImdb text: show imdb.
 ]
 
 { #category : #accessing }
@@ -169,11 +138,11 @@ PirateShowInfo >> txtImdb: anObject [
 ]
 
 { #category : #accessing }
-PirateShowInfo >> txtKat [
-	^ txtKat
+PirateShowInfo >> txtName [
+	^ txtName
 ]
 
 { #category : #accessing }
-PirateShowInfo >> txtKat: anObject [
-	txtKat := anObject
+PirateShowInfo >> txtName: anObject [
+	txtName := anObject
 ]
