@@ -39,9 +39,9 @@ PirateShow class >> at: aTitle [
 	^self shows detect: [ :s | s name = aTitle ]
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 PirateShow class >> atImdb: anImdbId [
-	^ self shows detect: [ :s | s imdb  = anImdbId ]
+	^ self shows detect: [ :s | s imdb = anImdbId ]
 ]
 
 { #category : #'as yet unclassified' }
