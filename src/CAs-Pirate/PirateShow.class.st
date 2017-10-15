@@ -19,7 +19,7 @@ Class {
 	#category : #'CAs-Pirate'
 }
 
-{ #category : #files }
+{ #category : #accessing }
 PirateShow class >> allEpisodes [
 	| ep sh |
 	sh := self shows reject: [ :s | s archived ].
@@ -27,21 +27,21 @@ PirateShow class >> allEpisodes [
 	^ ep flattened
 ]
 
-{ #category : #files }
+{ #category : #accessing }
 PirateShow class >> allViewableEpisodes [
 	| ep |
 	ep := self allEpisodes select: [ :e | e isViewable ].
 	^ ep
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 PirateShow class >> at: aTitle [
 	^self shows detect: [ :s | s name = aTitle ]
 ]
 
 { #category : #accessing }
 PirateShow class >> atImdb: anImdbId [
-	^ self shows detect: [ :s | s imdb = anImdbId ]
+	^ self shows detect: [ :s | s imdb  = anImdbId ]
 ]
 
 { #category : #'as yet unclassified' }
@@ -71,7 +71,7 @@ PirateShow class >> initializeStartupShutdown [
 
 ]
 
-{ #category : #files }
+{ #category : #'as yet unclassified' }
 PirateShow class >> lookForAll [
 	PirateShow shows reject: [ :sh | sh archived ] thenDo: [ :sh | sh lookForAll ]
 ]
@@ -166,13 +166,13 @@ PirateShow class >> setTmdbId [
 			delay wait ]
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 PirateShow class >> shows [
 	Shows isNil ifTrue: [Shows := SortedCollection new].
 	^Shows
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 PirateShow class >> shows: aShowList [
 	Shows := aShowList
 ]
