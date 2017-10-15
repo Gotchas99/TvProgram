@@ -109,12 +109,13 @@ PirateEpisode >> getRarbgTorrents [
 		ifNotNil: [ rarbg1 := TorrentApi new
 				getShow: self season show imdb
 				season: self season id
-				episode: self id
-				searchString: self season name.rarbg2 := TorrentApi new
+				episode: self id.
+			rarbg2 := TorrentApi new
 				getShow: self season show imdb
 				season: self season id
 				episode: self id
-				searchString: self season name .rarbg:=rarbg1,rarbg2. ]
+				searchString: self season name.
+			rarbg := rarbg1 , rarbg2 ]
 		ifNil: [ rarbg := TorrentApi new getShow: self tpbString ].
 	^ rarbg
 ]
@@ -146,7 +147,7 @@ PirateEpisode >> getTorrents [
 		do: [ :ex | err add: ex ].
 	sem signal ] fork.
 	reqs := reqs + 1.
-	1 to: reqs do: [ :i | sem waitTimeoutSeconds: d ].
+	reqs timesRepeat: [ :i | sem waitTimeoutSeconds: d ].
 	err
 		ifNotEmpty: [ Error signal: err first printString.
 			Transcript crShow: 'Error on getTorrents: ' , err printString ].
@@ -157,7 +158,6 @@ PirateEpisode >> getTorrents [
 	#('1080p' 'French' 'spanish' 'subtitulado' 'x265' 'vostfr')
 		do:
 			[ :word | t := t reject: [ :each | each first includesSubstring: word caseSensitive: false ] ].
-
 	t
 		do: [ :each | 
 			(t2 anySatisfy: [ :each2 | each second = each2 second ])

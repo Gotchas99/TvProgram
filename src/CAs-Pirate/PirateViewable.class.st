@@ -27,8 +27,8 @@ PirateViewable class >> defaultSpec [
 								add: #btnPlay;
 								add: #btnSubs;
 								add: #btnTopSub;
-								add: #chkOnlyOld ] ] 
-						height: self buttonHeight];
+								add: #chkOnlyOld  ] ]
+				height: self buttonHeight ];
 		"Adding Main column"
 			yourself
 ]
