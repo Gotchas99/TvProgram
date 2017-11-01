@@ -292,8 +292,7 @@ PirateTorrent >> isARarFile: aFilename [
 
 { #category : #testing }
 PirateTorrent >> isASample: aFilename size: anInt [
-	^ anInt < 40e6
-
+	^ anInt < 80e6
 ]
 
 { #category : #testing }
