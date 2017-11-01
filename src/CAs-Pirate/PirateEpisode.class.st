@@ -123,7 +123,7 @@ PirateEpisode >> getRarbgTorrents [
 { #category : #torrents }
 PirateEpisode >> getTorrents [
 	| t tpb sem kat err extra rarbg d reqs t2 |
-	d := 3.	"timeout for wait for searches"
+	d := 8.	"timeout for wait for searches"
 	reqs := 0.	"number of requests sent, that need to be waited for"
 	t := OrderedCollection new.
 	t2 := OrderedCollection new.
