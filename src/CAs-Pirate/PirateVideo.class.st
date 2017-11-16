@@ -440,8 +440,8 @@ PirateVideo >> videoFile [
 		ifFalse: [ ^ nil ].
 	torrent isSingleVideoFile
 		ifFalse: [ ^ nil ].
-"	self videoFile: torrent videoFile.
-	videoFile video: self."
+	self videoFile: torrent videoFile.
+	videoFile video: self.
 	^ videoFile
 ]
 
