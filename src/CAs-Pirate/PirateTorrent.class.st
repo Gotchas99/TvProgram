@@ -545,7 +545,8 @@ PirateTorrent >> videoFilenames [
 	files isEmptyOrNil
 		ifTrue: [ ^ #() ].
 	files := files select: [ :f | self isAVideoFile: (f at: 'name') ].
-	files := files reject: [ :f | self isASample: (f at: 'name') size: (f at: 'length') ].
+	files size > 1
+		ifTrue: [ files := files reject: [ :f | self isASample: (f at: 'name') size: (f at: 'length') ] ].
 	fnames := files collect: [ :file | file at: 'name' ].
 	^ fnames sort
 ]

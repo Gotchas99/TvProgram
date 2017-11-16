@@ -88,8 +88,8 @@ VlcClient >> play: aFilename atPos: aPosition [
 	| player args rc |
 	
 	player := Config current vlcFolder.
-	args := ' --fullscreen  -I qt --no-playlist-autostart --play-and-exit '.
-	rc := ' --extraintf rc --rc-host 127.0.0.1:' , port printString , ' --rc-quiet '.
+	args := ' --fullscreen  -I qt --no-playlist-autostart --play-and-exit --no-one-instance'.
+	rc := ' --extraintf rc --rc-host 127.0.0.1:' , port printString , ' --quiet '.
 	proc := OSProcess command: player , args , rc , ' "' , aFilename , '" '.
 	proc ifNil: [ ^ self ].
 	state := 'Play'.
