@@ -179,7 +179,8 @@ TorrentApi >> newRequest [
 		queryAt: #category put: #tv;
 		queryAt: #limit put: '100';
 		queryAt: #sort put: #seeders;
-		queryAt: #format put: #json_extended.
+		queryAt: #format put: #json_extended;
+				queryAt: #ranked put: '0'.
 	request := ZnClient new
 		beOneShot;
 		timeout: 10;
