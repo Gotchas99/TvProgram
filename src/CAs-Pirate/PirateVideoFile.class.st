@@ -55,7 +55,8 @@ PirateVideoFile >> deleteSubtitles [
 
 { #category : #'initialize-release' }
 PirateVideoFile >> disconnect [
-	self video ifNotNil: [ video videoFile: nil ].
+	| tmp |
+	self video ifNotNil: [tmp:= video.self video:nil.tmp videoFile: nil ]
 	"self reset"
 ]
 
