@@ -105,9 +105,15 @@ TorrentApi class >> initialize [
 	self UpdateLastReqTime
 ]
 
+{ #category : #'request handling' }
+TorrentApi >> app_id [
+^'IwantMyTv'
+]
+
 { #category : #accessing }
 TorrentApi >> baseUrl [
-	^ 'http://torrentapi.org/pubapi_v2.php' asZnUrl
+	^ 'http://torrentapi.org/pubapi_v2.php'
+		asZnUrl
 	"Original from doc:'https://torrentapi.org/pubapi_v2.php' "
 ]
 
@@ -151,6 +157,7 @@ TorrentApi >> getShow: anImdbId season: aSeasonId episode: anEpisodeId searchStr
 TorrentApi >> getToken [
 	| url request resp |
 	url := self baseUrl.
+	url queryAt: #app_id put: self app_id.
 	url queryAt: #get_token put: #get_token.
 	request := ZnClient new
 		beOneShot;
@@ -160,8 +167,10 @@ TorrentApi >> getToken [
 		url: url;
 		get;
 		yourself.
-	resp := NeoJSONReader fromString: request contents readStream.
-	^ self class Token: (resp at: #token ifAbsent: 'dummyToken')
+	resp := NeoJSONReader
+		fromString: request contents readStream.
+	^ self class
+		Token: (resp at: #token ifAbsent: 'dummyToken')
 ]
 
 { #category : #initialization }
@@ -174,13 +183,14 @@ TorrentApi >> newRequest [
 	| url request |
 	url := self baseUrl.
 	url
+ queryAt: #app_id put: self app_id;
 		queryAt: #mode put: #search;
 		queryAt: #token put: self token;
 		queryAt: #category put: #tv;
 		queryAt: #limit put: '100';
 		queryAt: #sort put: #seeders;
 		queryAt: #format put: #json_extended;
-				queryAt: #ranked put: '0'.
+		queryAt: #ranked put: '0'.
 	request := ZnClient new
 		beOneShot;
 		timeout: 10;
