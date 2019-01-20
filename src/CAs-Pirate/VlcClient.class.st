@@ -85,7 +85,7 @@ VlcClient >> play: aFilename [
 
 { #category : #action }
 VlcClient >> play: aFilename atPos: aPosition [
-	| player args rc |
+	| player args rc delay |
 	
 	player := Config current vlcFolder.
 	args := ' --fullscreen  -I qt --no-playlist-autostart --play-and-exit --no-one-instance'.
@@ -93,6 +93,8 @@ VlcClient >> play: aFilename atPos: aPosition [
 	proc := OSProcess command: player , args , rc , ' "' , aFilename , '" '.
 	proc ifNil: [ ^ self ].
 	state := 'Play'.
+	delay := Delay forMilliseconds:  200.
+	delay wait.
 	self openStream.
 	self startListener.
 	self startAskingPos.
