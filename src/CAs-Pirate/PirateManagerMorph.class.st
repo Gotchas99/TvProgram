@@ -554,7 +554,13 @@ PirateManagerMorph >> seenSeason [
 	listIndex2 > 0
 		ifTrue: [ 
 			s := model2 seasons at: listIndex2.
-			s viewed.
+			s isViewed
+				ifTrue: [ 
+					s unViewed 
+					 ]
+				ifFalse: [ 
+					s viewed
+					 ].
 			self changed: #list1.
 			self changed: #list3	
 			 ]

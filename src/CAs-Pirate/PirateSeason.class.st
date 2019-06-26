@@ -192,6 +192,11 @@ PirateSeason >> show: aShow [
 ]
 
 { #category : #testing }
+PirateSeason >> unViewed [
+	episodes do: [ :e | e unViewed ].
+]
+
+{ #category : #testing }
 PirateSeason >> viewed [
 	episodes do: [ :e | e viewed ].
 ]
