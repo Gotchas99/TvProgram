@@ -211,9 +211,10 @@ PirateManagerMorph >> addVideofile [
 	| ep file vf |
 	listIndex3 = 0
 		ifTrue: [ ^ self ].
+	ep := model3 episodes at: listIndex3.
 	file := UITheme current
 		chooseFileIn: self
-		title: 'Select a video file'
+		title: 'Select a video file: ' , ep id asString
 		extensions: nil
 		path: PirateTorrent folder
 		preview: nil.
@@ -222,7 +223,6 @@ PirateManagerMorph >> addVideofile [
 	vf := PirateVideoFile new.
 	vf videoFilename: file basename.
 	vf folder: file reference parent fullName.
-	ep := model3 episodes at: listIndex3.
 	ep
 		torrent: nil;
 		videoFile: vf.
