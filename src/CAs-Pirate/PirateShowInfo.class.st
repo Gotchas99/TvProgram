@@ -6,13 +6,15 @@ Class {
 		'buttonOK',
 		'labelName',
 		'lblImdb',
+		'lblDownload',
 		'txtImdb',
-		'txtName'
+		'txtName',
+		'chkDownload'
 	],
 	#category : #'CAs-Pirate-Gui'
 }
 
-{ #category : #'as yet unclassified' }
+{ #category : #specs }
 PirateShowInfo class >> defaultSpec [
 	^ SpecLayout composed
 		newColumn: [ :mainColumn | 
@@ -26,6 +28,11 @@ PirateShowInfo class >> defaultSpec [
 					row
 						add: #lblImdb;
 						add: #txtImdb ].
+			mainColumn 
+				newRow: [ :row |
+					row 
+						add: #lblDownload;
+						add: #chkDownload ].
 "			mainColumn
 				newRow: [ :row | 
 					row
@@ -65,6 +72,16 @@ PirateShowInfo >> buttonOK: anObject [
 	buttonOK := anObject
 ]
 
+{ #category : #accessing }
+PirateShowInfo >> chkDownload [
+	^ chkDownload 
+]
+
+{ #category : #accessing }
+PirateShowInfo >> chkDownload: anObject [
+	chkDownload := anObject . 
+]
+
 { #category : #'initailize-release' }
 PirateShowInfo >> initialize [
 	super initialize.
@@ -83,11 +100,13 @@ PirateShowInfo >> initializePresenter [
 PirateShowInfo >> initializeWidgets [
 	self
 		instantiateModels:
-			#(#labelName #LabelModel #txtName #TextInputFieldModel #lblImdb #LabelModel #txtImdb #TextInputFieldModel #buttonOK #ButtonModel).
+			#(#labelName #LabelModel #txtName #TextInputFieldModel #lblImdb #LabelModel #txtImdb #TextInputFieldModel #lblDownload #LabelModel #chkDownload #CheckBoxModel #buttonOK #ButtonModel).
 	labelName label: 'Show title'.
 	txtName autoAccept: true.
 	lblImdb label: 'Imdb ID'.
 	txtImdb autoAccept: true.
+	lblDownload label: 'Should download'.
+	"chkDownload ."
 	buttonOK
 		label: 'OK';
 		disable
@@ -104,6 +123,16 @@ PirateShowInfo >> labelName: anObject [
 ]
 
 { #category : #accessing }
+PirateShowInfo >> lblDownload [
+	^ lblDownload 
+]
+
+{ #category : #accessing }
+PirateShowInfo >> lblDownload: anObject [
+	lblDownload := anObject
+]
+
+{ #category : #accessing }
 PirateShowInfo >> lblImdb [
 	^ lblImdb
 ]
@@ -117,14 +146,16 @@ PirateShowInfo >> lblImdb: anObject [
 PirateShowInfo >> saveData [
 	show name: txtName text.
 	show imdb: txtImdb text.
+	show should_download: chkDownload state.
 
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 PirateShowInfo >> show: aShow [
 	show := aShow.
 	txtName text: show name.
 	txtImdb text: show imdb.
+	chkDownload state: show should_download.
 ]
 
 { #category : #accessing }
