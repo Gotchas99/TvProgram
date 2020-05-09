@@ -266,9 +266,11 @@ PirateShow >> currentSeason [
 	^ next season
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'submorphs-add/remove' }
 PirateShow >> delete [
-	seasons do: [:s| s delete].
+	"seasons do: [ :s | s delete ]"
+
+	[ seasons isEmpty ] whileFalse: [ seasons first delete ]
 ]
 
 { #category : #accessing }
