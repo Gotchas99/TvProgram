@@ -6,6 +6,7 @@ Class {
 		'seasons',
 		'currentSeason',
 		'archived',
+		'should_download',
 		'in_production',
 		'tags',
 		'eztv',
@@ -399,6 +400,7 @@ PirateShow >> nextEpisode [
 { #category : #'as yet unclassified' }
 PirateShow >> nextNeedsTorrent [
 	| model |
+	self should_download ifFalse: [ ^ nil ].
 	model := OrderedCollection new.
 	seasons do: [ :season | model addAll: (season episodes select: [ :e | e needsTorrent ]) ].
 	model isEmpty
@@ -486,6 +488,16 @@ PirateShow >> setTagsFromTmdb [
 			self tmdb: (TheMovieDb new getTmdbFromImdb: self imdb) ].
 	tags := TheMovieDb new getTags: self tmdb.
 
+]
+
+{ #category : #accessing }
+PirateShow >> should_download [
+	   ^ should_download ifNil: [ should_download := true ].
+]
+
+{ #category : #accessing }
+PirateShow >> should_download: aBool [
+	   should_download := aBool.
 ]
 
 { #category : #comparing }
