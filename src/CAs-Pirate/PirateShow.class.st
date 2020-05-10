@@ -72,9 +72,9 @@ PirateShow class >> initializeStartupShutdown [
 
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #actions }
 PirateShow class >> lookForAll [
-	PirateShow shows reject: [ :sh | sh archived ] thenDo: [ :sh | sh lookForAll ]
+	PirateShow shows reject: [ :sh | sh archived or: (sh should_download not)  ] thenDo: [ :sh | sh lookForAll ]
 ]
 
 { #category : #'as yet unclassified' }
