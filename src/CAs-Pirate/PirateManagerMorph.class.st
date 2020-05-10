@@ -346,7 +346,8 @@ PirateManagerMorph >> getShowText: aShow [
 		(aShow kat) isNil not ifTrue:['kat'] ifFalse:['-']."
 	(aShow notSeenCount > 0
 		ifTrue: [ 'viewable' ]
-		ifFalse: [ '-' ]).
+		ifFalse: [ 
+			aShow nextToSee ifNil: ['seen'] ifNotNil: ['-'] ]).
 	(aShow in_production
 		ifTrue: [ '-' ]
 		ifFalse: [ 'Ended' ])}
