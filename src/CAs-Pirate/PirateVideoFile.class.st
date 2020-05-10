@@ -14,8 +14,9 @@ Class {
 	#category : #'CAs-Pirate'
 }
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 PirateVideoFile class >> validateAll [
+Transcript crShow: 'Validating videofiles'.
 	PirateVideoFile allInstances do: [ :vf | vf validate ]
 ]
 
@@ -168,9 +169,14 @@ PirateVideoFile >> isSeen [
 
 { #category : #testing }
 PirateVideoFile >> isValid [
-
+	| isFile |
 	self folder ifNil: [ ^ false ].
 	videoFilename ifNil: [ ^ false ].
+	[ isFile := FileSystem disk isFile: self fullVideoFilename ]
+		on: Error
+		do: [ ^ false ].
+	isFile
+		ifFalse: [ ^ false ].
 	^ true
 ]
 
