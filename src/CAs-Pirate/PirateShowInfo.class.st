@@ -4,6 +4,7 @@ Class {
 	#instVars : [
 		'show',
 		'buttonOK',
+		'buttonIMDB',
 		'labelName',
 		'lblImdb',
 		'lblDownload',
@@ -31,9 +32,13 @@ PirateShowInfo class >> defaultSpec [
 			mainColumn 
 				newRow: [ :row |
 					row 
+						add: #buttonIMDB ].
+			mainColumn
+				newRow: [ :row | 
+					row
 						add: #lblDownload;
 						add: #chkDownload ].
-"			mainColumn
+			"			mainColumn
 				newRow: [ :row | 
 					row
 						add: #lblKat;
@@ -50,16 +55,24 @@ PirateShowInfo class >> defaultSpec [
                                 add: #radioMr;
                                 add: #radioMrs;
                                 add: #radioMs ] ]."
-			mainColumn newRow: [ :rowButton | rowButton add: #buttonOK ]
-			"Adding Button row"
-
-			"   mainColumn 
-               "	"Adding Greeting row"	"
+			mainColumn
+				newRow: [ :rowButton | "Adding Button row" "   mainColumn 
+               " "Adding Greeting row" "
                 newRow: [ :rowGreeting |
                     rowGreeting 
-                        add: #labelGreeting ]" ];
-		yourself
-	"Adding Main column"
+                        add: #labelGreeting ]" rowButton add: #buttonOK ] ];
+		"Adding Main column"
+			yourself
+]
+
+{ #category : #accessing }
+PirateShowInfo >> buttonIMDB [
+	^ buttonIMDB
+]
+
+{ #category : #accessing }
+PirateShowInfo >> buttonIMDB: anObject [
+	buttonIMDB  := anObject
 ]
 
 { #category : #accessing }
@@ -90,26 +103,45 @@ PirateShowInfo >> initialize [
 { #category : #'initailize-release' }
 PirateShowInfo >> initializePresenter [
 	txtName whenTextChanged: [ buttonOK enable ].
+	txtImdb
+		whenTextChanged: [ (self isValidImdb: txtImdb text)
+				ifTrue: [ buttonIMDB enable ] ifFalse: [buttonIMDB disable ]].
 	buttonOK
-		action: [ 
-			self saveData.
-			self delete ]
+		action: [ self saveData.
+			self delete ].
+	buttonIMDB action: [ self openImdb ]
 ]
 
 { #category : #'initailize-release' }
 PirateShowInfo >> initializeWidgets [
 	self
 		instantiateModels:
-			#(#labelName #LabelModel #txtName #TextInputFieldModel #lblImdb #LabelModel #txtImdb #TextInputFieldModel #lblDownload #LabelModel #chkDownload #CheckBoxModel #buttonOK #ButtonModel).
+			#(#labelName #LabelModel #txtName #TextInputFieldModel #lblImdb #LabelModel #txtImdb #TextInputFieldModel #lblDownload #LabelModel #chkDownload #CheckBoxModel #buttonIMDB #ButtonModel #buttonOK #ButtonModel).
 	labelName label: 'Show title'.
 	txtName autoAccept: true.
 	lblImdb label: 'Imdb ID'.
 	txtImdb autoAccept: true.
+	buttonIMDB
+		label: 'Open IMDB';
+		disable.
 	lblDownload label: 'Should download'.
 	"chkDownload ."
 	buttonOK
 		label: 'OK';
 		disable
+]
+
+{ #category : #accessing }
+PirateShowInfo >> isValidImdb: aString [
+aString isEmptyOrNil
+		ifTrue: [ ^ false ].
+	(aString beginsWith: 'http')
+		ifTrue: [ ^ aString asUrl segments at: 2 notNil ].
+	((aString beginsWith: 'tt') and: aString byteSize >= 9)
+		ifTrue: [ ^ true ].
+	(aString isAllDigits and: aString asString byteSize >= 7)
+		ifTrue: [ ^ true ].
+	^ false
 ]
 
 { #category : #accessing }
@@ -140,6 +172,25 @@ PirateShowInfo >> lblImdb [
 { #category : #accessing }
 PirateShowInfo >> lblImdb: anObject [
 	lblImdb := anObject
+]
+
+{ #category : #accessing }
+PirateShowInfo >> openImdb [
+	| url imdb aString |
+	aString := txtImdb text.
+	(self isValidImdb: aString)
+		ifFalse: [ ^ nil ].
+	(aString beginsWith: 'http')
+		ifTrue: [ url := aString ].
+	(aString beginsWith: 'tt')
+		ifTrue: [ imdb := aString ].
+	aString isAllDigits
+		ifTrue: [ imdb := 'tt' , aString ].
+	imdb ifNotNil: [ url := 'https://www.imdb.com/title/' , imdb ].
+	url ifNil: [ ^ nil ].
+	OSProcess isWindows
+		ifTrue: [ OSProcess command: 'explorer ' , url ]
+		ifFalse: [ OSProcess command: 'xdg-open ' , url ]
 ]
 
 { #category : #'as yet unclassified' }
