@@ -1,4 +1,7 @@
 # TvProgram
+## New instructions for Github
+[How to](Iceberg.md)
+## Old instruction
 In Monticello browser, add Smalltalkhub repo: MCSmalltalkhubRepository
 owner: 'Gotchas'
 project: 'TvProgram'
