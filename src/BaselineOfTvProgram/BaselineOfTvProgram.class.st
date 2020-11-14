@@ -42,7 +42,10 @@ BaselineOfTvProgram >> defineDependencies: spec [
 
 { #category : #baselines }
 BaselineOfTvProgram >> definePackages: spec [
-	^ spec 
+	"also depends on 'STON-Core' which is currently in the base image"
+
+	^ spec
+		package:  'Base32';
 		package: 'HTML';
 		package: 'WebRobot' with: [ spec requires: #('HTML') ];
 		package: 'OSProcess';
@@ -51,7 +54,7 @@ BaselineOfTvProgram >> definePackages: spec [
 		package: 'CAs-Pirate'
 			with: [ spec
 				requires:
-					#('NeoJSON' 'WebRobot' 'INIFile' 'OSProcess' 'STON-Core' 'XMLRPC-Client-Core' 'Base32') ];
+					#('NeoJSON' 'WebRobot' 'INIFile' 'OSProcess' 'XMLRPC-Client-Core' 'Base32') ];
 		package: #'CAs-PirateTest' with: [ spec requires: #('CAs-Pirate') ];
 		package: #'CAs-PirateWeb' with: [ spec requires: #('CAs-Pirate') ];
 		yourself
