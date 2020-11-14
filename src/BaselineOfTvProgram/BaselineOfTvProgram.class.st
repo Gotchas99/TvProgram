@@ -118,7 +118,7 @@ BaselineOfTvProgram >> loadDeps [
 BaselineOfTvProgram >> loadSelf [
 	"TODO: fix for TvProgram"
 	"example. change to my values"
-
+self flag: #todo.
 	Metacello new
 		baseline: 'PDM';
 		repository: 'github://RMODINRIA-Blockchain/SmaCC-Solidity';
