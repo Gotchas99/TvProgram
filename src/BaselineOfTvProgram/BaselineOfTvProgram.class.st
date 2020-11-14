@@ -1,10 +1,12 @@
-Class {
-	#name : #BaselineOfTvProgram,
-	#superclass : #BaselineOf,
-	#category : #BaselineOfTvProgram
-}
+Class [
+	#BaselineOfTvProgram,
+	#BaselineOf,
+	#BaselineOfTvProgram
+]
 
-{ #category : #baselines }
+[
+	#baselines
+]
 BaselineOfTvProgram >> baseline: spec [
 	<baseline>
 	spec
@@ -14,65 +16,64 @@ BaselineOfTvProgram >> baseline: spec [
 			self
 				defineDependencies: spec;
 				definePackages: spec.
-			spec group: 'default' with: #('CAs-TvProgram') ]
+						spec
+				group: 'default' with: #('core');
+				group: 'core' with: #('CAs-Pirate');
+				group: 'tests' with: #(#'CAs-PirateTest') ]
 ]
 
-{ #category : #baselines }
+[
+	#baselines
+]
 BaselineOfTvProgram >> defineDependencies: spec [
 	^ spec
-		baseline: 'MongoTalk'
-			with: [ spec repository: 'github://pharo-nosql/mongotalk' ];
-		baseline: 'NeoJSON'
+		for: #common
+			do: [ spec
+				baseline: 'XMLParser'
+					with: [ spec repository: 'github://pharo-contributions/XML-XMLParser/src' ];
+				baseline: 'NeoJSON'
+					with: [ spec repository: 'github://svenvc/NeoJSON/repository' ];
+				baseline: 'INIFile'
+					with: [ spec repository: 'github://astares/Pharo-INIFile/src' ];
+				baseline: 'Ston'
+					with: [ spec repository: 'github://svenvc/ston/repository' ] ];
+		yourself
+		
+	"baseline: 'NeoJSON'
 			with: [ spec
 				loads: 'core';
-				repository: 'github://svenvc/NeoJSON:v17' ];
-		baseline: 'NeoCSV'
-			with: [ spec repository: 'github://svenvc/NeoCSV/repository' ];
-		baseline: 'NeoConsole'
-			with: [ spec repository: 'github://svenvc/NeoConsole:master' ];
-		baseline: 'Teapot'
-			with: [ spec
-				loads: 'Teapot-Core';
-				repository: 'github://zeroflag/Teapot:master' ];
-		project: 'XMLParser'
-			with: [ spec
-				className: #ConfigurationOfXMLParser;
-				versionString: #stable;
-				loads: #('Core');
-				repository: 'http://smalltalkhub.com/mc/PharoExtras/XMLParser/main/' ];
-		project: 'RediStick'
-			with: [ spec
-				className: #ConfigurationOfRediStick;
-				versionString: #stable;
-				repository: 'http://smalltalkhub.com/mc/MasashiUmezawa/RediStick/main/' ];
-		baseline: 'PolyMath'
-			with: [ spec
-				loads: 'Math-DHB-Numerical';
-				repository: 'github://PolyMathOrg/PolyMath:master' ];
-		project: 'ServiceBase'
-			with: [ spec
-				className: #ConfigurationOfServiceBase;
-				versionString: #stable;
-				repository: 'http://smalltalkhub.com/mc/Gotchas/Jobb/main/' ];
-		yourself
+				repository: 'github://svenvc/NeoJSON:v17' ];" "baseline: 'NeoConsole'
+			with: [ spec repository: 'github://svenvc/NeoConsole:master' ];" 
 ]
 
-{ #category : #baselines }
+[
+	#baselines
+]
 BaselineOfTvProgram >> definePackages: spec [
-	^ spec
-		package: 'CAs-PDM'
-			with: [ spec
-				requires:
-					#('XMLParser' 'NeoConsole' 'NeoJSON' 'MongoTalk' 'RediStick' 'Teapot' 'CAs-ServiceBase') ];
-		package: 'CAs-PDM-Tests' with: [ spec requires: 'CAs-PDM' ];
-		"package: 'CAs-ServiceBase';"
+	^ 			spec
+				package: 'HTML';
+				package: 'WebRobot' with: [ spec requires: #('HTML') ];
+				package: 'OSProcess';
+				package: 'XMLRPC-Client-Core';
+				package: 'CAs-Pirate'
+					with: [ spec
+						requires:
+							#('XMLParser' 'NeoJSON' 'WebRobot' 'INIFile' 'OSProcess' 'Ston' 'XMLRPC-Client-Core' 'Base32') ];
+				package: #'CAs-PirateTest'
+					with: [ spec requires: #('CAs-Pirate') ];
+				package: #'CAs-PirateWeb'
+					with: [ spec requires: #('CAs-Pirate') ];
 			yourself
 ]
 
-{ #category : #manual }
+[
+	#manual
+]
 BaselineOfTvProgram >> loadDeps [
-"TODO: fix for TvProgram"
+	"TODO: fix for TvProgram"
+
 	"utility method. not part of baseline itself"
+	self flag: #todo.
 
 	Metacello new
 		githubUser: 'PolyMathOrg'
@@ -121,9 +122,13 @@ BaselineOfTvProgram >> loadDeps [
 		version: #development
 ]
 
-{ #category : #manual }
+[
+	#manual
+]
 BaselineOfTvProgram >> loadSelf [
+self flag:#todo.
 	"TODO: fix for TvProgram"
+
 	"example. change to my values"
 
 	Metacello new
@@ -132,12 +137,16 @@ BaselineOfTvProgram >> loadSelf [
 		load
 ]
 
-{ #category : #'pre-post' }
+[
+	#'pre-post'
+]
 BaselineOfTvProgram >> postload: loader package: packageSpec [
 	
 ]
 
-{ #category : #'pre-post' }
+[
+	#'pre-post'
+]
 BaselineOfTvProgram >> preload: loader package: packageSpec [
 	
 ]
