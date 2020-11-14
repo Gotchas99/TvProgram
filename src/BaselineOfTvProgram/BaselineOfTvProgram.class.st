@@ -1,12 +1,10 @@
-Class [
-	#BaselineOfTvProgram,
-	#BaselineOf,
-	#BaselineOfTvProgram
-]
+Class {
+	#name : #BaselineOfTvProgram,
+	#superclass : #BaselineOf,
+	#category : #BaselineOfTvProgram
+}
 
-[
-	#baselines
-]
+{ #category : #baselines }
 BaselineOfTvProgram >> baseline: spec [
 	<baseline>
 	spec
@@ -22,9 +20,7 @@ BaselineOfTvProgram >> baseline: spec [
 				group: 'tests' with: #(#'CAs-PirateTest') ]
 ]
 
-[
-	#baselines
-]
+{ #category : #baselines }
 BaselineOfTvProgram >> defineDependencies: spec [
 	^ spec
 		for: #common
@@ -46,9 +42,7 @@ BaselineOfTvProgram >> defineDependencies: spec [
 			with: [ spec repository: 'github://svenvc/NeoConsole:master' ];" 
 ]
 
-[
-	#baselines
-]
+{ #category : #baselines }
 BaselineOfTvProgram >> definePackages: spec [
 	^ 			spec
 				package: 'HTML';
@@ -66,9 +60,7 @@ BaselineOfTvProgram >> definePackages: spec [
 			yourself
 ]
 
-[
-	#manual
-]
+{ #category : #manual }
 BaselineOfTvProgram >> loadDeps [
 	"TODO: fix for TvProgram"
 
@@ -122,13 +114,9 @@ BaselineOfTvProgram >> loadDeps [
 		version: #development
 ]
 
-[
-	#manual
-]
+{ #category : #manual }
 BaselineOfTvProgram >> loadSelf [
-self flag:#todo.
 	"TODO: fix for TvProgram"
-
 	"example. change to my values"
 
 	Metacello new
@@ -137,16 +125,12 @@ self flag:#todo.
 		load
 ]
 
-[
-	#'pre-post'
-]
+{ #category : #'pre-post' }
 BaselineOfTvProgram >> postload: loader package: packageSpec [
-	
+
 ]
 
-[
-	#'pre-post'
-]
+{ #category : #'pre-post' }
 BaselineOfTvProgram >> preload: loader package: packageSpec [
-	
+
 ]
