@@ -22,18 +22,16 @@ BaselineOfTvProgram >> baseline: spec [
 
 { #category : #baselines }
 BaselineOfTvProgram >> defineDependencies: spec [
-	^ spec
-		for: #common
-			do: [ spec
+	^  spec
 				baseline: 'XMLParser'
 					with: [ spec repository: 'github://pharo-contributions/XML-XMLParser/src' ];
 				baseline: 'NeoJSON'
 					with: [ spec repository: 'github://svenvc/NeoJSON/repository' ];
 				baseline: 'INIFile'
-					with: [ spec repository: 'github://astares/Pharo-INIFile/src' ]];
-				"baseline: 'STON-Core'
+					with: [ spec repository: 'github://astares/Pharo-INIFile/src'  ];
+		"baseline: 'STON-Core'
 					with: [ spec repository: 'github://svenvc/ston/repository' ] "
-		"baseline: 'NeoJSON'
+			"baseline: 'NeoJSON'
 			with: [ spec
 				loads: 'core';
 				repository: 'github://svenvc/NeoJSON:v17' ];"
@@ -44,7 +42,7 @@ BaselineOfTvProgram >> defineDependencies: spec [
 
 { #category : #baselines }
 BaselineOfTvProgram >> definePackages: spec [
-	^ spec
+	^ spec 
 		package: 'HTML';
 		package: 'WebRobot' with: [ spec requires: #('HTML') ];
 		package: 'OSProcess';
