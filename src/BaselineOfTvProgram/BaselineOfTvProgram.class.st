@@ -22,42 +22,44 @@ BaselineOfTvProgram >> baseline: spec [
 
 { #category : #baselines }
 BaselineOfTvProgram >> defineDependencies: spec [
-	^ spec
-		for: #common
-			do: [ spec
+	^  spec
 				baseline: 'XMLParser'
 					with: [ spec repository: 'github://pharo-contributions/XML-XMLParser/src' ];
 				baseline: 'NeoJSON'
 					with: [ spec repository: 'github://svenvc/NeoJSON/repository' ];
 				baseline: 'INIFile'
-					with: [ spec repository: 'github://astares/Pharo-INIFile/src' ];
-				baseline: 'Ston'
-					with: [ spec repository: 'github://svenvc/ston/repository' ] ];
-		yourself
-		
-	"baseline: 'NeoJSON'
+					with: [ spec repository: 'github://astares/Pharo-INIFile/src'  ];
+		"baseline: 'STON-Core'
+					with: [ spec repository: 'github://svenvc/ston/repository' ] "
+			"baseline: 'NeoJSON'
 			with: [ spec
 				loads: 'core';
-				repository: 'github://svenvc/NeoJSON:v17' ];" "baseline: 'NeoConsole'
-			with: [ spec repository: 'github://svenvc/NeoConsole:master' ];" 
+				repository: 'github://svenvc/NeoJSON:v17' ];"
+			"baseline: 'NeoConsole'
+			with: [ spec repository: 'github://svenvc/NeoConsole:master' ];"
+			yourself
 ]
 
 { #category : #baselines }
 BaselineOfTvProgram >> definePackages: spec [
-	^ 			spec
-				package: 'HTML';
-				package: 'WebRobot' with: [ spec requires: #('HTML') ];
-				package: 'OSProcess';
-				package: 'XMLRPC-Client-Core';
-				package: 'CAs-Pirate'
-					with: [ spec
-						requires:
-							#('XMLParser' 'NeoJSON' 'WebRobot' 'INIFile' 'OSProcess' 'Ston' 'XMLRPC-Client-Core' 'Base32') ];
-				package: #'CAs-PirateTest'
-					with: [ spec requires: #('CAs-Pirate') ];
-				package: #'CAs-PirateWeb'
-					with: [ spec requires: #('CAs-Pirate') ];
-			yourself
+	"also depends on 'STON-Core' which is currently in the base image"
+				self flag:'TODO: test depends on more. babymock?'.
+				self flag:'TODO: web depends on...? seaside? more?'.
+	^ spec
+		package: 'Base32';
+		package: 'HTML';
+		package: 'WebRobot' with: [ spec requires: #('HTML') ];
+		package: 'OSProcess';
+		package: 'XMLRPC-Client-Core'
+			with: [ spec requires: #('XMLParser') ];
+		package: 'CAs-Pirate'
+			with: [ spec
+				requires:
+					#('NeoJSON' 'WebRobot' 'INIFile' 'OSProcess' 'XMLRPC-Client-Core' 'Base32') ];
+
+		package: #'CAs-PirateTest' with: [ spec requires: #('CAs-Pirate') ];
+		package: #'CAs-PirateWeb' with: [ spec requires: #('CAs-Pirate') ];
+		yourself
 ]
 
 { #category : #manual }
@@ -117,12 +119,14 @@ BaselineOfTvProgram >> loadDeps [
 { #category : #manual }
 BaselineOfTvProgram >> loadSelf [
 	"TODO: fix for TvProgram"
+
 	"example. change to my values"
 
+	self flag: #todo.
 	Metacello new
 		baseline: 'PDM';
 		repository: 'github://RMODINRIA-Blockchain/SmaCC-Solidity';
-		load
+		load 
 ]
 
 { #category : #'pre-post' }
