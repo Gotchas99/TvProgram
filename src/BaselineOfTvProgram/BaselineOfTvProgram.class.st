@@ -14,21 +14,26 @@ BaselineOfTvProgram >> baseline: spec [
 			self
 				defineDependencies: spec;
 				definePackages: spec.
-						spec
+			spec
 				group: 'default' with: #('core');
-				group: 'core' with: #('CAs-Pirate');
+				group: 'core' with: #('CAs-Pirate' 'CAs-Pirate-Gui');
+				group: 'web' with: #('CAs-Pirate-Web');
 				group: 'tests' with: #(#'CAs-PirateTest') ]
 ]
 
 { #category : #baselines }
 BaselineOfTvProgram >> defineDependencies: spec [
-	^  spec
-				baseline: 'XMLParser'
-					with: [ spec repository: 'github://pharo-contributions/XML-XMLParser/src' ];
-				baseline: 'NeoJSON'
-					with: [ spec repository: 'github://svenvc/NeoJSON/repository' ];
-				baseline: 'INIFile'
-					with: [ spec repository: 'github://astares/Pharo-INIFile/src'  ];
+	^ spec
+		baseline: 'XMLParser'
+			with: [ spec repository: 'github://pharo-contributions/XML-XMLParser/src' ];
+		baseline: 'NeoJSON'
+			with: [ spec repository: 'github://svenvc/NeoJSON/repository' ];
+		baseline: 'INIFile'
+			with: [ spec repository: 'github://astares/Pharo-INIFile/src' ];
+		baseline: 'BabyMock2'
+			with: [ spec repository: 'github://Gotchas99/BabyMock2/src' ];
+			baseline: 'Seaside'
+			with: [ spec repository: 'github://SeasideSt/Seaside/repository' ];
 		"baseline: 'STON-Core'
 					with: [ spec repository: 'github://svenvc/ston/repository' ] "
 			"baseline: 'NeoJSON'
@@ -43,8 +48,8 @@ BaselineOfTvProgram >> defineDependencies: spec [
 { #category : #baselines }
 BaselineOfTvProgram >> definePackages: spec [
 	"also depends on 'STON-Core' which is currently in the base image"
-				self flag:'TODO: test depends on more. babymock?'.
-				self flag:'TODO: web depends on...? seaside? more?'.
+
+	
 	^ spec
 		package: 'Base32';
 		package: 'HTML';
@@ -56,9 +61,11 @@ BaselineOfTvProgram >> definePackages: spec [
 			with: [ spec
 				requires:
 					#('NeoJSON' 'WebRobot' 'INIFile' 'OSProcess' 'XMLRPC-Client-Core' 'Base32') ];
-
-		package: #'CAs-PirateTest' with: [ spec requires: #('CAs-Pirate') ];
-		package: #'CAs-PirateWeb' with: [ spec requires: #('CAs-Pirate') ];
+		package: #'CAs-Pirate-Gui' with: [ spec requires: #('CAs-Pirate') ];
+		package: #'CAs-Pirate-Test'
+			with: [ spec requires: #('CAs-Pirate' 'BabyMock2') ];
+		package: #'CAs-Pirate-Web'
+			with: [ spec requires: #('CAs-Pirate' 'Seaside') ];
 		yourself
 ]
 
