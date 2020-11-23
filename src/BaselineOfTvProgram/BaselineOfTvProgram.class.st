@@ -32,8 +32,10 @@ BaselineOfTvProgram >> defineDependencies: spec [
 			with: [ spec repository: 'github://astares/Pharo-INIFile/src' ];
 		baseline: 'BabyMock2'
 			with: [ spec repository: 'github://Gotchas99/BabyMock2/src' ];
-			baseline: 'Seaside'
-			with: [ spec repository: 'github://SeasideSt/Seaside/repository' ];
+		baseline: 'Seaside'
+			with: [ spec
+				loads: #('Core');
+				repository: 'github://SeasideSt/Seaside/repository' ];
 		"baseline: 'STON-Core'
 					with: [ spec repository: 'github://svenvc/ston/repository' ] "
 			"baseline: 'NeoJSON'
